@@ -24,6 +24,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+	implementation group: 'org.springframework.boot', name: 'spring-boot-maven-plugin', version: '2.6.12'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
