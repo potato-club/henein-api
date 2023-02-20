@@ -9,33 +9,33 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 
-@RestController
+@RestController("")
 @RequiredArgsConstructor
 public class AdvertiseBoardController {
     final private AdvertiseBoardService advertiseBoardService;
-    @GetMapping("/getadvertiseboard")
+    @GetMapping("/board/advertise")
     public List<BoardResponseDto> getAlladvertise(){
 
        return advertiseBoardService.getAllService();
     }
-    @PostMapping("/postadvertiseboard") //Create
+    @PostMapping("/board/advertise") //Create
     public String addadvertise(@RequestBody BoardRequestDto boardRequestDto){
 
         return advertiseBoardService.addService(boardRequestDto);
     }
-    @GetMapping("/getreadadvertise/{id}") //Read
+    @GetMapping("/board/advertise/{id}") //Read
     public BoardResponseDto getOneadvertise(@PathVariable Long id){
 
         return advertiseBoardService.getOneService(id);
     }
 
-    @PatchMapping ("/postupdateadvertise/{id}") //Update
+    @PutMapping ("/board/advertise/{id}") //Update
     public String updateadvertise(@PathVariable Long id,@RequestBody BoardRequestDto boardRequestDto) {
 
         return advertiseBoardService.updateService(id,boardRequestDto);
     }
 
-    @DeleteMapping("/postdeleteadvertise/{id}") //Delete
+    @DeleteMapping("/board/advertise/{id}") //Delete
     public String deleteadvertise(@PathVariable Long id){
 
         return advertiseBoardService.deleteService(id);

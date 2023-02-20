@@ -1,0 +1,17 @@
+# DataSource
+#spring.datasource.url=jdbc:mysql://localhost:3306/demo?autoReconnect=true
+#spring.datasource.username=root
+#spring.datasource.password=over1324
+#spring.datasource.driver-class-name=org.mariadb.jdbc.Driver
+spring:
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/demo?autoReconnect=true
+    username: root
+    password: over1324
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+server:
+  port: 8081

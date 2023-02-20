@@ -13,29 +13,29 @@ import java.util.List;
 @RequiredArgsConstructor
 public class InfoBoardController {
     final private InfoBoardService infoBoardService;
-    @GetMapping("/getinfoboard")
+    @GetMapping("/board/info")
     public List<BoardResponseDto> getAllInfo(){
 
        return infoBoardService.getAllService();
     }
-    @PostMapping("/postinfoboard") //Create
+    @PostMapping("/board/info") //Create
     public String addInfo(@RequestBody BoardRequestDto boardRequestDto){
 
         return infoBoardService.addService(boardRequestDto);
     }
-    @GetMapping("/getreadinfo/{id}") //Read
+    @GetMapping("/board/info/{id}") //Read
     public BoardResponseDto getOneInfo(@PathVariable Long id){
 
         return infoBoardService.getOneService(id);
     }
 
-    @PatchMapping ("/postupdateinfo/{id}") //Update
+    @PutMapping ("/board/info/{id}") //Update
     public String updateInfo(@PathVariable Long id,@RequestBody BoardRequestDto boardRequestDto) {
 
         return infoBoardService.updateService(id,boardRequestDto);
     }
 
-    @DeleteMapping("/postdeleteInfo/{id}")
+    @DeleteMapping("/board/info/{id}")
     public String deleteInfo(@PathVariable Long id){
 
         return infoBoardService.deleteService(id);

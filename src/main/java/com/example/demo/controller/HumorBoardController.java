@@ -13,29 +13,29 @@ import java.util.List;
 @RequiredArgsConstructor
 public class HumorBoardController {
     final private HumorBoardService humorBoardService;
-    @GetMapping("/gethumorboard")
+    @GetMapping("/board/humor")
     public List<BoardResponseDto> getAllhumor(){
 
        return humorBoardService.getAllService();
     }
-    @PostMapping("/posthumorboard") //Create
+    @PostMapping("/board/humor") //Create
     public String addhumor(@RequestBody BoardRequestDto boardRequestDto){
 
         return humorBoardService.addService(boardRequestDto);
     }
-    @GetMapping("/getreadhumor/{id}") //Read
+    @GetMapping("/board/humor/{id}") //Read
     public BoardResponseDto getOnehumor(@PathVariable Long id){
 
         return humorBoardService.getOneService(id);
     }
 
-    @PatchMapping ("/postupdatehumor/{id}") //Update
+    @PutMapping ("/board/humor/{id}") //Update
     public String updatehumor(@PathVariable Long id,@RequestBody BoardRequestDto boardRequestDto) {
 
         return humorBoardService.updateService(id,boardRequestDto);
     }
 
-    @DeleteMapping("/postdeletehumor/{id}") //Delete
+    @DeleteMapping("/board/humor/{id}") //Delete
     public String deletehumor(@PathVariable Long id){
 
         return humorBoardService.deleteService(id);

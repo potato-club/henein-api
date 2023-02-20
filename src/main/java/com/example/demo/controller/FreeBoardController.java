@@ -17,29 +17,29 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FreeBoardController {
     final private FreeBoardService freeBoardService;
-    @GetMapping("/getfreeboard")
+    @GetMapping("/board/free")
     public List<BoardResponseDto> getAllFree(){
 
        return freeBoardService.getAllService();
     }
-    @PostMapping("/postfreeboard") //Create
+    @PostMapping("/board/free") //Create
     public String addFree(@RequestBody BoardRequestDto boardRequestDto){
 
         return freeBoardService.addService(boardRequestDto);
     }
-    @GetMapping("/getreadfree/{id}") //Read
+    @GetMapping("/board/free/{id}") //Read
     public BoardResponseDto getOneFree(@PathVariable Long id){
 
         return freeBoardService.getOneService(id);
     }
 
-    @PatchMapping ("/postupdatefree/{id}") //Update
+    @PutMapping ("/board/free/{id}") //Update
     public String updateFree(@PathVariable Long id,@RequestBody BoardRequestDto boardRequestDto) {
 
         return freeBoardService.updateService(id,boardRequestDto);
     }
 
-    @DeleteMapping("/postdeletefree/{id}")
+    @DeleteMapping("/board/free/{id}")
     public String deleteFree(@PathVariable Long id){
 
         return freeBoardService.deleteService(id);

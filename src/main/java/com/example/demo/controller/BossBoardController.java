@@ -13,29 +13,29 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BossBoardController {
     final private BossBoardService bossBoardService;
-    @GetMapping("/getbossboard")
+    @GetMapping("/board/boss")
     public List<BoardResponseDto> getAllBoss(){
 
        return bossBoardService.getAllService();
     }
-    @PostMapping("/postbossboard") //Create
+    @PostMapping("/board/boss") //Create
     public String addBoss(@RequestBody BoardRequestDto boardRequestDto){
 
         return bossBoardService.addService(boardRequestDto);
     }
-    @GetMapping("/getreadboss/{id}") //Read
+    @GetMapping("/board/boss/{id}") //Read
     public BoardResponseDto getOneBoss(@PathVariable Long id){
 
         return bossBoardService.getOneService(id);
     }
 
-    @PatchMapping ("/postupdateboss/{id}") //Update
+    @PutMapping ("/board/boss/{id}") //Update
     public String updateBoss(@PathVariable Long id,@RequestBody BoardRequestDto boardRequestDto) {
 
         return bossBoardService.updateService(id,boardRequestDto);
     }
 
-    @DeleteMapping("/postdeleteboss/{id}") //Delete
+    @DeleteMapping("/board/boss/{id}") //Delete
     public String deleteBoss(@PathVariable Long id){
 
         return bossBoardService.deleteService(id);
