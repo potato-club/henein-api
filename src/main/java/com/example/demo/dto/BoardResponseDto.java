@@ -68,4 +68,14 @@ public class BoardResponseDto {
         this.recommend = humorBoardEntity.getRecommend();
         this.text = humorBoardEntity.getText();
     }
+    public BoardResponseDto (NoticeBoardEntity noticeBoardEntity){
+        this.id = noticeBoardEntity.getId();
+        this.title = noticeBoardEntity.getTitle();
+        this.commentNum = noticeBoardEntity.getCommentNum();
+        this.name = noticeBoardEntity.getName();
+        this.createTime = noticeBoardEntity.getCreateTime();
+        this.views = noticeBoardEntity.getViews();
+        this.recommend = noticeBoardEntity.getRecommend();
+        this.text = noticeBoardEntity.getText();
+    }
 }
