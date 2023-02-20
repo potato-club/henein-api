@@ -25,7 +25,7 @@ public class NoticeBoardService {
     @Transactional
     public String addService(BoardRequestDto boardRequestDto){
         try{
-            NoticeBoardEntity NoticeBoardEntity = noticeBoardRepository.builder()
+            NoticeBoardEntity noticeBoardEntity = NoticeBoardEntity.builder()
                     .title(boardRequestDto.getTitle())
                     .commentNum(0)
                     .name(boardRequestDto.getName())
@@ -34,7 +34,7 @@ public class NoticeBoardService {
                     .recommend(0)
                     .text(boardRequestDto.getText())
                     .build();
-            noticeBoardRepository.save(NoticeBoardEntity);
+            noticeBoardRepository.save(noticeBoardEntity);
         }catch (NullPointerException e) {
             throw new NullPointerException("값이 NULL입니다.");
         }
@@ -44,7 +44,7 @@ public class NoticeBoardService {
     @Transactional
     public BoardResponseDto getOneService(Long id){
         NoticeBoardEntity noticeBoardEntity = noticeBoardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 정보가 없습니다");});
-        BoardResponseDto boardResponseDto = new BoardResponseDto(NoticeBoardEntity);
+        BoardResponseDto boardResponseDto = new BoardResponseDto(noticeBoardEntity);
         return boardResponseDto;
     }
     @Transactional
