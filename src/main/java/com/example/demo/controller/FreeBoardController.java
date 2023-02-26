@@ -2,15 +2,11 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.BoardRequestDto;
 import com.example.demo.dto.BoardResponseDto;
-import com.example.demo.entity.FreeBoardEntity;
-import com.example.demo.repository.FreeBoardRepository;
 import com.example.demo.service.FreeBoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @RestController

@@ -2,8 +2,9 @@ package com.example.demo.service;
 
 import com.example.demo.dto.BoardRequestDto;
 import com.example.demo.dto.BoardResponseDto;
-import com.example.demo.entity.FreeBoardEntity;
-import com.example.demo.repository.FreeBoardRepository;
+import com.example.demo.entity.BoardEntity;
+import com.example.demo.enumCustom.BoardType;
+import com.example.demo.repository.BoardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,17 +16,18 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class FreeBoardService {
-    final private FreeBoardRepository freeBoardRepository;
+    final private BoardRepository boardRepository;
 
     @Transactional
     public List<BoardResponseDto> getAllService(){
-        List<FreeBoardEntity> FreeBoardEntities = freeBoardRepository.findAll();
-        return FreeBoardEntities.stream().map(BoardResponseDto::new).collect(Collectors.toList());
+        List<BoardEntity> boardEntityList = boardRepository.findByBoardType(BoardType.Free);
+        return boardEntityList.stream().map(BoardResponseDto::new).collect(Collectors.toList());
     }
     @Transactional
     public String addService(BoardRequestDto boardRequestDto){
         try{
-            FreeBoardEntity freeBoardEntity = FreeBoardEntity.builder()
+            BoardEntity boardEntity = BoardEntity.builder()
+                    .boardType(BoardType.Free)
                     .title(boardRequestDto.getTitle())
                     .commentNum(0)
                     .name(boardRequestDto.getName())
@@ -34,7 +36,7 @@ public class FreeBoardService {
                     .recommend(0)
                     .text(boardRequestDto.getText())
                     .build();
-            freeBoardRepository.save(freeBoardEntity);
+            boardRepository.save(boardEntity);
         }catch (NullPointerException e) {
             throw new NullPointerException("값이 NULL입니다.");
         }
@@ -43,16 +45,16 @@ public class FreeBoardService {
     }
     @Transactional
     public BoardResponseDto getOneService(Long id){
-        FreeBoardEntity freeBoardEntity = freeBoardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 정보가 없습니다");});
-        BoardResponseDto boardResponseDto = new BoardResponseDto(freeBoardEntity);
+        BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 정보가 없습니다");});
+        BoardResponseDto boardResponseDto = new BoardResponseDto(boardEntity);
         return boardResponseDto;
     }
     @Transactional
     public String updateService(Long id,BoardRequestDto boardRequestDto){
-        FreeBoardEntity freeBoardEntity = freeBoardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 정보가 없습니다");});
+        BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 정보가 없습니다");});
         try{
-            freeBoardEntity.Update(boardRequestDto);
-            freeBoardRepository.save(freeBoardEntity);
+            boardEntity.Update(boardRequestDto);
+            boardRepository.save(boardEntity);
         } catch (NullPointerException e) {
             throw new NullPointerException("값이 NULL입니다.");
         }
@@ -61,8 +63,8 @@ public class FreeBoardService {
     }
     @Transactional
     public String deleteService(Long id){
-        FreeBoardEntity freeBoardEntity = freeBoardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 정보가 없습니다");});
-        freeBoardRepository.delete(freeBoardEntity);
+        BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 정보가 없습니다");});
+        boardRepository.delete(boardEntity);
         return "삭제완료";
     }
 }

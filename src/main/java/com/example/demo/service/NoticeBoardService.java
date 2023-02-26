@@ -2,8 +2,9 @@ package com.example.demo.service;
 
 import com.example.demo.dto.BoardRequestDto;
 import com.example.demo.dto.BoardResponseDto;
-import com.example.demo.entity.NoticeBoardEntity;
-import com.example.demo.repository.NoticeBoardRepository;
+import com.example.demo.entity.BoardEntity;
+import com.example.demo.enumCustom.BoardType;
+import com.example.demo.repository.BoardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,17 +16,18 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class NoticeBoardService {
-    final private NoticeBoardRepository noticeBoardRepository;
+    final private BoardRepository boardRepository;
 
     @Transactional
     public List<BoardResponseDto> getAllService(){
-        List<NoticeBoardEntity> noticeBoardEntities = noticeBoardRepository.findAll();
-        return noticeBoardEntities.stream().map(BoardResponseDto::new).collect(Collectors.toList());
+        List<BoardEntity> boardEntityList = boardRepository.findByBoardType(BoardType.Notice);
+        return boardEntityList.stream().map(BoardResponseDto::new).collect(Collectors.toList());
     }
     @Transactional
     public String addService(BoardRequestDto boardRequestDto){
         try{
-            NoticeBoardEntity noticeBoardEntity = NoticeBoardEntity.builder()
+            BoardEntity boardEntity = BoardEntity.builder()
+                    .boardType(BoardType.Notice)
                     .title(boardRequestDto.getTitle())
                     .commentNum(0)
                     .name(boardRequestDto.getName())
@@ -34,7 +36,7 @@ public class NoticeBoardService {
                     .recommend(0)
                     .text(boardRequestDto.getText())
                     .build();
-            noticeBoardRepository.save(noticeBoardEntity);
+            boardRepository.save(boardEntity);
         }catch (NullPointerException e) {
             throw new NullPointerException("값이 NULL입니다.");
         }
@@ -43,16 +45,16 @@ public class NoticeBoardService {
     }
     @Transactional
     public BoardResponseDto getOneService(Long id){
-        NoticeBoardEntity noticeBoardEntity = noticeBoardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 정보가 없습니다");});
-        BoardResponseDto boardResponseDto = new BoardResponseDto(noticeBoardEntity);
+        BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 정보가 없습니다");});
+        BoardResponseDto boardResponseDto = new BoardResponseDto(boardEntity);
         return boardResponseDto;
     }
     @Transactional
     public String updateService(Long id,BoardRequestDto boardRequestDto){
-        NoticeBoardEntity NoticeBoardEntity = noticeBoardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 정보가 없습니다");});
+        BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 정보가 없습니다");});
         try{
-            NoticeBoardEntity.Update(boardRequestDto);
-            noticeBoardRepository.save(NoticeBoardEntity);
+            boardEntity.Update(boardRequestDto);
+            boardRepository.save(boardEntity);
         } catch (NullPointerException e) {
             throw new NullPointerException("값이 NULL입니다.");
         }
@@ -61,8 +63,8 @@ public class NoticeBoardService {
     }
     @Transactional
     public String deleteService(Long id){
-        NoticeBoardEntity NoticeBoardEntity = noticeBoardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 정보가 없습니다");});
-        noticeBoardRepository.delete(NoticeBoardEntity);
+        BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 정보가 없습니다");});
+        boardRepository.delete(boardEntity);
         return "삭제완료";
     }
 }
