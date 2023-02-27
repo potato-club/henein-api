@@ -43,7 +43,7 @@ public class BoardCategoryController {
         switch (n){
             case 65: return advertiseBoardService.addService(boardRequestDto);
             case 66: return bossBoardService.addService(boardRequestDto);
-            case 69: return freeBoardService.addService(boardRequestDto);
+            case 70: return freeBoardService.addService(boardRequestDto);
             case 72: return humorBoardService.addService(boardRequestDto);
             case 73: return infoBoardService.addService(boardRequestDto);
             case 78: return noticeBoardService.addService(boardRequestDto);
