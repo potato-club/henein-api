@@ -25,7 +25,7 @@ public class BoardCategoryController {
     final private NoticeBoardService noticeBoardService;
 
     @GetMapping()
-    public List<BoardResponseDto> getAlladvertise(@PathVariable char boardtype){
+    public List<BoardResponseDto> getBoard(@PathVariable char boardtype){
         int n = boardtype;
         switch (n){
             case 65: return advertiseBoardService.getAllService();
@@ -38,7 +38,7 @@ public class BoardCategoryController {
         }
     }
     @PostMapping() //Create
-    public String addadvertise(@PathVariable char boardtype, @RequestBody BoardRequestDto boardRequestDto){
+    public String addBoard(@PathVariable char boardtype, @RequestBody BoardRequestDto boardRequestDto){
         int n = boardtype;
         switch (n){
             case 65: return advertiseBoardService.addService(boardRequestDto);
@@ -51,17 +51,17 @@ public class BoardCategoryController {
         }
     }
     @GetMapping("/{id}") //Read
-    public BoardResponseDto getOneadvertise(@PathVariable("id") Long id){
+    public BoardResponseDto getOneBoard(@PathVariable("id") Long id){
         return commonBoardService.getOneService(id);
     }
 
     @PutMapping ("/{id}") //Update
-    public String updateadvertise(@PathVariable("id") Long id,@RequestBody BoardRequestDto boardRequestDto) {
+    public String updateBoard(@PathVariable("id") Long id,@RequestBody BoardRequestDto boardRequestDto) {
         return commonBoardService.updateService(id, boardRequestDto);
     }
 
     @DeleteMapping("/{id}") //Delete
-    public String deleteadvertise(@PathVariable("id") Long id){
+    public String deleteBoard(@PathVariable("id") Long id){
         return commonBoardService.deleteService(id);
     }
 }
