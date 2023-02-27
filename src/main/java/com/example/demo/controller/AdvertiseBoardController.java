@@ -2,42 +2,68 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.BoardRequestDto;
 import com.example.demo.dto.BoardResponseDto;
-import com.example.demo.service.AdvertiseBoardService;
+import com.example.demo.error.exception.NotFoundException;
+import com.example.demo.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.awt.event.WindowFocusListener;
 import java.util.List;
+
+import static com.example.demo.error.ErrorCode.RUNTIME_EXCEPTION;
 
 
 @RestController("")
+@RequestMapping(value = "/board/{boardtype}")
 @RequiredArgsConstructor
 public class AdvertiseBoardController {
+    final private CommonBoardService commonBoardService;
     final private AdvertiseBoardService advertiseBoardService;
-    @GetMapping("/board/advertise")
-    public List<BoardResponseDto> getAlladvertise(){
+    final private BossBoardService bossBoardService;
+    final private FreeBoardService freeBoardService;
+    final private HumorBoardService humorBoardService;
+    final private InfoBoardService infoBoardService;
+    final private NoticeBoardService noticeBoardService;
 
-       return advertiseBoardService.getAllService();
+    @GetMapping()
+    public List<BoardResponseDto> getAlladvertise(@PathVariable char boardtype){
+        int n = boardtype;
+        switch (n){
+            case 65: return advertiseBoardService.getAllService();
+            case 66: return bossBoardService.getAllService();
+            case 69: return freeBoardService.getAllService();
+            case 72: return humorBoardService.getAllService();
+            case 73: return infoBoardService.getAllService();
+            case 78: return noticeBoardService.getAllService();
+            default: throw new NotFoundException(RUNTIME_EXCEPTION,"E00000");
+        }
     }
-    @PostMapping("/board/advertise") //Create
-    public String addadvertise(@RequestBody BoardRequestDto boardRequestDto){
-
-        return advertiseBoardService.addService(boardRequestDto);
+    @PostMapping() //Create
+    public String addadvertise(@PathVariable char boardtype, @RequestBody BoardRequestDto boardRequestDto){
+        int n = boardtype;
+        switch (n){
+            case 65: return advertiseBoardService.addService(boardRequestDto);
+            case 66: return bossBoardService.addService(boardRequestDto);
+            case 69: return freeBoardService.addService(boardRequestDto);
+            case 72: return humorBoardService.addService(boardRequestDto);
+            case 73: return infoBoardService.addService(boardRequestDto);
+            case 78: return noticeBoardService.addService(boardRequestDto);
+            default: throw new NotFoundException(RUNTIME_EXCEPTION,"E00000");
+        }
     }
-    @GetMapping("/board/advertise/{id}") //Read
-    public BoardResponseDto getOneadvertise(@PathVariable Long id){
-
-        return advertiseBoardService.getOneService(id);
+    @GetMapping("/{id}") //Read
+    public BoardResponseDto getOneadvertise(@PathVariable("id") Long id){
+       return commonBoardService.getOneService(id);
     }
 
-    @PutMapping ("/board/advertise/{id}") //Update
-    public String updateadvertise(@PathVariable Long id,@RequestBody BoardRequestDto boardRequestDto) {
-
-        return advertiseBoardService.updateService(id,boardRequestDto);
+    @PutMapping ("/{id}") //Update
+    public String updateadvertise(@PathVariable("id") Long id,@RequestBody BoardRequestDto boardRequestDto) {
+      return commonBoardService.updateService(id, boardRequestDto);
     }
 
-    @DeleteMapping("/board/advertise/{id}") //Delete
-    public String deleteadvertise(@PathVariable Long id){
+    @DeleteMapping("/{id}") //Delete
+    public String deleteadvertise(@PathVariable("id") Long id){
 
-        return advertiseBoardService.deleteService(id);
+        return commonBoardService.deleteService(id);
     }
 }
