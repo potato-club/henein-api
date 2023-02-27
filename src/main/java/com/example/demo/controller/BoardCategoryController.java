@@ -7,7 +7,6 @@ import com.example.demo.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.awt.event.WindowFocusListener;
 import java.util.List;
 
 import static com.example.demo.error.ErrorCode.RUNTIME_EXCEPTION;
@@ -16,7 +15,7 @@ import static com.example.demo.error.ErrorCode.RUNTIME_EXCEPTION;
 @RestController("")
 @RequestMapping(value = "/board/{boardtype}")
 @RequiredArgsConstructor
-public class AdvertiseBoardController {
+public class BoardCategoryController {
     final private CommonBoardService commonBoardService;
     final private AdvertiseBoardService advertiseBoardService;
     final private BossBoardService bossBoardService;
