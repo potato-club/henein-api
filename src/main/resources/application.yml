@@ -4,9 +4,9 @@
 #spring.datasource.password=over1324
 #spring.datasource.driver-class-name=org.mariadb.jdbc.Driver
 spring:
-  mvc:
-    pathmatch:
-      matching-strategy: ant_path_matcher
+  #mvc:
+   # pathmatch:
+    #  matching-strategy: ant_path_matcher
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
     url: jdbc:mysql://localhost:3306/demo?autoReconnect=true
