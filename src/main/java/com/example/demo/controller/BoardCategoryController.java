@@ -30,7 +30,7 @@ public class BoardCategoryController {
         switch (n){
             case 65: return advertiseBoardService.getAllService();
             case 66: return bossBoardService.getAllService();
-            case 69: return freeBoardService.getAllService();
+            case 70: return freeBoardService.getAllService();
             case 72: return humorBoardService.getAllService();
             case 73: return infoBoardService.getAllService();
             case 78: return noticeBoardService.getAllService();
@@ -52,17 +52,16 @@ public class BoardCategoryController {
     }
     @GetMapping("/{id}") //Read
     public BoardResponseDto getOneadvertise(@PathVariable("id") Long id){
-       return commonBoardService.getOneService(id);
+        return commonBoardService.getOneService(id);
     }
 
     @PutMapping ("/{id}") //Update
     public String updateadvertise(@PathVariable("id") Long id,@RequestBody BoardRequestDto boardRequestDto) {
-      return commonBoardService.updateService(id, boardRequestDto);
+        return commonBoardService.updateService(id, boardRequestDto);
     }
 
     @DeleteMapping("/{id}") //Delete
     public String deleteadvertise(@PathVariable("id") Long id){
-
         return commonBoardService.deleteService(id);
     }
 }
