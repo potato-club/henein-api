@@ -13,7 +13,7 @@ import static com.example.demo.error.ErrorCode.RUNTIME_EXCEPTION;
 
 
 @RestController("")
-@RequestMapping(value = "/board/{boardtype}")
+@RequestMapping(value = "/board")
 @RequiredArgsConstructor
 public class BoardCategoryController {
     final private CommonBoardService commonBoardService;
@@ -24,7 +24,7 @@ public class BoardCategoryController {
     final private InfoBoardService infoBoardService;
     final private NoticeBoardService noticeBoardService;
 
-    @GetMapping()
+    @GetMapping("/{boardtype}")
     public List<BoardResponseDto> getBoard(@PathVariable char boardtype){
         int n = boardtype;
         switch (n){
@@ -37,7 +37,7 @@ public class BoardCategoryController {
             default: throw new NotFoundException(RUNTIME_EXCEPTION,"E00000");
         }
     }
-    @PostMapping() //Create
+    @PostMapping("/{boardtype}") //Create
     public String addBoard(@PathVariable char boardtype, @RequestBody BoardRequestDto boardRequestDto){
         int n = boardtype;
         switch (n){
