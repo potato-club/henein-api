@@ -1,6 +1,7 @@
 package com.example.demo.dto;
 
 import com.example.demo.entity.*;
+import com.example.demo.enumCustom.BoardType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class BoardResponseDto {
     private Long id;
+    private BoardType boardType;
     private String title;
     private int commentNum;
     private String name;
@@ -20,6 +22,7 @@ public class BoardResponseDto {
 
     public BoardResponseDto (BoardEntity boardEntity){
         this.id = boardEntity.getId();
+        this.boardType =boardEntity.getBoardType();
         this.title = boardEntity.getTitle();
         this.commentNum = boardEntity.getCommentNum();
         this.name = boardEntity.getName();
