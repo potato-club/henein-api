@@ -50,17 +50,17 @@ public class BoardCategoryController {
             default: throw new NotFoundException(RUNTIME_EXCEPTION,"E00000");
         }
     }
-    @GetMapping("/{id}") //Read
+    @GetMapping("/id/{id}") //Read
     public BoardResponseDto getOneBoard(@PathVariable("id") Long id){
         return commonBoardService.getOneService(id);
     }
 
-    @PutMapping ("/{id}") //Update
+    @PutMapping ("/id/{id}") //Update
     public String updateBoard(@PathVariable("id") Long id,@RequestBody BoardRequestDto boardRequestDto) {
         return commonBoardService.updateService(id, boardRequestDto);
     }
 
-    @DeleteMapping("/{id}") //Delete
+    @DeleteMapping("/id/{id}") //Delete
     public String deleteBoard(@PathVariable("id") Long id){
         return commonBoardService.deleteService(id);
     }
