@@ -51,16 +51,27 @@ public class BoardCategoryController {
             default: throw new NotFoundException(RUNTIME_EXCEPTION,"E00000");
         }
     }
+    @GetMapping("/{boardtype}/{id}")
+    public BoardResponseDto getOneBoardOfType(@PathVariable("id")Long id){
+        return commonBoardService.getOneService(id);
+    }
     @GetMapping("/search/{id}") //Read
     public BoardResponseDto getOneBoard(@PathVariable("id") Long id){
         return commonBoardService.getOneService(id);
     }
 
+    @PutMapping("/{boardtype}/{id}")
+    public String updateBoardOfType(@PathVariable("id")Long id,@RequestBody BoardRequestDto boardRequestDto){
+        return commonBoardService.updateService(id, boardRequestDto);
+    }
     @PutMapping ("/search/{id}") //Update
     public String updateBoard(@PathVariable("id") Long id,@RequestBody BoardRequestDto boardRequestDto) {
         return commonBoardService.updateService(id, boardRequestDto);
     }
-
+    @DeleteMapping("/{boardtype}/{id}")
+    public String deleteBoardOfType(@PathVariable("id")Long id){
+        return commonBoardService.deleteService(id);
+    }
     @DeleteMapping("/search/{id}") //Delete
     public String deleteBoard(@PathVariable("id") Long id){
         return commonBoardService.deleteService(id);
