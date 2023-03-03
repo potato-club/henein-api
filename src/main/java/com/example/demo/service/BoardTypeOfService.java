@@ -6,7 +6,6 @@ import com.example.demo.entity.BoardEntity;
 import com.example.demo.enumCustom.BoardType;
 import com.example.demo.repository.BoardRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -22,7 +21,11 @@ public class BoardTypeOfService {
     @Transactional //전체게시판
     public List<BoardResponseDto> getEntireBoard(){
         //id를 이용한 내림차순 정렬
-        List<BoardEntity> boardEntityList = boardRepository.findAll(Sort.by(Sort.Direction.DESC,"id"));
+        List<BoardEntity> boardEntityList = boardRepository.findAllNotNotice();
+        /*boardEntityList.stream()
+                .filter(o->o.getBoardType().equals(BoardType.Notice))
+                .collect(Collectors.toList())
+                .forEach(li->{boardEntityList.remove(li);});*/
         return boardEntityList.stream().map(BoardResponseDto::new).collect(Collectors.toList());
     }
 
