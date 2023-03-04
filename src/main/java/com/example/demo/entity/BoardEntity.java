@@ -3,6 +3,7 @@ package com.example.demo.entity;
 import com.example.demo.dto.BoardRequestDto;
 import com.example.demo.dto.CommentNumUpdateDto;
 import com.example.demo.dto.RecommandUpdateDTO;
+import com.example.demo.dto.ViewIncreaseDto;
 import com.example.demo.enumCustom.BoardType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -52,4 +53,5 @@ public class BoardEntity {
     public void Update(CommentNumUpdateDto commentNumUpdateDto){
         this.commentNum = commentNumUpdateDto.getCommentNum();
     }
+    public void Update(ViewIncreaseDto viewIncreaseDto){ this.views =viewIncreaseDto.getViews();}
 }

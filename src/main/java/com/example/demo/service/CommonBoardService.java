@@ -3,6 +3,7 @@ package com.example.demo.service;
 import com.example.demo.dto.BoardRequestDto;
 import com.example.demo.dto.BoardResponseDto;
 import com.example.demo.dto.RecommandUpdateDTO;
+import com.example.demo.dto.ViewIncreaseDto;
 import com.example.demo.entity.BoardEntity;
 import com.example.demo.repository.BoardRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,12 @@ public class CommonBoardService {
     public BoardResponseDto getOneService(Long id){
         BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 게시글 정보가 없습니다");});
         BoardResponseDto boardResponseDto = new BoardResponseDto(boardEntity);
+        //조회수 증가부분
+        ViewIncreaseDto viewIncreaseDto = new ViewIncreaseDto();
+        viewIncreaseDto.setViews(boardEntity.getViews()+1);
+        boardEntity.Update(viewIncreaseDto);
+        boardRepository.save(boardEntity);
+
         return boardResponseDto;
     }
     @Transactional
