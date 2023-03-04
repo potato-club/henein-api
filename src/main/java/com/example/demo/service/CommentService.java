@@ -62,10 +62,11 @@ public class CommentService {
         CommentEntity commentEntity = commentRepository.findById(coid).orElseThrow(()->{throw new RuntimeException("해당 댓글이 없습니다");});
         BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 댓글이 없습니다");});
         //보드 게시판의 댓글수 업데이트
-        CommentNumUpdateDto commentNumUpdateDto = new CommentNumUpdateDto();
-        commentNumUpdateDto.setCommentNum(boardEntity.getCommentNum() - 1);
-        boardEntity.Update(commentNumUpdateDto);
-
+        if(boardEntity.getCommentNum() > 0) {
+            CommentNumUpdateDto commentNumUpdateDto = new CommentNumUpdateDto();
+            commentNumUpdateDto.setCommentNum(boardEntity.getCommentNum() - 1);
+            boardEntity.Update(commentNumUpdateDto);
+        }
         commentRepository.delete(commentEntity);
         return "삭제완료";
     }
