@@ -14,7 +14,7 @@ public class BoardResponseDto {
     private BoardType boardType;
     private String title;
     private int commentNum;
-    private String name;
+    private String name; //이름 바꿔야함
     private LocalDateTime createTime;
     private int views;
     private int recommend;

@@ -15,7 +15,7 @@ public enum ErrorCode {
     IN_EXCEEDED_COUNT(HttpStatus.FORBIDDEN,"E00031","초과된 신청입니다."),
     UNDEFINED_TIME(HttpStatus.FORBIDDEN,"E00032","정의되어있는 시간이 없습니다."),
     NOT_FOUND_EXCEPTION(HttpStatus.NOT_FOUND,"E0004","잘못된 주소입니다."),
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"E0005","예기치 못한 오류입니다.");
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"E0005","CommentNum < 1");
     private HttpStatus status;
 
     private String code;

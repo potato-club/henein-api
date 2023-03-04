@@ -1,6 +1,8 @@
 package com.example.demo.entity;
 
 import com.example.demo.dto.BoardRequestDto;
+import com.example.demo.dto.CommentNumUpdateDto;
+import com.example.demo.dto.RecommandUpdateDTO;
 import com.example.demo.enumCustom.BoardType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -43,5 +45,11 @@ public class BoardEntity {
         this.name = boardRequestDto.getName();
         this.createTime = LocalDateTime.now();
         this.text = boardRequestDto.getText();
+    }
+    public void Update(RecommandUpdateDTO recommandUpdateDTO){
+        this.recommend = recommandUpdateDTO.getRecommend();
+    }
+    public void Update(CommentNumUpdateDto commentNumUpdateDto){
+        this.commentNum = commentNumUpdateDto.getCommentNum();
     }
 }

@@ -4,7 +4,6 @@ import com.example.demo.dto.BoardRequestDto;
 import com.example.demo.dto.BoardResponseDto;
 import com.example.demo.error.exception.NotFoundException;
 import com.example.demo.service.*;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,11 +15,11 @@ import static com.example.demo.error.ErrorCode.RUNTIME_EXCEPTION;
 @RestController("")
 @RequestMapping(value = "/board")
 @RequiredArgsConstructor
-public class BoardCategoryController {
+public class BoardController {
     final private CommonBoardService commonBoardService;
     final private BoardTypeOfService boardTypeOfService;
 
-    @GetMapping("/entireboard")
+    @GetMapping("/entireboard") // 전체게시판 ( 공지게시판 호출없음)
     public List<BoardResponseDto> getEntireBoard(){
         return boardTypeOfService.getEntireBoard();
     }
@@ -76,4 +75,9 @@ public class BoardCategoryController {
     public String deleteBoard(@PathVariable("id") Long id){
         return commonBoardService.deleteService(id);
     }
+
+    /*@PatchMapping("/{boardtype}/{id}/recommend")
+    public String recommendThisBoard(@PathVariable("id")Long id){return commonBoardService.recommendThisBoard(id);}
+    @PatchMapping("/{boardtype}/{id}/unRecommend")
+    public String unRecommendThisBoard(@PathVariable("id")Long id){return commonBoardService.unRecommendThisBoard(id);}*/
 }

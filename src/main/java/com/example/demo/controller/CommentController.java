@@ -26,7 +26,7 @@ public class CommentController {
         return commentService.updateCommentOfId(coid,commentRequsetDto);
     }
     @DeleteMapping("/{co-id}")
-    public String updateComment(@PathVariable("co-id") Long coid){
-        return commentService.deleteCommentOfId(coid);
+    public String updateComment(@PathVariable("id") Long id, @PathVariable("co-id") Long coid){
+        return commentService.deleteCommentOfId(id, coid);
     }
 }
