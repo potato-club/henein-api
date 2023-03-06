@@ -5,6 +5,7 @@ import com.example.demo.dto.BoardResponseDto;
 import com.example.demo.error.exception.NotFoundException;
 import com.example.demo.service.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,20 +21,20 @@ public class BoardController {
     final private BoardTypeOfService boardTypeOfService;
 
     @GetMapping("/entireboard") // 전체게시판 ( 공지게시판 호출없음)
-    public List<BoardResponseDto> getEntireBoard(){
-        return boardTypeOfService.getEntireBoard();
+    public Page<BoardResponseDto> getEntireBoard(@RequestParam("page")int page){
+        return boardTypeOfService.getEntireBoard(page);
     }
 
     @GetMapping("/{boardtype}")
-    public List<BoardResponseDto> getBoard(@PathVariable char boardtype){
+    public Page<BoardResponseDto> getBoard(@PathVariable char boardtype, @RequestParam("page")int page){
         int n = boardtype;
         switch (n){
-            case 65: return boardTypeOfService.getAllServiceA();
-            case 66: return boardTypeOfService.getAllServiceB();
-            case 70: return boardTypeOfService.getAllServiceF();
-            case 72: return boardTypeOfService.getAllServiceH();
-            case 73: return boardTypeOfService.getAllServiceI();
-            case 78: return boardTypeOfService.getAllServiceN();
+            case 65: return boardTypeOfService.getAllServiceA(page);
+            case 66: return boardTypeOfService.getAllServiceB(page);
+            case 70: return boardTypeOfService.getAllServiceF(page);
+            case 72: return boardTypeOfService.getAllServiceH(page);
+            case 73: return boardTypeOfService.getAllServiceI(page);
+            case 78: return boardTypeOfService.getAllServiceN(page);
             default: throw new NotFoundException(RUNTIME_EXCEPTION,"E00000");
         }
     }

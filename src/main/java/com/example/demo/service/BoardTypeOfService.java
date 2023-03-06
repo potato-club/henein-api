@@ -6,6 +6,10 @@ import com.example.demo.entity.BoardEntity;
 import com.example.demo.enumCustom.BoardType;
 import com.example.demo.repository.BoardRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -19,45 +23,49 @@ public class BoardTypeOfService {
     final private BoardRepository boardRepository;
 
     @Transactional //전체게시판
-    public List<BoardResponseDto> getEntireBoard(){
+    public Page<BoardResponseDto> getEntireBoard(int page){
         //id를 이용한 내림차순 정렬
-        List<BoardEntity> boardEntityList = boardRepository.findAllNotNotice();
-        /*boardEntityList.stream()
-                .filter(o->o.getBoardType().equals(BoardType.Notice))
-                .collect(Collectors.toList())
-                .forEach(li->{boardEntityList.remove(li);});*/
-        return boardEntityList.stream().map(BoardResponseDto::new).collect(Collectors.toList());
+        PageRequest pageRequest = PageRequest.of(page-1, 20);
+        Page<BoardEntity> boardEntityList = boardRepository.findAllNotNotice(pageRequest);
+
+        return new PageImpl<>(boardEntityList.stream().map(BoardResponseDto::new).collect(Collectors.toList()));
     }
 
     @Transactional
-    public List<BoardResponseDto> getAllServiceA(){
-        List<BoardEntity> boardEntityList = boardRepository.findByBoardType(BoardType.Advertise);
-        return boardEntityList.stream().map(BoardResponseDto::new).collect(Collectors.toList());
+    public Page<BoardResponseDto> getAllServiceA(int page){
+        PageRequest pageRequest = PageRequest.of(page-1, 20);
+        Page<BoardEntity> boardEntityList = boardRepository.findByBoardType(BoardType.Advertise,pageRequest);
+        return new PageImpl<>(boardEntityList.stream().map(BoardResponseDto::new).collect(Collectors.toList()));
     }
     @Transactional
-    public List<BoardResponseDto> getAllServiceB(){
-        List<BoardEntity> boardEntityList = boardRepository.findByBoardType(BoardType.Boss);
-        return boardEntityList.stream().map(BoardResponseDto::new).collect(Collectors.toList());
+    public Page<BoardResponseDto> getAllServiceB(int page){
+        PageRequest pageRequest = PageRequest.of(page-1, 20);
+        Page<BoardEntity> boardEntityList = boardRepository.findByBoardType(BoardType.Boss,pageRequest);
+        return new PageImpl<>(boardEntityList.stream().map(BoardResponseDto::new).collect(Collectors.toList()));
     }
     @Transactional
-    public List<BoardResponseDto> getAllServiceF(){
-        List<BoardEntity> boardEntityList = boardRepository.findByBoardType(BoardType.Free);
-        return boardEntityList.stream().map(BoardResponseDto::new).collect(Collectors.toList());
+    public Page<BoardResponseDto> getAllServiceF(int page){
+        PageRequest pageRequest = PageRequest.of(page-1, 20);
+        Page<BoardEntity> boardEntityList = boardRepository.findByBoardType(BoardType.Free,pageRequest);
+        return new PageImpl<>(boardEntityList.stream().map(BoardResponseDto::new).collect(Collectors.toList()));
     }
     @Transactional
-    public List<BoardResponseDto> getAllServiceI(){
-        List<BoardEntity> boardEntityList = boardRepository.findByBoardType(BoardType.Info);
-        return boardEntityList.stream().map(BoardResponseDto::new).collect(Collectors.toList());
+    public Page<BoardResponseDto> getAllServiceI(int page){
+        PageRequest pageRequest = PageRequest.of(page-1, 20);
+        Page<BoardEntity> boardEntityList = boardRepository.findByBoardType(BoardType.Info,pageRequest);
+        return new PageImpl<>(boardEntityList.stream().map(BoardResponseDto::new).collect(Collectors.toList()));
     }
     @Transactional
-    public List<BoardResponseDto> getAllServiceH(){
-        List<BoardEntity> boardEntityList = boardRepository.findByBoardType(BoardType.Humor);
-        return boardEntityList.stream().map(BoardResponseDto::new).collect(Collectors.toList());
+    public Page<BoardResponseDto> getAllServiceH(int page){
+        PageRequest pageRequest = PageRequest.of(page-1, 20);
+        Page<BoardEntity> boardEntityList = boardRepository.findByBoardType(BoardType.Humor,pageRequest);
+        return new PageImpl<>(boardEntityList.stream().map(BoardResponseDto::new).collect(Collectors.toList()));
     }
     @Transactional
-    public List<BoardResponseDto> getAllServiceN(){
-        List<BoardEntity> boardEntityList = boardRepository.findByBoardType(BoardType.Notice);
-        return boardEntityList.stream().map(BoardResponseDto::new).collect(Collectors.toList());
+    public Page<BoardResponseDto> getAllServiceN(int page){
+        PageRequest pageRequest = PageRequest.of(page-1, 20);
+        Page<BoardEntity> boardEntityList = boardRepository.findByBoardType(BoardType.Notice,pageRequest);
+        return new PageImpl<>(boardEntityList.stream().map(BoardResponseDto::new).collect(Collectors.toList()));
     }
     //===================================================================================================
     @Transactional
@@ -175,3 +183,7 @@ public class BoardTypeOfService {
         return "저장 완료";
     }
 }
+/*boardEntityList.stream()
+                .filter(o->o.getBoardType().equals(BoardType.Notice))
+                .collect(Collectors.toList())
+                .forEach(li->{boardEntityList.remove(li);});*/
