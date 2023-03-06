@@ -33,10 +33,10 @@ public class BoardController {
         return boardTypeOfService.getTypeOfBoard(page, boardtype);
 
     }
-    @PostMapping("/{boardtype}") //Create
+    /*@PostMapping("/{boardtype}") //Create
     public String addTypeOfBoard(@PathVariable char boardtype, @RequestBody BoardRequestDto boardRequestDto){
         return boardTypeOfService.addTypeOfBoard(boardtype,boardRequestDto);
-    }
+    }*/
     @GetMapping("/{boardtype}/{id}")
     public BoardResponseDto getOneBoardOfType(@PathVariable("id")Long id){
         return commonBoardService.getOneService(id);
