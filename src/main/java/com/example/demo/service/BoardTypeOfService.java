@@ -52,7 +52,6 @@ public class BoardTypeOfService {
     //===================================================================================================
     @Transactional
     public String addTypeOfBoard(char boardType, BoardRequestDto boardRequestDto){
-
         BoardType board;
         switch ((int)boardType){
             case 65: board = BoardType.Advertise; break;

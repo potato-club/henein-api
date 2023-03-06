@@ -5,6 +5,7 @@ import com.example.demo.dto.BoardResponseDto;
 import com.example.demo.enumCustom.BoardType;
 import com.example.demo.error.exception.NotFoundException;
 import com.example.demo.service.*;
+import com.sun.istack.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
@@ -18,8 +19,9 @@ import static com.example.demo.error.ErrorCode.RUNTIME_EXCEPTION;
 @RequestMapping(value = "/board")
 @RequiredArgsConstructor
 public class BoardController {
-    final private CommonBoardService commonBoardService;
-    final private BoardTypeOfService boardTypeOfService;
+
+    private final CommonBoardService commonBoardService;
+    private final BoardTypeOfService boardTypeOfService;
 
     @GetMapping("/entireboard") // 전체게시판 ( 공지게시판 호출없음)
     public Page<BoardResponseDto> getEntireBoard(@RequestParam("page")int page){
