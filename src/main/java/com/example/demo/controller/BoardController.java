@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.BoardRequestDto;
 import com.example.demo.dto.BoardResponseDto;
+import com.example.demo.enumCustom.BoardType;
 import com.example.demo.error.exception.NotFoundException;
 import com.example.demo.service.*;
 import lombok.RequiredArgsConstructor;
@@ -26,30 +27,13 @@ public class BoardController {
     }
 
     @GetMapping("/{boardtype}")
-    public Page<BoardResponseDto> getBoard(@PathVariable char boardtype, @RequestParam("page")int page){
-        int n = boardtype;
-        switch (n){
-            case 65: return boardTypeOfService.getAllServiceA(page);
-            case 66: return boardTypeOfService.getAllServiceB(page);
-            case 70: return boardTypeOfService.getAllServiceF(page);
-            case 72: return boardTypeOfService.getAllServiceH(page);
-            case 73: return boardTypeOfService.getAllServiceI(page);
-            case 78: return boardTypeOfService.getAllServiceN(page);
-            default: throw new NotFoundException(RUNTIME_EXCEPTION,"E00000");
-        }
+    public Page<BoardResponseDto> getTypeOfBoard(@PathVariable char boardtype, @RequestParam("page")int page){
+        return boardTypeOfService.getTypeOfBoard(page, boardtype);
+
     }
     @PostMapping("/{boardtype}") //Create
-    public String addBoard(@PathVariable char boardtype, @RequestBody BoardRequestDto boardRequestDto){
-        int n = boardtype;
-        switch (n){
-            case 65: return boardTypeOfService.addServiceA(boardRequestDto);
-            case 66: return boardTypeOfService.addServiceB(boardRequestDto);
-            case 70: return boardTypeOfService.addServiceF(boardRequestDto);
-            case 72: return boardTypeOfService.addServiceH(boardRequestDto);
-            case 73: return boardTypeOfService.addServiceI(boardRequestDto);
-            case 78: return boardTypeOfService.addServiceN(boardRequestDto);
-            default: throw new NotFoundException(RUNTIME_EXCEPTION,"E00000");
-        }
+    public String addTypeOfBoard(@PathVariable char boardtype, @RequestBody BoardRequestDto boardRequestDto){
+        return boardTypeOfService.addTypeOfBoard(boardtype,boardRequestDto);
     }
     @GetMapping("/{boardtype}/{id}")
     public BoardResponseDto getOneBoardOfType(@PathVariable("id")Long id){
