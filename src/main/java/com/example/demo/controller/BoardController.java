@@ -27,15 +27,15 @@ public class BoardController {
     public Page<BoardResponseDto> getEntireBoard(@RequestParam("page")int page){
         return boardTypeOfService.getEntireBoard(page);
     }
+    @PostMapping("/{boardtype}") //Create
+    public String addTypeOfBoard(@PathVariable char boardtype, @RequestBody BoardRequestDto boardRequestDto){
+        return boardTypeOfService.addTypeOfBoard(boardtype,boardRequestDto);
+    }
 
     @GetMapping("/{boardtype}")
     public Page<BoardResponseDto> getTypeOfBoard(@PathVariable char boardtype, @RequestParam("page")int page){
         return boardTypeOfService.getTypeOfBoard(page, boardtype);
 
-    }
-    @PostMapping("/{boardtype}") //Create
-    public String addTypeOfBoard(@PathVariable char boardtype, @RequestBody BoardRequestDto boardRequestDto){
-        return boardTypeOfService.addTypeOfBoard(boardtype,boardRequestDto);
     }
     @GetMapping("/{boardtype}/{id}")
     public BoardResponseDto getOneBoardOfType(@PathVariable("id")Long id){
