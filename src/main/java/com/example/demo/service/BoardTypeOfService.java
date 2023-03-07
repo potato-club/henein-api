@@ -7,6 +7,7 @@ import com.example.demo.enumCustom.BoardType;
 import com.example.demo.error.exception.NotFoundException;
 import com.example.demo.repository.BoardRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -20,6 +21,7 @@ import static com.example.demo.error.ErrorCode.RUNTIME_EXCEPTION;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BoardTypeOfService {
     final private BoardRepository boardRepository;
 
@@ -34,6 +36,7 @@ public class BoardTypeOfService {
 
     @Transactional //
     public Page<BoardResponseDto> getTypeOfBoard(int page, int boardType){
+        log.info("GET service");
         BoardType board;
         switch (boardType){
             case 65: board = BoardType.Advertise; break;
@@ -52,6 +55,7 @@ public class BoardTypeOfService {
     //===================================================================================================
     @Transactional
     public String addTypeOfBoard(char boardType, BoardRequestDto boardRequestDto){
+        log.info("post service");
         BoardType board;
         switch ((int)boardType){
             case 65: board = BoardType.Advertise; break;

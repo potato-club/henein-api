@@ -7,6 +7,7 @@ import com.example.demo.error.exception.NotFoundException;
 import com.example.demo.service.*;
 import com.sun.istack.NotNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +19,7 @@ import static com.example.demo.error.ErrorCode.RUNTIME_EXCEPTION;
 @RestController("")
 @RequestMapping(value = "/board")
 @RequiredArgsConstructor
+@Slf4j
 public class BoardController {
 
     private final CommonBoardService commonBoardService;
@@ -25,15 +27,18 @@ public class BoardController {
 
     @GetMapping("/entireboard") // 전체게시판 ( 공지게시판 호출없음)
     public Page<BoardResponseDto> getEntireBoard(@RequestParam("page")int page){
+
         return boardTypeOfService.getEntireBoard(page);
     }
     @PostMapping("/{boardtype}") //Create
     public String addTypeOfBoard(@PathVariable char boardtype, @RequestBody BoardRequestDto boardRequestDto){
+        log.info("Post컨트롤러에 들어옴");
         return boardTypeOfService.addTypeOfBoard(boardtype,boardRequestDto);
     }
 
     @GetMapping("/{boardtype}")
     public Page<BoardResponseDto> getTypeOfBoard(@PathVariable char boardtype, @RequestParam("page")int page){
+        log.info("get컨트롤러 들어옴");
         return boardTypeOfService.getTypeOfBoard(page, boardtype);
 
     }
