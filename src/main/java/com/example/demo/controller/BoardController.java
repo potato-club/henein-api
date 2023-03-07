@@ -2,10 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.BoardRequestDto;
 import com.example.demo.dto.BoardResponseDto;
-import com.example.demo.enumCustom.BoardType;
-import com.example.demo.error.exception.NotFoundException;
 import com.example.demo.service.*;
-import com.sun.istack.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -30,17 +27,13 @@ public class BoardController {
 
         return boardTypeOfService.getEntireBoard(page);
     }
-    @PostMapping("/{boardtype}/p") //Create
-    public String addTypeOfBoard(@PathVariable char boardtype, @RequestBody BoardRequestDto boardRequestDto){
-        log.info("Post컨트롤러에 들어옴");
-        return boardTypeOfService.addTypeOfBoard(boardtype,boardRequestDto);
-    }
-
     @GetMapping("/{boardtype}")
     public Page<BoardResponseDto> getTypeOfBoard(@PathVariable char boardtype, @RequestParam("page")int page){
-        log.info("get컨트롤러 들어옴");
         return boardTypeOfService.getTypeOfBoard(page, boardtype);
-
+    }
+    @PostMapping("/{boardtype}") //Create
+    public String addTypeOfBoard(@PathVariable char boardtype, @RequestBody BoardRequestDto boardRequestDto){
+        return boardTypeOfService.addTypeOfBoard(boardtype,boardRequestDto);
     }
     @GetMapping("/{boardtype}/{id}")
     public BoardResponseDto getOneBoardOfType(@PathVariable("id")Long id){

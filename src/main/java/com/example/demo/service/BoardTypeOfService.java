@@ -36,7 +36,6 @@ public class BoardTypeOfService {
 
     @Transactional //
     public Page<BoardResponseDto> getTypeOfBoard(int page, int boardType){
-        log.info("GET service");
         BoardType board;
         switch (boardType){
             case 65: board = BoardType.Advertise; break;
@@ -54,10 +53,9 @@ public class BoardTypeOfService {
 
     //===================================================================================================
     @Transactional
-    public String addTypeOfBoard(char boardType, BoardRequestDto boardRequestDto){
-        log.info("post service");
+    public String addTypeOfBoard(int boardType, BoardRequestDto boardRequestDto){
         BoardType board;
-        switch ((int)boardType){
+        switch (boardType){
             case 65: board = BoardType.Advertise; break;
             case 66: board = BoardType.Boss; break;
             case 70: board = BoardType.Free; break;
