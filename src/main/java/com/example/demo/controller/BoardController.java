@@ -30,7 +30,7 @@ public class BoardController {
 
         return boardTypeOfService.getEntireBoard(page);
     }
-    @PostMapping("/{boardtype}") //Create
+    @PostMapping("/{boardtype}/p") //Create
     public String addTypeOfBoard(@PathVariable char boardtype, @RequestBody BoardRequestDto boardRequestDto){
         log.info("Post컨트롤러에 들어옴");
         return boardTypeOfService.addTypeOfBoard(boardtype,boardRequestDto);
