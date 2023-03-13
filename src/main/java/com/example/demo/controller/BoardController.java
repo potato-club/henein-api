@@ -1,16 +1,12 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.BoardRequestDto;
-import com.example.demo.dto.BoardResponseDto;
+import com.example.demo.dto.board.BoardRequestDto;
+import com.example.demo.dto.board.BoardResponseDto;
 import com.example.demo.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-
-import static com.example.demo.error.ErrorCode.RUNTIME_EXCEPTION;
 
 
 @RestController("")
@@ -27,6 +23,11 @@ public class BoardController {
 
         return boardTypeOfService.getEntireBoard(page);
     }
+    @PostMapping("/{boardtype}/{id}/updateview")
+    public String updateView(@PathVariable Long id){
+        return commonBoardService.updateView(id);
+    }
+
     @GetMapping("/{boardtype}")
     public Page<BoardResponseDto> getTypeOfBoard(@PathVariable char boardtype, @RequestParam("page")int page){
         return boardTypeOfService.getTypeOfBoard(page, boardtype);
