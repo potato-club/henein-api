@@ -1,4 +1,4 @@
-package com.example.demo.dto;
+package com.example.demo.dto.comment;
 
 import com.example.demo.entity.CommentEntity;
 import lombok.Getter;

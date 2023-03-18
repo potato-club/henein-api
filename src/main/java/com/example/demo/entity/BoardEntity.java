@@ -1,9 +1,9 @@
 package com.example.demo.entity;
 
-import com.example.demo.dto.BoardRequestDto;
-import com.example.demo.dto.CommentNumUpdateDto;
-import com.example.demo.dto.RecommandUpdateDTO;
-import com.example.demo.dto.ViewIncreaseDto;
+import com.example.demo.dto.board.BoardRequestDto;
+import com.example.demo.dto.comment.CommentNumUpdateDto;
+import com.example.demo.dto.board.RecommandUpdateDTO;
+import com.example.demo.dto.board.ViewIncreaseDto;
 import com.example.demo.enumCustom.BoardType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

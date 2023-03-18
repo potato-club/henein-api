@@ -3,6 +3,8 @@
 #spring.datasource.username=root
 #spring.datasource.password=over1324
 #spring.datasource.driver-class-name=org.mariadb.jdbc.Driver
+server:
+  port: 8081
 spring:
   #mvc:
    # pathmatch:
@@ -16,5 +18,9 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: update
-server:
-  port: 8081
+jwt:
+  secret:
+    jwter454dd2023LEEMJsecret19dldkaaAkeyjwtdlrpanjrkWkfqdkdlfoehWkfqdkTqkfsusdkdlfjstlqkfsusdlwlswkdjfakskzldnj11
+  access-expriation : 3600 #1시간
+  refresh-expriation : 604800 #1주
+

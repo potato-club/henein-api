@@ -7,6 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class CommentNumUpdateDto {
-    private int commentNum;
+public class LoginRequest {
+    private String username;
+    private String password;
 }

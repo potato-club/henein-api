@@ -1,4 +1,4 @@
-package com.example.demo.dto;
+package com.example.demo.dto.board;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -7,6 +7,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class RecommandUpdateDTO {
-    private int recommend;
+public class ViewIncreaseDto {
+    private int views;
 }

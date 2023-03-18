@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Getter
 @RequiredArgsConstructor
 public enum UserRole {
-    GUEST("ROLE_GUEST", "손님"),
     USER("ROLE_USER", "일반 사용자"),
     ADMIN("ROLE_ADMINISTRATOR", "관리자");
 

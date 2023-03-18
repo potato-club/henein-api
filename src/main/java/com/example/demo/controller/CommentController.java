@@ -1,7 +1,7 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.CommentRequsetDto;
-import com.example.demo.dto.CommentResponseDto;
+import com.example.demo.dto.comment.CommentRequsetDto;
+import com.example.demo.dto.comment.CommentResponseDto;
 import com.example.demo.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

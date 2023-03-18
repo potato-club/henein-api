@@ -1,4 +1,4 @@
-package com.example.demo.dto;
+package com.example.demo.dto.comment;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -7,6 +7,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ViewIncreaseDto {
-    private int views;
+public class CommentNumUpdateDto {
+    private int commentNum;
 }

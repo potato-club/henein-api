@@ -1,7 +1,7 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.BoardRequestDto;
-import com.example.demo.dto.BoardResponseDto;
+import com.example.demo.dto.board.BoardRequestDto;
+import com.example.demo.dto.board.BoardResponseDto;
 import com.example.demo.entity.BoardEntity;
 import com.example.demo.enumCustom.BoardType;
 import com.example.demo.error.exception.NotFoundException;

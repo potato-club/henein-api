@@ -1,22 +1,18 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.CommentRequsetDto;
-import com.example.demo.dto.CommentResponseDto;
-import com.example.demo.dto.CommentNumUpdateDto;
+import com.example.demo.dto.comment.CommentRequsetDto;
+import com.example.demo.dto.comment.CommentResponseDto;
+import com.example.demo.dto.comment.CommentNumUpdateDto;
 import com.example.demo.entity.BoardEntity;
 import com.example.demo.entity.CommentEntity;
-import com.example.demo.error.exception.InternerServerException;
 import com.example.demo.repository.BoardRepository;
 import com.example.demo.repository.CommentRepository;
-import com.sun.jdi.InternalException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import com.example.demo.error.ErrorCode;
 
 @Service
 @RequiredArgsConstructor
