@@ -19,6 +19,7 @@ public class UserRegisterRequest {
         return UserEntity.builder()
                 .username(userRegisterRequest.username)
                 .password(userRegisterRequest.password)
+                .email(userRegisterRequest.email)
                 .build();
     }
 }
