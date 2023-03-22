@@ -36,6 +36,7 @@ public class CommentService {
                 .userName(commentRequsetDto.getUserName())
                 .text(commentRequsetDto.getText())
                 .build();
+
         //보드 게시판의 댓글수 업데이트
         CommentNumUpdateDto commentNumUpdateDto = new CommentNumUpdateDto();
         commentNumUpdateDto.setCommentNum(boardEntity.getCommentNum()+1);
