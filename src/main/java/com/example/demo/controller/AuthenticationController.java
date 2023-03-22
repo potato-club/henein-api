@@ -9,6 +9,7 @@ import com.example.demo.jwt.KakaoOAuth2Client;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.KakaoOAuth2UserDetailsServcie;
 import com.example.demo.service.UserService;
+import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -29,6 +30,7 @@ import java.util.Optional;
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 @Slf4j
+@Api(tags = {"JWT 로그인 Controller"})
 public class AuthenticationController {
 
     private final UserService userService;

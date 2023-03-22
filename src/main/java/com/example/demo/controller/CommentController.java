@@ -3,14 +3,16 @@ package com.example.demo.controller;
 import com.example.demo.dto.comment.CommentRequsetDto;
 import com.example.demo.dto.comment.CommentResponseDto;
 import com.example.demo.service.CommentService;
+import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/board/{boardtype}/{id}/comment")
+@RequestMapping(value = "/board/{id}/comment")
 @RequiredArgsConstructor
+@Api(tags = {"댓글 Controller"})
 public class CommentController {
     final private CommentService commentService;
     @GetMapping() //넘겨주는건 게시판의 id
