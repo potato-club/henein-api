@@ -7,8 +7,6 @@ server:
   port: 8081
 spring:
   datasource:
-    dbcp2:
-
     driver-class-name: org.mariadb.jdbc.Driver
     url: jdbc:mysql://localhost:3306/demo?autoReconnect=true
     username: root
