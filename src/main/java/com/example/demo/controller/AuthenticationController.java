@@ -37,7 +37,7 @@ public class AuthenticationController {
     private final JwtTokenProvider jwtTokenProvider;
 
 
-    @GetMapping("/login/kakao")
+    @PostMapping("/login/kakao")
     public ResponseEntity<?> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws IOException {
         log.info("Controller -> login/kakao 진입시도 코드: "+code);
 
