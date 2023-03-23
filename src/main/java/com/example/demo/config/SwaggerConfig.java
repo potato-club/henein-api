@@ -15,11 +15,11 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @Configuration
 @Import(BeanValidatorPluginsConfiguration.class)
 public class SwaggerConfig extends WebMvcConfigurationSupport {
-    /*@Override
+    @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/swagger-ui/**").addResourceLocations("classpath:/META-INF/resources/webjars/springfox-swagger-ui/");
         registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/springfox-swagger-ui/");
-    }*/
+    }
     @Bean
     public Docket api() {
         return new Docket(DocumentationType.OAS_30)

@@ -40,7 +40,7 @@ public class AuthenticationController {
 
 
     @GetMapping("/login/kakao")
-    public ResponseEntity<?> kakaoLogin(@RequestParam String code, HttpServletResponse response) throws IOException {
+    public ResponseEntity<?> kakaoLogin(@RequestParam("code") String code, HttpServletResponse response) throws IOException {
         log.info("Controller -> login/kakao 진입시도 코드: "+code);
 
         KakaoOAuth2AccessTokenResponse tokenResponse = kakaoOAuth2Client.getAccessToken(code);
