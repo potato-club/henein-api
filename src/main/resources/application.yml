@@ -1,0 +1,44 @@
+# DataSource
+#spring.datasource.url=jdbc:mysql://localhost:3306/demo?autoReconnect=true
+#spring.datasource.username=root
+#spring.datasource.password=over1324
+#spring.datasource.driver-class-name=org.mariadb.jdbc.Driver
+server:
+  port: 8080
+spring:
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/demo?autoReconnect=true
+    username: root
+    password: over1324
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: 94fd9486863fc9c4c0bed05d9aa79b13
+            client-secret: O5ogeAqSi4l6BO317uTUuXroL2MdCQQl
+            redirect-uri: http://localhost:3000/oauth/kakao #http://localhost:8081/login/oauth2/code/kakao #수정 전
+            authorization-grant-type: authorization_code
+            client-authentication-method: POST
+            client_name: Kakao
+            scope:
+              - account_email
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+
+jwt:
+  secret:
+    jwter454dd2023LEEMJsecret19dldkaaAkeyjwtdlrpanjrkWkfqdkdlfoehWkfqdkTqkfsusdkdlfjstlqkfsusdlwlswkdjfakskzldnj11
+  access-expriation : 3600 #1시간
+  refresh-expriation : 604800 #1주
+
+

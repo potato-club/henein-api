@@ -1,0 +1,10 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: none
+  datasource:
+    url: jdbc:mariadb://henesys-service.c5ptjr6kbipd.ap-northeast-2.rds.amazonaws.com:3306/henesys_service
+    username: lmj
+    password: over1324
+    driver-class-name: org.mariadb.jdbc.Driver
+
