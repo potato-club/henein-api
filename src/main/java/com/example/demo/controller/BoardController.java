@@ -44,7 +44,7 @@ public class BoardController {
         return boardTypeOfService.getTypeOfBoard(page, boardtype);
     }
     @ApiImplicitParams({
-            @ApiImplicitParam(name="board", value= "원하는 게시판 타입[ex(A,B,F,I,H,N)]", required = true),
+            @ApiImplicitParam(name="board", value= "원하는 게시판 타입[ex(A,B,F,I,H,N,E[entireboard])]", required = true),
     })
     @PostMapping() //Create
     public String addTypeOfBoard(@RequestParam("board")char boardtype, @RequestBody BoardRequestDto boardRequestDto){
