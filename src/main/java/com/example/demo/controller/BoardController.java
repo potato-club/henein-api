@@ -25,11 +25,11 @@ public class BoardController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "page", value = "원하는 페이지 값", required = true)
     })
-    @GetMapping("/entire") // 전체게시판 ( 공지게시판 호출없음)
+/*    @GetMapping("/entire") // 전체게시판 ( 공지게시판 호출없음)
     public Page<BoardResponseDto> getEntireBoard(@RequestParam("page")int page){
 
         return boardTypeOfService.getEntireBoard(page);
-    }
+    }*/
     @PostMapping("/{id}/updateview")
     public String updateView(@PathVariable Long id){
         return commonBoardService.updateView(id);

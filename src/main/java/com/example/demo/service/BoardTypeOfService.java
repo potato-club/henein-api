@@ -25,28 +25,31 @@ import static com.example.demo.error.ErrorCode.RUNTIME_EXCEPTION;
 public class BoardTypeOfService {
     final private BoardRepository boardRepository;
 
-    @Transactional //전체게시판
+/*    @Transactional //전체게시판
     public Page<BoardResponseDto> getEntireBoard(int page){
         //id를 이용한 내림차순 정렬
         PageRequest pageRequest = PageRequest.of(page-1, 20);
         Page<BoardEntity> boardEntityList = boardRepository.findAllNotNotice(pageRequest);
-
         return new PageImpl<>(boardEntityList.stream().map(BoardResponseDto::new).collect(Collectors.toList()));
-    }
+    }*/
 
     @Transactional //
     public Page<BoardResponseDto> getTypeOfBoard(int page, int boardType){
         BoardType board;
+        PageRequest pageRequest = PageRequest.of(page-1, 20);
+
         switch (boardType){
             case 65: board = BoardType.Advertise; break;
             case 66: board = BoardType.Boss; break;
+            case 69: {Page<BoardEntity> boardEntityList = boardRepository.findAllNotNotice(pageRequest);
+                return new PageImpl<>(boardEntityList.stream().map(BoardResponseDto::new).collect(Collectors.toList()));}
             case 70: board = BoardType.Free; break;
-            case 72: board = BoardType.Info; break;
-            case 73: board = BoardType.Humor; break;
+            case 72: board = BoardType.Humor; break;
+            case 73: board = BoardType.Info; break;
             case 78: board = BoardType.Notice; break;
             default: throw new NotFoundException(RUNTIME_EXCEPTION,"E00000");
         }
-        PageRequest pageRequest = PageRequest.of(page-1, 20);
+
         Page<BoardEntity> boardEntityList = boardRepository.findByBoardType(board,pageRequest);
         return new PageImpl<>(boardEntityList.stream().map(BoardResponseDto::new).collect(Collectors.toList()));
     }
