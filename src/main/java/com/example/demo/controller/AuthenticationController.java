@@ -34,6 +34,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 @Api(tags = {"JWT 로그인 Controller"})
+@CrossOrigin("localhost:3000")
 public class AuthenticationController {
 
     private final UserService userService;
