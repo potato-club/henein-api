@@ -10,6 +10,8 @@ import com.example.demo.repository.UserRepository;
 import com.example.demo.service.KakaoOAuth2UserDetailsServcie;
 import com.example.demo.service.UserService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -19,6 +21,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -83,5 +86,10 @@ public class AuthenticationController {
         return userService.registerUser(userRegisterRequest);
     }
 
+    @ApiIgnore
+    @GetMapping()
+    public ResponseEntity<?> EC2HealthCheck(){
+        return ResponseEntity.ok("GOOD");
+    }
 
 }
