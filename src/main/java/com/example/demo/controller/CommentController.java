@@ -13,7 +13,7 @@ import java.util.List;
 @RequestMapping(value = "/board/{id}/comment")
 @RequiredArgsConstructor
 @Api(tags = {"댓글 Controller"})
-@CrossOrigin(origins = "localhost:3000")
+@CrossOrigin(origins = "http://localhost:3000")
 public class CommentController {
     final private CommentService commentService;
     @GetMapping() //넘겨주는건 게시판의 id
