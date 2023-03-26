@@ -31,8 +31,11 @@ public class UserEntity {
     @Column
     private String refreshToken;
 
-    public void setToken(String accessToken, String refreshToken){
-        this.accessToken = accessToken;
+    public void KakaoSignUp(String email,String refreshToken){
+        this.email = email;
+        this.refreshToken = refreshToken;
+    }
+    public void setRefreshToken(String refreshToken){
         this.refreshToken = refreshToken;
     }
 

@@ -36,7 +36,7 @@ public class BoardController {
         return commonBoardService.updateView(id);
     }
     @ApiImplicitParams({
-            @ApiImplicitParam(name="board", value= "원하는 게시판 타입[ex(A,B,F,I,H,N)]", required = true),
+            @ApiImplicitParam(name="board", value= "원하는 게시판 타입[ex A,B,F,I,H,N,E[entireboard]]", required = true),
             @ApiImplicitParam(name = "page", value = "원하는 페이지 값", required = true)
     })
     //@modelattrivute로 dto를 만들어서 한번에 처리할 수도 있다.
@@ -45,7 +45,7 @@ public class BoardController {
         return boardTypeOfService.getTypeOfBoard(page, boardtype);
     }
     @ApiImplicitParams({
-            @ApiImplicitParam(name="board", value= "원하는 게시판 타입[ex(A,B,F,I,H,N,E[entireboard])]", required = true),
+            @ApiImplicitParam(name="board", value= "원하는 게시판 타입[ex A,B,F,I,H,N ]", required = true),
     })
     @PostMapping() //Create
     public String addTypeOfBoard(@RequestParam("board")char boardtype, @RequestBody BoardRequestDto boardRequestDto){

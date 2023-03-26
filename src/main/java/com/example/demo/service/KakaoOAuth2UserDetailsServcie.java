@@ -8,6 +8,7 @@ import com.example.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -29,21 +30,22 @@ public class KakaoOAuth2UserDetailsServcie implements UserDetailsService {
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
     @Transactional
-    public UserDetails loadUserByKakaoOAuth2User(KakaoOAuth2User kakaoOAuth2User, String AT, String RT, HttpServletResponse response) throws IOException {
+    public UserDetails loadUserByKakaoOAuth2User(KakaoOAuth2User kakaoOAuth2User, String RT) throws IOException {
         // 받은 정보로 찾고, 정보가 없으면 회원가입으로 갑니다.
         log.info("service 진입");
-        UserEntity userEntity = userRepository.findByEmail(kakaoOAuth2User.getEmail());
+        UserEntity userEntity = userRepository.findByEmail(kakaoOAuth2User.getKakao_account().getEmail());
+        //if 문에서 기존 가입지인지 아닌지 구별
         if (userEntity == null){
-            String redirect_uri = "https://www.henesysBack.com/auto/register";
-            response.sendRedirect(redirect_uri);
-            return null;
+            UserEntity user = new UserEntity();
+            user.KakaoSignUp(kakaoOAuth2User.getKakao_account().getEmail(),RT);
+            userRepository.save(user);
+            return new CustomeUserDetails(user);
         }
-        // Generate JWT tokens
-        String accessToken = jwtTokenProvider.generateAccessToken(userEntity.getUsername());
-        String refreshToken = jwtTokenProvider.generateRefreshToken(userEntity.getUsername());
-        // Set tokens to user
-        userEntity.setToken(accessToken,refreshToken);
+
+        // 기존 가입자 처리.
+        userEntity.setRefreshToken(RT);
         log.info("유저 엔티티 :"+userEntity);
+        userRepository.save(userEntity);
         return new CustomeUserDetails(userEntity);
     }
 

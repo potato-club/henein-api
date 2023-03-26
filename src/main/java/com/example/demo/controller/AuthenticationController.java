@@ -64,11 +64,13 @@ public class AuthenticationController {
         String refreshToken = jwtTokenProvider.generateRefreshToken(authentication.getName());
 
         // 로그인한 사용자의 정보를 저장합니다.
-        kakaoOAuth2UserDetailsServcie.loadUserByKakaoOAuth2User(kakaoOAuth2User,
-                tokenResponse.getAccessToken(), tokenResponse.getRefreshToken(),response);
+        kakaoOAuth2UserDetailsServcie.loadUserByKakaoOAuth2User(kakaoOAuth2User, refreshToken);
+        //클라이언트에게 리턴해주기
+
         Map<String, String> tokens = new HashMap<>();
         tokens.put("access_token","Bearer"+accessToken);
         tokens.put("refresh_token","Bearer"+refreshToken);
+        response.setHeader("Authenticaion","Bearer"+accessToken);
         return ResponseEntity.ok(tokens);
 
     }
