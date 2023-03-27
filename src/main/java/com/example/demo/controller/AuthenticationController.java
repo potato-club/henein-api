@@ -54,8 +54,7 @@ public class AuthenticationController {
         log.info("카카오 사용자 정보를 가져옵니다 kakaoOAuth2User:"+kakaoOAuth2User);
 
         // 사용자 정보를 기반으로 우리 시스템에 인증을 수행합니다.
-        Authentication authentication = new UsernamePasswordAuthenticationToken(
-                kakaoOAuth2User, null);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(kakaoOAuth2User, null);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         log.info("사용자 정보를 기반으로 우리 시스템에 인증을 수행 authentication:"+authentication);
 

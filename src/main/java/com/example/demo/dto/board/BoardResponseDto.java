@@ -2,6 +2,7 @@ package com.example.demo.dto.board;
 
 import com.example.demo.entity.*;
 import com.example.demo.enumCustom.BoardType;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -15,6 +16,7 @@ public class BoardResponseDto {
     private String title;
     private int commentNum;
     private String name; //이름 바꿔야함
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime createTime;
     private int views;
     private int recommend;
