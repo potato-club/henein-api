@@ -56,15 +56,15 @@ public class BoardTypeOfService {
 
     //===================================================================================================
     @Transactional
-    public String addTypeOfBoard(int boardType, BoardRequestDto boardRequestDto){
+    public String addTypeOfBoard(BoardRequestDto boardRequestDto){
         BoardType board;
-        switch (boardType){
-            case 65: board = BoardType.Advertise; break;
-            case 66: board = BoardType.Boss; break;
-            case 70: board = BoardType.Free; break;
-            case 72: board = BoardType.Info; break;
-            case 73: board = BoardType.Humor; break;
-            case 78: board = BoardType.Notice; break;
+        switch (boardRequestDto.getBoardType()){
+            case "A": board = BoardType.Advertise; break;
+            case "B": board = BoardType.Boss; break;
+            case "F": board = BoardType.Free; break;
+            case "I": board = BoardType.Info; break;
+            case "H": board = BoardType.Humor; break;
+            case "N": board = BoardType.Notice; break;
             default: throw new NotFoundException(RUNTIME_EXCEPTION,"E00000");
         }
         try{

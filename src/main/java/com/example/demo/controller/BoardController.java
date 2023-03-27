@@ -48,8 +48,8 @@ public class BoardController {
             @ApiImplicitParam(name="board", value= "원하는 게시판 타입[ex A,B,F,I,H,N ]", required = true),
     })
     @PostMapping() //Create
-    public String addTypeOfBoard(@RequestParam("board")char boardtype, @RequestBody BoardRequestDto boardRequestDto){
-        return boardTypeOfService.addTypeOfBoard(boardtype,boardRequestDto);
+    public String addTypeOfBoard(@RequestBody BoardRequestDto boardRequestDto){
+        return boardTypeOfService.addTypeOfBoard(boardRequestDto);
     }
     @GetMapping("/{id}") //Read
     public BoardResponseDto getOneBoard(@PathVariable("id") Long id){

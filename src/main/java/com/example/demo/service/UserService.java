@@ -54,7 +54,7 @@ public class UserService {
     @Transactional
     public ResponseEntity<?> refreshAT(String RTHeader,HttpServletResponse response){
         //bearer 지우기
-        //String RT = RTHeader.substring(7);
+        String RT = RTHeader.substring(7);
 
         try {
             // Validate the refreshToken and generate a new accessToken

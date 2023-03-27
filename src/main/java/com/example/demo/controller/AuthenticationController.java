@@ -69,7 +69,7 @@ public class AuthenticationController {
         Map<String, String> tokens = new HashMap<>();
         tokens.put("access_token","Bearer"+accessToken);
         tokens.put("refresh_token","Bearer"+refreshToken);
-        response.setHeader("Authenticaion","Bearer"+accessToken);
+        response.setHeader("Authorization","Bearer"+accessToken);
         return ResponseEntity.ok(tokens);
 
     }
