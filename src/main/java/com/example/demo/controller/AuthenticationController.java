@@ -1,22 +1,17 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.*;
-import com.example.demo.entity.UserEntity;
-import com.example.demo.jwt.CustomeUserDetails;
+import com.example.demo.dto.login.KakaoOAuth2User;
+import com.example.demo.dto.login.LoginRequest;
+import com.example.demo.dto.login.UserRegisterRequest;
 import com.example.demo.jwt.JwtTokenProvider;
 import com.example.demo.jwt.KakaoOAuth2AccessTokenResponse;
 import com.example.demo.jwt.KakaoOAuth2Client;
-import com.example.demo.repository.UserRepository;
 import com.example.demo.service.KakaoOAuth2UserDetailsServcie;
 import com.example.demo.service.UserService;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,7 +22,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth")
@@ -56,7 +50,7 @@ public class AuthenticationController {
         // 사용자 정보를 기반으로 우리 시스템에 인증을 수행합니다.
         Authentication authentication = new UsernamePasswordAuthenticationToken(kakaoOAuth2User, null);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        log.info("사용자 정보를 기반으로 우리 시스템에 인증을 수행 authentication:"+authentication);
+        log.info("사용자 정보를 기반으로 우리 시스템에 인증을 수행 authentication:"+authentication.getName());
 
         // JWT 토큰을 발급합니다.
         String accessToken = jwtTokenProvider.generateAccessToken(authentication.getName());

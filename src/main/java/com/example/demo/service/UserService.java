@@ -1,10 +1,8 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.LoginRequest;
-import com.example.demo.dto.RefreshTokenRequest;
-import com.example.demo.dto.TokenResponse;
-import com.example.demo.dto.UserRegisterRequest;
-import com.example.demo.entity.UserEntity;
+import com.example.demo.dto.login.LoginRequest;
+import com.example.demo.dto.login.TokenResponse;
+import com.example.demo.dto.login.UserRegisterRequest;
 import com.example.demo.jwt.JwtTokenProvider;
 import com.example.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
-import java.util.Optional;
 
 @Service
 @Slf4j

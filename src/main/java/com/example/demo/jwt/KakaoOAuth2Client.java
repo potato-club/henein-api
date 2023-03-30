@@ -1,11 +1,10 @@
 package com.example.demo.jwt;
 
-import com.example.demo.dto.KakaoOAuth2User;
+import com.example.demo.dto.login.KakaoOAuth2User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.io.IOException;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -14,10 +13,6 @@ import org.springframework.web.client.RestTemplate;
 public class KakaoOAuth2Client {
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
     private String kakaoClientId;
-
-    @Value("${spring.security.oauth2.client.registration.kakao.client-secret}")
-    private String kakaoClientSecret;
-
     @Value("${spring.security.oauth2.client.registration.kakao.redirect-uri}")
     private String kakaoRedirectUri;
 
@@ -41,7 +36,6 @@ public class KakaoOAuth2Client {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
         params.add("client_id", kakaoClientId);
-        params.add("client_secret", kakaoClientSecret);
         params.add("redirect_uri", kakaoRedirectUri);
         params.add("code", code);
 

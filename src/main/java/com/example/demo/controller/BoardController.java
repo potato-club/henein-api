@@ -11,6 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+
 
 @RestController("")
 @RequestMapping(value = "/board")
@@ -26,11 +29,7 @@ public class BoardController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "page", value = "원하는 페이지 값", required = true)
     })
-/*    @GetMapping("/entire") // 전체게시판 ( 공지게시판 호출없음)
-    public Page<BoardResponseDto> getEntireBoard(@RequestParam("page")int page){
 
-        return boardTypeOfService.getEntireBoard(page);
-    }*/
     @PostMapping("/{id}/updateview")
     public String updateView(@PathVariable Long id){
         return commonBoardService.updateView(id);
@@ -39,16 +38,19 @@ public class BoardController {
             @ApiImplicitParam(name="board", value= "원하는 게시판 타입[ex A,B,F,I,H,N,E[entireboard]]", required = true),
             @ApiImplicitParam(name = "page", value = "원하는 페이지 값", required = true)
     })
+
     //@modelattrivute로 dto를 만들어서 한번에 처리할 수도 있다.
     @GetMapping()
     public Page<BoardResponseDto> getTypeOfBoard(@RequestParam("board")char boardtype, @RequestParam("page")int page){
         return boardTypeOfService.getTypeOfBoard(page, boardtype);
     }
+
     @PostMapping() //Create
     public String addTypeOfBoard(@RequestBody BoardRequestDto boardRequestDto){
         return boardTypeOfService.addTypeOfBoard(boardRequestDto);
     }
-    @GetMapping("/{id}") //Read
+    //Read
+    @GetMapping("/{id}")
     public BoardResponseDto getOneBoard(@PathVariable("id") Long id){
         return commonBoardService.getOneService(id);
     }
@@ -62,8 +64,9 @@ public class BoardController {
         return commonBoardService.deleteService(id);
     }
 
-    /*@PatchMapping("/{boardtype}/{id}/recommend")
-    public String recommendThisBoard(@PathVariable("id")Long id){return commonBoardService.recommendThisBoard(id);}
-    @PatchMapping("/{boardtype}/{id}/unRecommend")
-    public String unRecommendThisBoard(@PathVariable("id")Long id){return commonBoardService.unRecommendThisBoard(id);}*/
+    //추천 로직
+    @GetMapping("/{boardtype}/{id}/recommend")
+    public String recommendThisBoard(@PathVariable("id")Long id, HttpServletRequest request){
+        return commonBoardService.recommendThisBoard(id,request);
+    }
 }

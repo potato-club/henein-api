@@ -7,6 +7,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class RecommandUpdateDTO {
+public class RecommendDTO {
     private int recommend;
+    public RecommendDTO(int recommend){
+        this.recommend =recommend;
+    }
 }

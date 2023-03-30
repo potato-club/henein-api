@@ -25,17 +25,18 @@ public class UserEntity {
     @Column(unique = true)
     @NotNull
     private String email;
-
-    @Column
-    private String accessToken;
-    @Column
+    @Column(length = 512)
     private String refreshToken;
 
-    public void KakaoSignUp(String email,String refreshToken){
+    public UserEntity(String email) {
+        this.email =email;
+    }
+
+    /*public void KakaoSignUp(String email,String refreshToken){
         this.email = email;
         this.refreshToken = refreshToken;
-    }
-    public void setRefreshToken(String refreshToken){
+    }*/
+    public void RefreshToken(String refreshToken){
         this.refreshToken = refreshToken;
     }
 
