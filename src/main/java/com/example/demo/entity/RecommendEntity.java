@@ -25,7 +25,7 @@ public class RecommendEntity {
     private BoardEntity boardEntity;
 
     @ManyToOne
-    @JoinColumn(name = "email")
+    @JoinColumn(name = "email",nullable = false)
     private UserEntity userEntity;
 
     @Column(nullable = false)

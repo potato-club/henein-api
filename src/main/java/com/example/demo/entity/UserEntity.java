@@ -22,8 +22,7 @@ public class UserEntity {
     private String username;
     @Column
     private String password;
-    @Column(unique = true)
-    @NotNull
+    @Column(unique = true,nullable = false)
     private String email;
     @Column(length = 512)
     private String refreshToken;
