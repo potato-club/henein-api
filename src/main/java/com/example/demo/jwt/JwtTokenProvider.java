@@ -1,6 +1,7 @@
 package com.example.demo.jwt;
 
 import io.jsonwebtoken.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,6 +12,7 @@ import javax.transaction.Transactional;
 import java.util.Date;
 
 @Component
+@Slf4j
 public class JwtTokenProvider {
     @Value("${jwt.secret}")
     private String secretKey;
@@ -23,24 +25,24 @@ public class JwtTokenProvider {
 
     //토큰 생성 메서드 구현
     //AT 구현
-    public String generateAccessToken(String username) {
+    public String generateAccessToken(String email) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + accessTokenExpiration);
-
+        log.info(String.valueOf(now.getTime()));
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(email)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS512, secretKey)
                 .compact();
     }
 
-    public String generateRefreshToken(String username) {
+    public String generateRefreshToken(String email) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + refreshTokenExpiration);
 
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(email)
                 .claim("type", "refresh")
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
@@ -51,8 +53,8 @@ public class JwtTokenProvider {
     //헤더에 있는 AT토큰 가져오기
     @Transactional
     public String resolveAccessToken(HttpServletRequest request) {
-        if(request.getHeader("authorization") != null )
-            return request.getHeader("authorization").substring(7);
+        if(request.getHeader("Authorization") != null )
+            return request.getHeader("Authorization").substring(7);
         return null;
     }
    /* public String getUserEmailFromAccessToken(String token) {
@@ -91,7 +93,7 @@ public class JwtTokenProvider {
             Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            throw new RuntimeException("Invalid access token");
+            throw new RuntimeException("FUCKYOU" + e.getMessage());
         }
     }
 

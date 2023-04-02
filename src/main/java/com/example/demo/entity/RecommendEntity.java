@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @Getter
@@ -30,13 +31,13 @@ public class RecommendEntity {
     @Column(nullable = false)
     private boolean value;
 
-    @Column()
-    private LocalDateTime updateTime;
-
-    @PreUpdate //
+    public void setValue(boolean value){
+        this.value = value;
+    }
+/*    @PreUpdate //
     public void onPreUpdate(){
         this.updateTime=LocalDateTime.now();
-    }
+    }*/
 
 
 }

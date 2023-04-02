@@ -1,9 +1,10 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.login.KakaoOAuth2User;
+import com.example.demo.entity.GuestCountEntity;
 import com.example.demo.entity.UserEntity;
 import com.example.demo.jwt.CustomeUserDetails;
 import com.example.demo.jwt.JwtTokenProvider;
+import com.example.demo.repository.GuestCountRepository;
 import com.example.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,27 +27,33 @@ import java.io.IOException;
 public class KakaoOAuth2UserDetailsServcie implements UserDetailsService {
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final GuestCountRepository guestCountRepository;
     @Transactional
-    public UserDetails loadUserByKakaoOAuth2User(KakaoOAuth2User kakaoOAuth2User, String RT) throws IOException {
+    public UserDetails loadUserByKakaoOAuth2User(String email, String RT) throws IOException {
         // 받은 정보로 찾고, 정보가 없으면 회원가입으로 갑니다.
-        log.info("service 진입");
-        UserEntity userEntity = userRepository.findByEmail(kakaoOAuth2User.getKakao_account().getEmail())
-                .orElse(new UserEntity(kakaoOAuth2User.getKakao_account().getEmail()));
-        //if 문에서 기존 가입지인지 아닌지 구별
-       /* if (userEntity == null){
-            UserEntity user = new UserEntity();
-            user.KakaoSignUp(kakaoOAuth2User.getKakao_account().getEmail());
-            userRepository.save(user);
-            return new CustomeUserDetails(user);
-        }*/
+        log.info("DB저장 service 진입");
 
-        userEntity.RefreshToken(RT);
+
+        UserEntity userEntity = userRepository.findByEmail(email)
+                .orElse(controlUser(email));
+
+//new UserEntity(email, guestCount.getGuestCount())
+        userEntity.setRefreshToken(RT);
         userRepository.save(userEntity);
+
         return new CustomeUserDetails(userEntity);
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return null;
+    }
+    public UserEntity controlUser(String email){
+        GuestCountEntity guestCount = guestCountRepository.getById(new Long(1));
+        guestCount.addCount();
+        //유저이름을 "guest" + guestCount로 설정
+        UserEntity userEntity = new UserEntity(email, guestCount.getGuestCount());
+        guestCountRepository.save(guestCount);
+        return userEntity;
     }
 }

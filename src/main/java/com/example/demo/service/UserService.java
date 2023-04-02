@@ -27,26 +27,26 @@ public class UserService {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
 
-    @Transactional
-    public ResponseEntity<?> login(LoginRequest loginRequest, HttpServletResponse response){
-        // Authenticate the user
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.getUsername(),
-                        loginRequest.getPassword()
-                )
-        );
-        log.info(authentication.getName());
-
-        // Generate the access and refresh tokens
-        String accessToken = jwtTokenProvider.generateAccessToken(authentication.getName());
-        String refreshToken = jwtTokenProvider.generateRefreshToken(authentication.getName());
-
-        response.setHeader("Authorization","Bearer "+accessToken);
-
-        // Return the tokens in the response
-        return ResponseEntity.ok(new TokenResponse(accessToken, refreshToken));
-    }
+//    @Transactional
+//    public ResponseEntity<?> login(LoginRequest loginRequest, HttpServletResponse response){
+//        // Authenticate the user
+//        Authentication authentication = authenticationManager.authenticate(
+//                new UsernamePasswordAuthenticationToken(
+//                        loginRequest.getUsername(),
+//                        loginRequest.getPassword()
+//                )
+//        );
+//        log.info(authentication.getName());
+//
+//        // Generate the access and refresh tokens
+//        String accessToken = jwtTokenProvider.generateAccessToken(authentication.getName());
+//        String refreshToken = jwtTokenProvider.generateRefreshToken(authentication.getName());
+//
+//        response.setHeader("Authorization","Bearer "+accessToken);
+//
+//        // Return the tokens in the response
+//        return ResponseEntity.ok(new TokenResponse(accessToken, refreshToken));
+//    }
 
     @Transactional
     public ResponseEntity<?> refreshAT(String RTHeader,HttpServletResponse response){

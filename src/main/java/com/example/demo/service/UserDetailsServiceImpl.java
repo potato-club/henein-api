@@ -23,7 +23,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         // Create a UserDetails object using the user's information
         return User.withUsername(userEntity.getUsername())
-                .password(userEntity.getPassword())
+                .password("password_not_used")
                 .authorities(new SimpleGrantedAuthority("ROLE_USER"))
                 .accountExpired(false)
                 .accountLocked(false)

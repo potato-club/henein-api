@@ -1,8 +1,8 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.board.BoardRecommendDTO;
 import com.example.demo.dto.board.BoardRequestDto;
 import com.example.demo.dto.board.BoardResponseDto;
-import com.example.demo.dto.board.RecommendDTO;
 import com.example.demo.dto.board.ViewIncreaseDto;
 import com.example.demo.entity.BoardEntity;
 import com.example.demo.entity.RecommendEntity;
@@ -76,8 +76,8 @@ public class CommonBoardService {
                     .userEntity(userEntity)
                     .value(true)
                     .build();
-            RecommendDTO recommendDTO = new RecommendDTO(boardEntity.getRecommend()+1);
-            boardEntity.Update(recommendDTO);
+            BoardRecommendDTO boardRecommendDTO = new BoardRecommendDTO(boardEntity.getRecommend()+1);
+            boardEntity.Update(boardRecommendDTO);
 
             recommandRepository.save(recommend);
             boardRepository.save(boardEntity);
@@ -85,21 +85,27 @@ public class CommonBoardService {
         }
         //이미 추천한 흔적이 있는 유저들
         if (recommendEntity.isValue()){ //true ?
-            RecommendDTO recommendDTO = new RecommendDTO(boardEntity.getRecommend()-1);
-            boardEntity.Update(recommendDTO);
+            BoardRecommendDTO boardRecommendDTO = new BoardRecommendDTO(boardEntity.getRecommend()-1);
+            boardEntity.Update(boardRecommendDTO);
+            recommendEntity.setValue(false);
+
             boardRepository.save(boardEntity);
+            recommandRepository.save(recommendEntity);
             return "추천 취소";
         } else {
-            RecommendDTO recommendDTO = new RecommendDTO(boardEntity.getRecommend()+1);
-            boardEntity.Update(recommendDTO);
+            BoardRecommendDTO boardRecommendDTO = new BoardRecommendDTO(boardEntity.getRecommend()+1);
+            boardEntity.Update(boardRecommendDTO);
+            recommendEntity.setValue(true);
+
             boardRepository.save(boardEntity);
+            recommandRepository.save(recommendEntity);
             return "재추천 완료";
         }
     }
   /*  @Transactional
     public String unRecommendThisBoard(Long id){
         BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 게시글 정보가 없습니다");});
-        RecommendDTO recommandUpdateDTO = new RecommendDTO();
+        BoardRecommendDTO recommandUpdateDTO = new BoardRecommendDTO();
         recommandUpdateDTO.setRecommend(boardEntity.getRecommend()-1);
         boardEntity.Update(recommandUpdateDTO);
         boardRepository.save(boardEntity);

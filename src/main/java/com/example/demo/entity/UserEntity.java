@@ -28,15 +28,17 @@ public class UserEntity {
     @Column(length = 512)
     private String refreshToken;
 
-    public UserEntity(String email) {
+    public UserEntity(String email, int guestCount) {
         this.email =email;
+        String username = "guest"+guestCount;
+        this.username = username;
     }
 
     /*public void KakaoSignUp(String email,String refreshToken){
         this.email = email;
         this.refreshToken = refreshToken;
     }*/
-    public void RefreshToken(String refreshToken){
+    public void setRefreshToken(String refreshToken){
         this.refreshToken = refreshToken;
     }
 

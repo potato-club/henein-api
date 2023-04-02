@@ -45,42 +45,44 @@ public class AuthenticationController {
 
         // 카카오 사용자 정보를 가져옵니다.
         KakaoOAuth2User kakaoOAuth2User = kakaoOAuth2Client.getUserProfile(tokenResponse.getAccessToken());
-        log.info("카카오 사용자 정보를 가져옵니다 kakaoOAuth2User:"+kakaoOAuth2User);
+        log.info("카카오 사용자 정보를 가져옵니다 kakaoOAuth2User:"+kakaoOAuth2User.getKakao_account().getEmail());
 
         // 사용자 정보를 기반으로 우리 시스템에 인증을 수행합니다.
         Authentication authentication = new UsernamePasswordAuthenticationToken(kakaoOAuth2User, null);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        log.info("사용자 정보를 기반으로 우리 시스템에 인증을 수행 authentication:"+authentication.getName());
+
 
         // JWT 토큰을 발급합니다.
-        String accessToken = jwtTokenProvider.generateAccessToken(authentication.getName());
-        String refreshToken = jwtTokenProvider.generateRefreshToken(authentication.getName());
+        String email = kakaoOAuth2User.getKakao_account().getEmail();
+        log.info("JWT 토큰을 발급합니다 Controller: "+email);
+        String accessToken = jwtTokenProvider.generateAccessToken(email);
+        String refreshToken = jwtTokenProvider.generateRefreshToken(email);
 
         // 로그인한 사용자의 정보를 저장합니다.
-        kakaoOAuth2UserDetailsServcie.loadUserByKakaoOAuth2User(kakaoOAuth2User, refreshToken);
+        kakaoOAuth2UserDetailsServcie.loadUserByKakaoOAuth2User(email, refreshToken);
         //클라이언트에게 리턴해주기
 
         Map<String, String> tokens = new HashMap<>();
-        tokens.put("access_token","Bearer"+accessToken);
-        tokens.put("refresh_token","Bearer"+refreshToken);
-        response.setHeader("Authorization","Bearer"+accessToken);
+        tokens.put("access_token","Bearer "+accessToken);
+        tokens.put("refresh_token","Bearer "+refreshToken);
+        response.setHeader("Authorization","Bearer "+accessToken);
         return ResponseEntity.ok(tokens);
 
     }
     //////
 
-    @PostMapping("/login")
+    /*@PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
        return userService.login(loginRequest, response);
-    }
+    }*/
     @GetMapping("/refresh")
     public ResponseEntity<?> refreshAT(@RequestHeader("Authorization") String RTHeader,HttpServletResponse response) {
        return userService.refreshAT(RTHeader, response);
     }
-    @PostMapping("/register")
+    /*@PostMapping("/register")
     public String register(@RequestBody UserRegisterRequest userRegisterRequest){
         return userService.registerUser(userRegisterRequest);
-    }
+    }*/
 
     @ApiIgnore
     @GetMapping()

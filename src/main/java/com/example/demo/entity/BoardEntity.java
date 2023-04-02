@@ -1,7 +1,7 @@
 package com.example.demo.entity;
 
+import com.example.demo.dto.board.BoardRecommendDTO;
 import com.example.demo.dto.board.BoardRequestDto;
-import com.example.demo.dto.board.RecommendDTO;
 import com.example.demo.dto.comment.CommentNumUpdateDto;
 import com.example.demo.dto.board.ViewIncreaseDto;
 import com.example.demo.enumCustom.BoardType;
@@ -47,8 +47,8 @@ public class BoardEntity {
         this.createTime = LocalDateTime.now();
         this.text = boardRequestDto.getText();
     }
-    public void Update(RecommendDTO recommendDTO){
-        this.recommend = recommendDTO.getRecommend();
+    public void Update(BoardRecommendDTO boardRecommendDTO){
+        this.recommend = boardRecommendDTO.getRecommend();
     }
     public void Update(CommentNumUpdateDto commentNumUpdateDto){
         this.commentNum = commentNumUpdateDto.getCommentNum();
