@@ -11,6 +11,7 @@ import com.example.demo.service.UserService;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -66,7 +67,8 @@ public class AuthenticationController {
         tokens.put("access_token","Bearer "+accessToken);
         tokens.put("refresh_token","Bearer "+refreshToken);
         response.setHeader("Authorization","Bearer "+accessToken);
-        return ResponseEntity.ok(tokens);
+        return ResponseEntity.ok().header(HttpHeaders.AUTHORIZATION,"Bearer " + accessToken)
+                .body(tokens);
 
     }
     //////
