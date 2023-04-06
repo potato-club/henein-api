@@ -38,6 +38,17 @@ public class AuthenticationController {
     private final JwtTokenProvider jwtTokenProvider;
 
 
+    @GetMapping("/login")
+    public ResponseEntity<String> login(@RequestParam String email, HttpServletResponse response) {
+        String accessToken = jwtTokenProvider.generateAccessToken(email);
+        String refreshToken = jwtTokenProvider.generateRefreshToken(email);
+
+        response.setHeader("Authorization","Bearer " + accessToken);
+        response.setHeader("RefreshToken","Bearer "+ refreshToken);
+
+        return ResponseEntity.ok("로그인 성공");
+    }
+
     @GetMapping("/login/kakao")
     public ResponseEntity<?> kakaoLogin(@RequestParam("code") String code, HttpServletResponse response) throws IOException {
         log.info("Controller -> login/kakao 진입시도 코드: "+code);
@@ -62,6 +73,8 @@ public class AuthenticationController {
         // 로그인한 사용자의 정보를 저장합니다.
         kakaoOAuth2UserDetailsServcie.loadUserByKakaoOAuth2User(email, refreshToken);
         //클라이언트에게 리턴해주기
+
+        response.setHeader("Authorization","Bearer " + accessToken);
 
         Map<String, String> tokens = new HashMap<>();
         tokens.put("access_token","Bearer "+accessToken);
