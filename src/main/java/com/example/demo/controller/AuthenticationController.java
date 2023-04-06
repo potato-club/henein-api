@@ -38,16 +38,16 @@ public class AuthenticationController {
     private final JwtTokenProvider jwtTokenProvider;
 
 
-    @GetMapping("/login")
-    public ResponseEntity<String> login(@RequestParam String email, HttpServletResponse response) {
-        String accessToken = jwtTokenProvider.generateAccessToken(email);
-        String refreshToken = jwtTokenProvider.generateRefreshToken(email);
-
-        response.setHeader("Authorization","Bearer " + accessToken);
-        response.setHeader("RefreshToken","Bearer "+ refreshToken);
-
-        return ResponseEntity.ok("로그인 성공");
-    }
+//    @GetMapping("/login")
+//    public ResponseEntity<String> login(@RequestParam String email, HttpServletResponse response) {
+//        String accessToken = jwtTokenProvider.generateAccessToken(email);
+//        String refreshToken = jwtTokenProvider.generateRefreshToken(email);
+//
+//        response.setHeader("Authorization","Bearer " + accessToken);
+//        response.setHeader("RefreshToken","Bearer "+ refreshToken);
+//
+//        return ResponseEntity.ok("로그인 성공");
+//    }
 
     @GetMapping("/login/kakao")
     public ResponseEntity<?> kakaoLogin(@RequestParam("code") String code, HttpServletResponse response) throws IOException {
@@ -74,14 +74,10 @@ public class AuthenticationController {
         kakaoOAuth2UserDetailsServcie.loadUserByKakaoOAuth2User(email, refreshToken);
         //클라이언트에게 리턴해주기
 
-        response.setHeader("Authorization","Bearer " + accessToken);
 
-        Map<String, String> tokens = new HashMap<>();
-        tokens.put("access_token","Bearer "+accessToken);
-        tokens.put("refresh_token","Bearer "+refreshToken);
-        response.setHeader("Authorization","Bearer "+accessToken);
-        return ResponseEntity.ok().header(HttpHeaders.AUTHORIZATION,"Bearer " + accessToken)
-                .body(tokens);
+        response.setHeader("Authorization","Bearer " + accessToken);
+        response.setHeader("RefreshToken","Bearer " + refreshToken);
+        return ResponseEntity.ok("로그인 성공");
 
     }
     //////
@@ -91,7 +87,7 @@ public class AuthenticationController {
        return userService.login(loginRequest, response);
     }*/
     @GetMapping("/refresh")
-    public ResponseEntity<?> refreshAT(@RequestHeader("Authorization") String RTHeader,HttpServletResponse response) {
+    public ResponseEntity<?> refreshAT(@RequestHeader("RefreshToken") String RTHeader,HttpServletResponse response) {
        return userService.refreshAT(RTHeader, response);
     }
     /*@PostMapping("/register")
