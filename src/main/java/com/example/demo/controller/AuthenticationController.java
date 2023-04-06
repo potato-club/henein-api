@@ -1,17 +1,15 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.login.KakaoOAuth2User;
-import com.example.demo.dto.login.LoginRequest;
-import com.example.demo.dto.login.UserRegisterRequest;
 import com.example.demo.jwt.JwtTokenProvider;
 import com.example.demo.jwt.KakaoOAuth2AccessTokenResponse;
 import com.example.demo.jwt.KakaoOAuth2Client;
 import com.example.demo.service.KakaoOAuth2UserDetailsServcie;
 import com.example.demo.service.UserService;
 import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -21,8 +19,6 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -48,7 +44,7 @@ public class AuthenticationController {
 //
 //        return ResponseEntity.ok("로그인 성공");
 //    }
-
+    @Tag(name ="카카오 소셜로그인",description = "Authorization에 accessToken, RefreshToken에 refreshToken이 들어있음")
     @GetMapping("/login/kakao")
     public ResponseEntity<?> kakaoLogin(@RequestParam("code") String code, HttpServletResponse response) throws IOException {
         log.info("Controller -> login/kakao 진입시도 코드: "+code);
