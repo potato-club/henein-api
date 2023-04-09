@@ -73,7 +73,7 @@ public class AuthenticationController {
 
         response.setHeader("Authorization","Bearer " + accessToken);
         response.setHeader("RefreshToken","Bearer " + refreshToken);
-        return ResponseEntity.ok("로그인 성공");
+        return ResponseEntity.ok("엑세스 토큰: Bearer "+ accessToken + " / 리프레시 토큰: Bearer "+ refreshToken);
 
     }
     //////
