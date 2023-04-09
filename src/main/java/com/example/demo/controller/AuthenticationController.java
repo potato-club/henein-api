@@ -19,6 +19,8 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -68,12 +70,16 @@ public class AuthenticationController {
 
         // 로그인한 사용자의 정보를 저장합니다.
         kakaoOAuth2UserDetailsServcie.loadUserByKakaoOAuth2User(email, refreshToken);
+
         //클라이언트에게 리턴해주기
-
-
         response.setHeader("Authorization","Bearer " + accessToken);
         response.setHeader("RefreshToken","Bearer " + refreshToken);
-        return ResponseEntity.ok("엑세스 토큰: Bearer "+ accessToken + " / 리프레시 토큰: Bearer "+ refreshToken);
+
+        Map<String, String> tokens =new HashMap<>();
+        tokens.put("access_token","Bearer " + accessToken);
+        tokens.put("refresh_token","Bearer " + refreshToken);
+
+        return ResponseEntity.ok(tokens);
 
     }
     //////
