@@ -65,7 +65,7 @@ public class BoardController {
     }
 
     //추천 로직
-    @GetMapping("/{boardtype}/{id}/recommend")
+    @PostMapping("/{id}/recommend")
     public String recommendThisBoard(@PathVariable("id")Long id, HttpServletRequest request){
         return commonBoardService.recommendThisBoard(id,request);
     }
