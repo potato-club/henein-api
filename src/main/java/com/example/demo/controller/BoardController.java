@@ -49,7 +49,7 @@ public class BoardController {
     }
 
     @PostMapping() //Create
-    public String addTypeOfBoard(BoardRequestDto boardRequestDto, List<MultipartFile> image){
+    public String addTypeOfBoard(@RequestBody BoardRequestDto boardRequestDto, List<MultipartFile> image){
         return boardTypeOfService.addTypeOfBoard(image,boardRequestDto);
     }
     //Read

@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
@@ -76,7 +77,7 @@ public class BoardTypeOfService {
             default: throw new NotFoundException(RUNTIME_EXCEPTION,"E00000");
         }
         BoardEntity boardEntity = new BoardEntity(boardRequestDto.getModifiedDate(),boardRequestDto.getTitle(),boardRequestDto.getNickname(),boardRequestDto.getText(),board);
-        if (!(image == null)){
+        if (image != null){
             uploadBoardFile(image,boardEntity);
         }
 
