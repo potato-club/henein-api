@@ -40,8 +40,8 @@ dependencies {
 	implementation 'com.auth0:java-jwt:3.18.2'
 	implementation('org.springframework.boot:spring-boot-starter-validation')
 	implementation('org.springframework.boot:spring-boot-starter-webflux')
-	//s3
-	implementation 'com.amazonaws:aws-java-sdk:1.12.118'
+	//  aws s3
+	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 
 
 }
