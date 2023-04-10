@@ -9,15 +9,18 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @Table(name= "board")
 public class BoardEntity {
     @Id
@@ -26,14 +29,18 @@ public class BoardEntity {
     private Long id;
     @Column
     private BoardType boardType;
-    @Column
+    @Column(nullable = false)
     private String title;
     @Column
     private int commentNum;
     @Column
-    private String name;
+    private String nickname;
     @Column
-    private LocalDateTime createTime;
+    @CreatedDate
+    private LocalDateTime createTime = LocalDateTime.now();
+    @Column
+    @LastModifiedDate
+    private LocalDateTime modifiedDate;
     @Column
     private int views;
     @Column
@@ -41,10 +48,20 @@ public class BoardEntity {
     @Column
     private String text;
 
+    @OneToMany(mappedBy = "boardEntity")
+    private List<S3File> image = new ArrayList<>();
+
+    @Builder
+    public BoardEntity (LocalDateTime modifiedDate, String title, String nickname,String text, BoardType boardType){
+        this.modifiedDate = modifiedDate;
+        this.title = title;
+        this.nickname = nickname;
+        this.text = text;
+        this.boardType = boardType;
+    }
     public void Update(BoardRequestDto boardRequestDto){
         this.title = boardRequestDto.getTitle();
-        this.name = boardRequestDto.getName();
-        this.createTime = LocalDateTime.now();
+        this.nickname = boardRequestDto.getNickname();
         this.text = boardRequestDto.getText();
     }
     public void Update(BoardRecommendDTO boardRecommendDTO){

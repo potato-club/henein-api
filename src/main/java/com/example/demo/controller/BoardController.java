@@ -9,10 +9,13 @@ import io.swagger.annotations.ApiImplicitParams;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 
 @RestController("")
@@ -27,7 +30,7 @@ public class BoardController {
     private final BoardTypeOfService boardTypeOfService;
 
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "page", value = "원하는 페이지 값", required = true)
+            @ApiImplicitParam(name = "id", value = "추천을 원하는 게시글 아이디", required = true)
     })
 
     @PostMapping("/{id}/updateview")
@@ -46,8 +49,8 @@ public class BoardController {
     }
 
     @PostMapping() //Create
-    public String addTypeOfBoard(@RequestBody BoardRequestDto boardRequestDto){
-        return boardTypeOfService.addTypeOfBoard(boardRequestDto);
+    public String addTypeOfBoard(BoardRequestDto boardRequestDto, List<MultipartFile> image){
+        return boardTypeOfService.addTypeOfBoard(image,boardRequestDto);
     }
     //Read
     @GetMapping("/{id}")
