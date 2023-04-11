@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.board.BoardIdRequestDTO;
 import com.example.demo.dto.board.BoardRequestDto;
 import com.example.demo.dto.board.BoardResponseDto;
 import com.example.demo.service.*;
@@ -30,9 +31,9 @@ public class BoardController {
     private final BoardTypeOfService boardTypeOfService;
 
     @PostMapping("/updateview")
-    public String updateView(@RequestBody BoardRequestDto boardRequestDto){
+    public String updateView(@RequestBody BoardIdRequestDTO boardIdRequestDTO){
 
-        return commonBoardService.updateView(boardRequestDto.getId());
+        return commonBoardService.updateView(boardIdRequestDTO.getId());
     }
     @ApiImplicitParams({
             @ApiImplicitParam(name="board", value= "원하는 게시판 타입[ex A,B,F,I,H,N,E[entireboard]]", required = true),
@@ -65,7 +66,7 @@ public class BoardController {
 
     //추천 로직
     @PostMapping("/recommend")
-    public String recommendThisBoard(@RequestBody BoardRequestDto boardRequestDto, HttpServletRequest request){
-        return commonBoardService.recommendThisBoard(boardRequestDto.getId(),request);
+    public String recommendThisBoard(@RequestBody BoardIdRequestDTO boardIdRequestDTO, HttpServletRequest request){
+        return commonBoardService.recommendThisBoard(boardIdRequestDTO.getId(),request);
     }
 }
