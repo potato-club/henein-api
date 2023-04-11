@@ -29,19 +29,15 @@ public class BoardController {
     private final CommonBoardService commonBoardService;
     private final BoardTypeOfService boardTypeOfService;
 
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "추천을 원하는 게시글 아이디", required = true)
-    })
+    @PostMapping("/updateview")
+    public String updateView(@RequestBody BoardRequestDto boardRequestDto){
 
-    @PostMapping("/{id}/updateview")
-    public String updateView(@PathVariable Long id){
-        return commonBoardService.updateView(id);
+        return commonBoardService.updateView(boardRequestDto.getId());
     }
     @ApiImplicitParams({
             @ApiImplicitParam(name="board", value= "원하는 게시판 타입[ex A,B,F,I,H,N,E[entireboard]]", required = true),
             @ApiImplicitParam(name = "page", value = "원하는 페이지 값", required = true)
     })
-
     //@modelattrivute로 dto를 만들어서 한번에 처리할 수도 있다.
     @GetMapping()
     public Page<BoardResponseDto> getTypeOfBoard(@RequestParam("board")char boardtype, @RequestParam("page")int page){
@@ -68,8 +64,8 @@ public class BoardController {
     }
 
     //추천 로직
-    @PostMapping("/{id}/recommend")
-    public String recommendThisBoard(@PathVariable("id")Long id, HttpServletRequest request){
-        return commonBoardService.recommendThisBoard(id,request);
+    @PostMapping("/recommend")
+    public String recommendThisBoard(@RequestBody BoardRequestDto boardRequestDto, HttpServletRequest request){
+        return commonBoardService.recommendThisBoard(boardRequestDto.getId(),request);
     }
 }
