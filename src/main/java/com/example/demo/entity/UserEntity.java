@@ -21,6 +21,12 @@ public class UserEntity {
     @Column(unique = true)
     private String username;
     @Column
+    private String floor;
+    @Column
+    private int level;
+    @Column
+    private String  job;
+    @Column
     private String password;
     @Column(unique = true,nullable = false)
     private String email;
