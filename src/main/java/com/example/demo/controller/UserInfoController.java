@@ -1,15 +1,15 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.user.UserInfoResponseDto;
+import com.example.demo.dto.user.UserNicknameChange;
 import com.example.demo.service.UserService;
 import io.swagger.annotations.Api;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -24,5 +24,10 @@ public class UserInfoController {
     @GetMapping
     public UserInfoResponseDto userInfo(HttpServletRequest request){
         return userService.userInfo(request);
+    }
+    @Tag(name = "신규유저 이름변경처리", description = "username: 변경할 이름")
+    @PutMapping("/setname")
+    public String userNicknameChange(@RequestBody UserNicknameChange userNicknameChange, HttpServletRequest request){
+        return userService.userNicknameChange(request, userNicknameChange);
     }
 }

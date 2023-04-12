@@ -3,14 +3,13 @@ package com.example.demo.jwt;
 import com.example.demo.error.ErrorCode;
 import com.example.demo.error.ErrorEntity;
 import com.example.demo.error.ErrorExceptionControllerAdvice;
-import com.example.demo.error.exception.UnAuthorizedException;
+import com.example.demo.error.exception.CustomException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -18,16 +17,14 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
-import java.io.IOException;
 import java.util.Date;
-
-import static com.example.demo.error.ErrorCode.DO_NOT_RESOLVE_AT;
 
 @Component
 @Slf4j
 @RequiredArgsConstructor
 public class JwtTokenProvider {
     private final ErrorExceptionControllerAdvice errorExceptionControllerAdvice;
+
     @Value("${jwt.secret}")
     private String secretKey;
 
@@ -79,22 +76,12 @@ public class JwtTokenProvider {
        try {
            String temp = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
            return temp;
-       } catch (MalformedJwtException | SignatureException e) {
+       } catch (NullPointerException e) {
            // JWT 토큰 형식이 잘못되었거나 | 서명이 유효하지 않은 경우
            // 적절한 로그를 출력하거나 처리할 수 있습니다.
-           System.out.println("Invalid JWT token: " + e.getMessage());
-       } catch (ExpiredJwtException e) {
-           // JWT 토큰이 만료된 경우
-           System.out.println("Expired JWT token: " + e.getMessage());
-       } catch (UnsupportedJwtException e) {
-           // 지원되지 않는 JWT 토큰인 경우
-           System.out.println("Unsupported JWT token: " + e.getMessage());
-       } catch (IllegalArgumentException e) {
-           // JWT 토큰이 비어있거나 null인 경우
-           System.out.println("Illegal JWT token: " + e.getMessage());
+           System.out.println("이메일을 찾을 수 없어요: " + e.getMessage());
+           return null;
        }
-
-       return null;
    }
 
     public String getUsernameFromRefreshToken(String token) {
@@ -102,35 +89,22 @@ public class JwtTokenProvider {
         return claims.getSubject();
     }
 
-    public boolean validateAccessToken(HttpServletRequest request,HttpServletResponse response, String token) throws IOException {
+    public boolean validateAccessToken(HttpServletRequest request, String token) {
         try {
             Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
             return true;
         } catch (ExpiredJwtException e) {
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            response.getWriter().write("{ \"error\": \"" + ErrorCode.EXPIRED_TOKEN + "\" }");
+            throw new CustomException(ErrorCode.EXPIRED_TOKEN,ErrorCode.EXPIRED_TOKEN.getMessage());
+        } catch (SignatureException e) {
+            CustomException c =  new CustomException(ErrorCode.INVALID_TOKEN,ErrorCode.INVALID_TOKEN.getMessage());
+            throw c;
+        } catch (UnsupportedJwtException e) {
+            throw new CustomException(ErrorCode.UNSUPPORTED_TOKEN,ErrorCode.UNSUPPORTED_TOKEN.getMessage());
         } catch (IllegalArgumentException e) {
-            response.setHeader("예외", ErrorCode.NON_LOGIN.toString());
-        } catch (SignatureException | UnsupportedJwtException | SecurityException | MalformedJwtException e) {
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            response.getWriter().write("{ \"error\": \"" + ErrorCode.INVALID_TOKEN + "\" }");
-        } catch (Exception e) {
-            log.error("================================================");
-            log.error("JwtFilter - doFilterInternal() 오류발생");
-            log.error("token : {}", token);
-            log.error("Exception Message : {}", e.getMessage());
-            log.error("================================================");
-            request.setAttribute("exception", ErrorCode.INVALID_TOKEN.getCode());
+            throw new CustomException(ErrorCode.NON_LOGIN,ErrorCode.NON_LOGIN.getMessage());
         }
-        return false;
     }
-    @ExceptionHandler(UnAuthorizedException.class)
-    public ResponseEntity<ErrorEntity> handleUnAuthorizedException(UnAuthorizedException e) {
-        ErrorEntity errorEntity = new ErrorEntity(e.getErrorCode().getStatus(),e.getErrorCode().getCode() ,e.getMessage());
-        return new ResponseEntity<>(errorEntity, HttpStatus.UNAUTHORIZED);
-    }
+
     public boolean validateRefreshToken(String token) {
         try {
             Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);

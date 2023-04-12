@@ -5,7 +5,9 @@ import com.example.demo.dto.login.LoginRequest;
 import com.example.demo.dto.login.TokenResponse;
 import com.example.demo.dto.login.UserRegisterRequest;
 import com.example.demo.dto.user.UserInfoResponseDto;
+import com.example.demo.dto.user.UserNicknameChange;
 import com.example.demo.entity.UserEntity;
+import com.example.demo.error.ErrorExceptionControllerAdvice;
 import com.example.demo.jwt.JwtTokenProvider;
 import com.example.demo.jwt.KakaoOAuth2AccessTokenResponse;
 import com.example.demo.jwt.KakaoOAuth2Client;
@@ -39,6 +41,7 @@ public class UserService {
     private final KakaoOAuth2UserDetailsServcie kakaoOAuth2UserDetailsServcie;
     private final KakaoOAuth2Client kakaoOAuth2Client;
 
+
     @Transactional
     public UserInfoResponseDto userInfo(HttpServletRequest request){
         String AT = jwtTokenProvider.resolveAccessToken(request);
@@ -47,7 +50,17 @@ public class UserService {
                 orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + userEmail));
         return new UserInfoResponseDto(userEntity);
     }
-
+    @Transactional
+    public String userNicknameChange(HttpServletRequest request,UserNicknameChange userNicknameChange){
+        String AT = jwtTokenProvider.resolveAccessToken(request);
+        jwtTokenProvider.validateAccessToken(request,AT);
+        String userEmail = jwtTokenProvider.getUserEmailFromAccessToken(AT); // 정보 가져옴
+        UserEntity userEntity = userRepository.findByEmail(userEmail).
+                orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + userEmail));
+        userEntity.Update(userNicknameChange.getUsername());
+        userRepository.save(userEntity);
+        return "유저 이름 설정 완료";
+    }
     @Transactional
     public ResponseEntity<?> kakaoLogin(String code, HttpServletResponse response) throws IOException {
         KakaoOAuth2AccessTokenResponse tokenResponse = kakaoOAuth2Client.getAccessToken(code);
@@ -64,7 +77,11 @@ public class UserService {
         log.info("JWT 토큰을 발급합니다 Controller: "+email);
         String accessToken = jwtTokenProvider.generateAccessToken(email);
         String refreshToken = jwtTokenProvider.generateRefreshToken(email);
-
+        String existsUser ="신규 유저입니다.";
+        Map<String, String> tokens =new HashMap<>();
+        if (!userRepository.existsByEmail(email)){
+            tokens.put("status",existsUser);
+        }
         // 로그인한 사용자의 정보를 저장합니다.
         kakaoOAuth2UserDetailsServcie.loadUserByKakaoOAuth2User(email, refreshToken);
 
@@ -72,7 +89,7 @@ public class UserService {
         response.setHeader("Authorization","Bearer " + accessToken);
         response.setHeader("RefreshToken","Bearer " + refreshToken);
 
-        Map<String, String> tokens =new HashMap<>();
+
         tokens.put("access_token","Bearer " + accessToken);
         tokens.put("refresh_token","Bearer " + refreshToken);
 

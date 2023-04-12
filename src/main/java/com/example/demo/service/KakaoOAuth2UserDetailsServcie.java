@@ -32,21 +32,9 @@ public class KakaoOAuth2UserDetailsServcie implements UserDetailsService {
     public UserDetails loadUserByKakaoOAuth2User(String email, String RT) throws IOException {
         // 받은 정보로 찾고, 정보가 없으면 회원가입으로 갑니다.
         log.info("DB저장 service 진입");
-
-/*
-    orElse를 사용한 코드
-    PfmEntity pfm = pfmRepository.findByUserId(userId)
-                .orElse(pfmRepository.save(new PfmEntity(userId));
-
-    // orElse의 실제 동작
-    PfmEntity newPfm = pfmRepository.save(new PfmEntity(userId));
-    PfmEntity pfm = pfmRepository.findByUserId(userId)
-    .orElse(newPfm);
- */
         UserEntity userEntity = userRepository.findByEmail(email)
                 .orElseGet(() ->controlUser(email));
 
-//new UserEntity(email, guestCount.getGuestCount())
         userEntity.setRefreshToken(RT);
         userRepository.save(userEntity);
 

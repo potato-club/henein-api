@@ -31,7 +31,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         // 헤더에서 Token을 따옴
         String accessToken = jwtTokenProvider.resolveAccessToken(request);
-        if (accessToken != null && jwtTokenProvider.validateAccessToken(request,response, accessToken)) {
+        if (accessToken != null && jwtTokenProvider.validateAccessToken(request, accessToken)) {
             // Get the username from the access token
             String email = jwtTokenProvider.getUserEmailFromAccessToken(accessToken);
 

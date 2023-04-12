@@ -38,11 +38,10 @@ public class UserEntity {
         String username = "guest"+guestCount;
         this.username = username;
     }
+    public void Update(String username) {
+        this.username = username;
+    }
 
-    /*public void KakaoSignUp(String email,String refreshToken){
-        this.email = email;
-        this.refreshToken = refreshToken;
-    }*/
     public void setRefreshToken(String refreshToken){
         this.refreshToken = refreshToken;
     }

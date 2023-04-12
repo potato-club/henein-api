@@ -5,7 +5,7 @@ import com.example.demo.dto.board.BoardResponseDto;
 import com.example.demo.entity.BoardEntity;
 import com.example.demo.entity.S3File;
 import com.example.demo.enumCustom.BoardType;
-import com.example.demo.error.exception.NotFoundException;
+//import com.example.demo.error.exception.NotFoundException;
 import com.example.demo.repository.BoardRepository;
 import com.example.demo.repository.S3FileRespository;
 import lombok.RequiredArgsConstructor;
@@ -56,7 +56,8 @@ public class BoardTypeOfService {
             case 72: board = BoardType.Humor; break;
             case 73: board = BoardType.Info; break;
             case 78: board = BoardType.Notice; break;
-            default: throw new NotFoundException(RUNTIME_EXCEPTION,"E00000");
+//            default: throw new NotFoundException(RUNTIME_EXCEPTION,"E00000");
+            default: throw new RuntimeException();
         }
 
         Page<BoardEntity> boardEntityList = boardRepository.findByBoardType(board,pageRequest);
@@ -74,7 +75,8 @@ public class BoardTypeOfService {
             case "I": board = BoardType.Info; break;
             case "H": board = BoardType.Humor; break;
             case "N": board = BoardType.Notice; break;
-            default: throw new NotFoundException(RUNTIME_EXCEPTION,"E00000");
+           // default: throw new NotFoundException(RUNTIME_EXCEPTION,"E00000");
+            default: throw new RuntimeException();
         }
         BoardEntity boardEntity = new BoardEntity(boardRequestDto.getModifiedDate(),boardRequestDto.getTitle(),boardRequestDto.getNickname(),boardRequestDto.getText(),board);
         if (image != null){

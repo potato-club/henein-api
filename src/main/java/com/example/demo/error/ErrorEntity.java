@@ -1,17 +1,18 @@
 package com.example.demo.error;
 
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 import org.springframework.http.HttpStatus;
 
 @Getter
+@Setter
+@NoArgsConstructor
 public class ErrorEntity {
-    private String errorCode;
+    private int errorCode;
 
     private String errorMessage;
 
     @Builder
-    public ErrorEntity(HttpStatus httpStatus, String errorCode, String errorMessage){
+    public ErrorEntity(int errorCode, String errorMessage){
         this.errorCode = errorCode;
         this.errorMessage = errorMessage;
     }
