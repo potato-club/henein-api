@@ -7,13 +7,13 @@ import lombok.Getter;
 public class UserInfoResponseDto {
     private String username;
     private String floor;
-    private int level;
+    private int userLevel;
     private String job;
 
     public UserInfoResponseDto(UserEntity userEntity){
         this.username = userEntity.getUsername();
         this.floor = userEntity.getFloor();
-        this.level =userEntity.getLevel();
+        this.userLevel =userEntity.getUserLevel();
         this.job = userEntity.getJob();
     }
 }

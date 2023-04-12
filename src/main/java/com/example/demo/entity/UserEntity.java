@@ -23,7 +23,7 @@ public class UserEntity {
     @Column
     private String floor;
     @Column
-    private int level;
+    private int userLevel;
     @Column
     private String  job;
     @Column
