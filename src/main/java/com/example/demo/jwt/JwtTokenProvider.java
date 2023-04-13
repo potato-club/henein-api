@@ -1,21 +1,14 @@
 package com.example.demo.jwt;
 
 import com.example.demo.error.ErrorCode;
-import com.example.demo.error.ErrorEntity;
-import com.example.demo.error.ErrorExceptionControllerAdvice;
 import com.example.demo.error.exception.CustomException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import java.util.Date;
 
@@ -23,7 +16,6 @@ import java.util.Date;
 @Slf4j
 @RequiredArgsConstructor
 public class JwtTokenProvider {
-    private final ErrorExceptionControllerAdvice errorExceptionControllerAdvice;
 
     @Value("${jwt.secret}")
     private String secretKey;
@@ -96,8 +88,7 @@ public class JwtTokenProvider {
         } catch (ExpiredJwtException e) {
             throw new CustomException(ErrorCode.EXPIRED_TOKEN,ErrorCode.EXPIRED_TOKEN.getMessage());
         } catch (SignatureException e) {
-            CustomException c =  new CustomException(ErrorCode.INVALID_TOKEN,ErrorCode.INVALID_TOKEN.getMessage());
-            throw c;
+            throw new CustomException(ErrorCode.INVALID_TOKEN,ErrorCode.INVALID_TOKEN.getMessage());
         } catch (UnsupportedJwtException e) {
             throw new CustomException(ErrorCode.UNSUPPORTED_TOKEN,ErrorCode.UNSUPPORTED_TOKEN.getMessage());
         } catch (IllegalArgumentException e) {

@@ -2,6 +2,7 @@ package com.example.demo.error;
 
 import com.example.demo.error.exception.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -11,15 +12,16 @@ import javax.servlet.http.HttpServletRequest;
 
 @RequiredArgsConstructor
 @RestControllerAdvice
+@Slf4j
 public class ErrorExceptionControllerAdvice {
 
-    @ExceptionHandler({CustomException.class, Exception.class})
+    @ExceptionHandler({CustomException.class})
     public ResponseEntity<ErrorEntity> handleCustomException(CustomException e) {
         ErrorCode errorCode;
         String message;
-
+        log.info("ErrorExceptionControllerAdvice 들어왔어");
         if (e instanceof CustomException) {
-            CustomException customException = (CustomException) e;
+            CustomException customException = e;
             errorCode = customException.getErrorCode();
             message = customException.getMessage();
         } else {

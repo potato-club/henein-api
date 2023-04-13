@@ -61,5 +61,4 @@ public class AuthenticationController {
     public ResponseEntity<?> refreshAT(@RequestHeader("RefreshToken") String RTHeader,HttpServletResponse response) {
        return userService.refreshAT(RTHeader, response);
     }
-
 }

@@ -1,13 +1,10 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.login.KakaoOAuth2User;
-import com.example.demo.dto.login.LoginRequest;
-import com.example.demo.dto.login.TokenResponse;
 import com.example.demo.dto.login.UserRegisterRequest;
 import com.example.demo.dto.user.UserInfoResponseDto;
 import com.example.demo.dto.user.UserNicknameChange;
 import com.example.demo.entity.UserEntity;
-import com.example.demo.error.ErrorExceptionControllerAdvice;
 import com.example.demo.jwt.JwtTokenProvider;
 import com.example.demo.jwt.KakaoOAuth2AccessTokenResponse;
 import com.example.demo.jwt.KakaoOAuth2Client;
