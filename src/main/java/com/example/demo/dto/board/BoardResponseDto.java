@@ -32,7 +32,7 @@ public class BoardResponseDto {
         this.title = boardEntity.getTitle();
         this.commentNum = boardEntity.getCommentNum();
         this.nickname = boardEntity.getNickname();
-        this.createTime = boardEntity.getCreateTime();
+        this.createTime = boardEntity.getCreatedDate();
         this.views = boardEntity.getViews();
         this.recommend = boardEntity.getRecommend();
         this.text = boardEntity.getText();

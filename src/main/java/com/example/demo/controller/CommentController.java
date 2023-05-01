@@ -7,29 +7,34 @@ import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/board/{id}/comment")
+@RequestMapping(value = "/board")
 @RequiredArgsConstructor
 @Api(tags = {"댓글 Controller"})
 @CrossOrigin(origins = "http://localhost:3000")
 public class CommentController {
     final private CommentService commentService;
-    @GetMapping() //넘겨주는건 게시판의 id
+    @GetMapping("/{id}/comment") //넘겨주는건 게시판의 id, 댓글 보는건 인증 X
     public List<CommentResponseDto> getComment(@PathVariable("id") Long id){
-        return commentService.getCommentOfId(id);
+        return commentService.getCommentOfBoard(id);
     }
-    @PostMapping()
-    public String postComment(@PathVariable("id") Long id, @RequestBody CommentRequsetDto commentRequsetDto){
-        return commentService.postCommentOfId(id, commentRequsetDto);
+    @PostMapping("/comment")
+    public String addCommentOfParent(@RequestBody CommentRequsetDto commentRequsetDto,HttpServletRequest request){
+        return commentService.addCommentOfParent(commentRequsetDto,request);
     }
-    @PutMapping("/{co-id}")
-    public String updateComment(@PathVariable("co-id") Long coid, @RequestBody CommentRequsetDto commentRequsetDto){
-        return commentService.updateCommentOfId(coid,commentRequsetDto);
+    @PostMapping("/comment/child")
+    public String addCommentOfChile(@RequestBody CommentRequsetDto commentRequsetDto,HttpServletRequest request){
+        return commentService.addCommentOfChild(commentRequsetDto,request);
     }
-    @DeleteMapping("/{co-id}")
-    public String updateComment(@PathVariable("id") Long id, @PathVariable("co-id") Long coid){
-        return commentService.deleteCommentOfId(id, coid);
+    @PutMapping("/comment")
+    public String updateComment(@RequestBody CommentRequsetDto commentRequsetDto,HttpServletRequest request){
+        return commentService.updateCommentOfId(commentRequsetDto,request);
+    }
+    @DeleteMapping("/comment")
+    public String deleteComment(@RequestBody CommentRequsetDto commentRequsetDto, HttpServletRequest request){
+        return commentService.deleteComment(commentRequsetDto,request);
     }
 }

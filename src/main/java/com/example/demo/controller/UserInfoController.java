@@ -12,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.UnsupportedEncodingException;
 
 @RestController
 @RequestMapping("/userinfo")
@@ -27,7 +29,7 @@ public class UserInfoController {
     }
     @Tag(name = "신규유저 이름변경처리", description = "username: 변경할 이름")
     @PutMapping("/setname")
-    public String userNicknameChange(@RequestBody UserNicknameChange userNicknameChange, HttpServletRequest request){
-        return userService.userNicknameChange(request, userNicknameChange);
+    public String userNicknameChange(@RequestBody UserNicknameChange userNicknameChange, HttpServletRequest request , HttpServletResponse response) throws UnsupportedEncodingException {
+        return userService.userNicknameChange(request,response, userNicknameChange);
     }
 }

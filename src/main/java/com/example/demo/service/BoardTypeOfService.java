@@ -6,6 +6,8 @@ import com.example.demo.entity.BoardEntity;
 import com.example.demo.entity.S3File;
 import com.example.demo.enumCustom.BoardType;
 //import com.example.demo.error.exception.NotFoundException;
+import com.example.demo.error.ErrorCode;
+import com.example.demo.error.Exception.NotFoundException;
 import com.example.demo.repository.BoardRepository;
 import com.example.demo.repository.S3FileRespository;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +26,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.example.demo.error.ErrorCode.RUNTIME_EXCEPTION;
 
 @Service
 @RequiredArgsConstructor
@@ -56,8 +57,7 @@ public class BoardTypeOfService {
             case 72: board = BoardType.Humor; break;
             case 73: board = BoardType.Info; break;
             case 78: board = BoardType.Notice; break;
-//            default: throw new NotFoundException(RUNTIME_EXCEPTION,"E00000");
-            default: throw new RuntimeException();
+            default: throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION,ErrorCode.NOT_FOUND_EXCEPTION.getMessage());
         }
 
         Page<BoardEntity> boardEntityList = boardRepository.findByBoardType(board,pageRequest);
@@ -75,14 +75,12 @@ public class BoardTypeOfService {
             case "I": board = BoardType.Info; break;
             case "H": board = BoardType.Humor; break;
             case "N": board = BoardType.Notice; break;
-           // default: throw new NotFoundException(RUNTIME_EXCEPTION,"E00000");
-            default: throw new RuntimeException();
+            default: throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION,ErrorCode.NOT_FOUND_EXCEPTION.getMessage());
         }
-        BoardEntity boardEntity = new BoardEntity(boardRequestDto.getModifiedDate(),boardRequestDto.getTitle(),boardRequestDto.getNickname(),boardRequestDto.getText(),board);
+        BoardEntity boardEntity = new BoardEntity(boardRequestDto.getTitle(),boardRequestDto.getNickname(),boardRequestDto.getText(),board);
         if (image != null){
             uploadBoardFile(image,boardEntity);
         }
-
         boardRepository.save(boardEntity);
         return "저장 완료";
     }

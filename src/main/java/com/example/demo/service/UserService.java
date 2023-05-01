@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,9 +49,9 @@ public class UserService {
         return new UserInfoResponseDto(userEntity);
     }
     @Transactional
-    public String userNicknameChange(HttpServletRequest request,UserNicknameChange userNicknameChange){
+    public String userNicknameChange(HttpServletRequest request, HttpServletResponse response, UserNicknameChange userNicknameChange) throws UnsupportedEncodingException {
         String AT = jwtTokenProvider.resolveAccessToken(request);
-        jwtTokenProvider.validateAccessToken(request,AT);
+        jwtTokenProvider.validateToken(response,AT);
         String userEmail = jwtTokenProvider.getUserEmailFromAccessToken(AT); // 정보 가져옴
         UserEntity userEntity = userRepository.findByEmail(userEmail).
                 orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + userEmail));
@@ -93,13 +94,13 @@ public class UserService {
         return ResponseEntity.ok(tokens);
     }
     @Transactional
-    public ResponseEntity<?> refreshAT(String RTHeader,HttpServletResponse response){
+    public ResponseEntity<?> refreshAT(HttpServletRequest request,HttpServletResponse response){
         //bearer 지우기
-        String RT = RTHeader.substring(7);
+        String RTHeader = jwtTokenProvider.resolveRefreshToken(request);
 
         try {
             // Validate the refreshToken and generate a new accessToken
-            String newAccessToken = jwtTokenProvider.refreshAccessToken(RTHeader);
+            String newAccessToken = jwtTokenProvider.refreshAccessToken(RTHeader ,response);
 
             // Set the new access token in the HTTP response headers
             response.setHeader("Authorization", "Bearer " + newAccessToken);
@@ -108,6 +109,8 @@ public class UserService {
             return ResponseEntity.ok(newAccessToken);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
         }
     }
     @Transactional

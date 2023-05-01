@@ -1,7 +1,6 @@
 package com.example.demo.jwt;
 
 import com.example.demo.error.ErrorCode;
-import com.example.demo.error.exception.CustomException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +8,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.Date;
 
 @Component
@@ -56,8 +59,14 @@ public class JwtTokenProvider {
     //헤더에 있는 AT토큰 가져오기
     @Transactional
     public String resolveAccessToken(HttpServletRequest request) {
-        if(request.getHeader("Authorization") != null )
+        if (request.getHeader("Authorization") != null )
             return request.getHeader("Authorization").substring(7);
+        return null;
+    }
+    @Transactional
+    public String resolveRefreshToken(HttpServletRequest request){
+        if (request.getHeader("RefreshToken") != null)
+            return request.getHeader("RefreshToken").substring(7);
         return null;
     }
    /* public String getUserEmailFromAccessToken(String token) {
@@ -81,41 +90,33 @@ public class JwtTokenProvider {
         return claims.getSubject();
     }
 
-    public boolean validateAccessToken(HttpServletRequest request, String token) {
+    public boolean validateToken(HttpServletResponse response, String token){
         try {
             Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
             return true;
         } catch (ExpiredJwtException e) {
-            throw new CustomException(ErrorCode.EXPIRED_TOKEN,ErrorCode.EXPIRED_TOKEN.getMessage());
+            response.addHeader("exception", String.valueOf(ErrorCode.EXPIRED_TOKEN.getCode()));
         } catch (SignatureException e) {
-            throw new CustomException(ErrorCode.INVALID_TOKEN,ErrorCode.INVALID_TOKEN.getMessage());
+            response.addHeader("exception", String.valueOf(ErrorCode.INVALID_TOKEN.getCode()));
         } catch (UnsupportedJwtException e) {
-            throw new CustomException(ErrorCode.UNSUPPORTED_TOKEN,ErrorCode.UNSUPPORTED_TOKEN.getMessage());
+            response.addHeader("exception", String.valueOf(ErrorCode.INVALID_TOKEN.getCode()));
         } catch (IllegalArgumentException e) {
-            throw new CustomException(ErrorCode.NON_LOGIN,ErrorCode.NON_LOGIN.getMessage());
+            response.addHeader("exception", String.valueOf(ErrorCode.NON_LOGIN.getCode()));
         }
+        return false;
     }
 
-    public boolean validateRefreshToken(String token) {
-        try {
-            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
-            return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            throw new RuntimeException("Invalid refresh token");
-        }
-    }
+//    public boolean isRefreshToken(String token) {
+//        Claims claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
+//        return claims.get("type") != null && claims.get("type").equals("refresh");
+//    }
 
-    public boolean isRefreshToken(String token) {
-        Claims claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
-        return claims.get("type") != null && claims.get("type").equals("refresh");
-    }
+    public String refreshAccessToken(String token, HttpServletResponse response) throws UnsupportedEncodingException {
+//        if (!isRefreshToken(token)) {
+//            throw new RuntimeException("Invalid refresh token");
+//        }
 
-    public String refreshAccessToken(String token) {
-        if (!isRefreshToken(token)) {
-            throw new RuntimeException("Invalid refresh token");
-        }
-
-        if (!validateRefreshToken(token)) {
+        if (!validateToken(response, token)) {
             throw new RuntimeException("Invalid refresh token");
         }
 

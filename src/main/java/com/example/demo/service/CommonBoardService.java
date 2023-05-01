@@ -11,6 +11,7 @@ import com.example.demo.jwt.JwtTokenProvider;
 import com.example.demo.repository.BoardRepository;
 import com.example.demo.repository.RecommandRepository;
 import com.example.demo.repository.UserRepository;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class CommonBoardService {
     private final UserRepository userRepository;
     private final RecommandRepository recommandRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final JPAQueryFactory jpaQueryFactory;
     @Transactional
     public BoardResponseDto getOneService(Long id){
         BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 게시글 정보가 없습니다");});

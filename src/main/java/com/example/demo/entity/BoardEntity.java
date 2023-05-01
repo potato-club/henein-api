@@ -22,7 +22,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name= "board")
-public class BoardEntity {
+public class BoardEntity extends BaseTimeEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -36,24 +36,20 @@ public class BoardEntity {
     @Column
     private String nickname;
     @Column
-    @CreatedDate
-    private LocalDateTime createTime = LocalDateTime.now();
-    @Column
-    @LastModifiedDate
-    private LocalDateTime modifiedDate;
-    @Column
     private int views;
     @Column
     private int recommend;
     @Column
     private String text;
 
-    @OneToMany(mappedBy = "boardEntity")
+    @OneToMany(mappedBy = "boardEntity", orphanRemoval = true)
     private List<S3File> image = new ArrayList<>();
 
+    @OneToMany(mappedBy = "boardEntity", orphanRemoval = true)
+    private List<CommentEntity> commentEntityList = new ArrayList<>();
+
     @Builder
-    public BoardEntity (LocalDateTime modifiedDate, String title, String nickname,String text, BoardType boardType){
-        this.modifiedDate = modifiedDate;
+    public BoardEntity (String title, String nickname,String text, BoardType boardType){
         this.title = title;
         this.nickname = nickname;
         this.text = text;

@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor
-public class S3File {
+public class S3File extends BaseTimeEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -28,8 +28,7 @@ public class S3File {
     @JoinColumn(name = "board_entity_id")
     private BoardEntity boardEntity;
 
-    @Column(name = "creation_time")
-    private LocalDateTime creationTime;
+
 
     @Builder
     public S3File(String fileName, String fileUrl, BoardEntity boardEntity){
