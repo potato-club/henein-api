@@ -50,4 +50,8 @@ public class CommentEntity extends BaseTimeEntity {
         this.comment = commentRequsetDto.getComment();
         this.updated = true;
     }
+
+    public void setReplies(List<CommentEntity> grandchildComments) {
+        this.replies = replies;
+    }
 }

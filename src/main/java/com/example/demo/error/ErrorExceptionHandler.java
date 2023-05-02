@@ -1,9 +1,9 @@
 package com.example.demo.error;
 
-import com.example.demo.error.Exception.AuthenticationException;
-import com.example.demo.error.Exception.DuplicateException;
-import com.example.demo.error.Exception.LoginFailedException;
-import com.example.demo.error.Exception.NotValidException;
+import com.example.demo.error.exception.AuthenticationException;
+import com.example.demo.error.exception.DuplicateException;
+import com.example.demo.error.exception.LoginFailedException;
+import com.example.demo.error.exception.NotValidException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

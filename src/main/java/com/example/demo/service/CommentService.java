@@ -8,7 +8,8 @@ import com.example.demo.entity.CommentEntity;
 import com.example.demo.entity.QBoardEntity;
 import com.example.demo.entity.QCommentEntity;
 import com.example.demo.error.ErrorCode;
-import com.example.demo.error.Exception.NotFoundException;
+
+import com.example.demo.error.exception.NotFoundException;
 import com.example.demo.repository.BoardRepository;
 import com.example.demo.repository.CommentRepository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -29,37 +30,78 @@ public class CommentService {
     final private JPAQueryFactory jpaQueryFactory;
 
     @Transactional
-    public List<CommentResponseDto> getCommentOfBoard(Long boardId){
+    public List<CommentResponseDto> getCommentOfBoard(Long boardId) {
         if (!boardRepository.existsById(boardId)) {
-            throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION,ErrorCode.NOT_FOUND_EXCEPTION.getMessage());
+            throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION, ErrorCode.NOT_FOUND_EXCEPTION.getMessage());
         }
         QCommentEntity qCommentEntity = QCommentEntity.commentEntity;
         QBoardEntity qBoardEntity = QBoardEntity.boardEntity;
 
-        List<CommentEntity> result = jpaQueryFactory.select(qCommentEntity)
-                .from(qCommentEntity)
-                .innerJoin(qCommentEntity.boardEntity,qBoardEntity)
-                .where(qCommentEntity.boardEntity.id.eq(boardId).and(qCommentEntity.parent.isNull())) //부모 댓글만 먼저 싹 가져옴
+        List<CommentEntity> parentComments = jpaQueryFactory.selectFrom(qCommentEntity)
+                .innerJoin(qCommentEntity.boardEntity, qBoardEntity)
+                .where(qCommentEntity.boardEntity.id.eq(boardId).and(qCommentEntity.parent.isNull()))
                 .orderBy(qCommentEntity.id.asc())
                 .fetch();
 
         List<CommentResponseDto> responseDtoList = new ArrayList<>();
-        for (CommentEntity parentComment : result) {
-            List<CommentEntity> child = getChildComments(parentComment);
+        for (CommentEntity parentComment : parentComments) {
             CommentResponseDto parentDto = new CommentResponseDto(parentComment);
-            parentDto.setReplies(child.stream().map(CommentResponseDto::new).collect(Collectors.toList()));
+            List<CommentEntity> childComments = getChildComments(parentComment);
+            List<CommentResponseDto> childDtoList = new ArrayList<>();
+            for (CommentEntity childComment : childComments) {
+                List<CommentEntity> grandchildComments = getChildComments(childComment);
+                CommentResponseDto childDto = new CommentResponseDto(childComment);
+                childDto.setReplies(grandchildComments.stream().map(CommentResponseDto::new).collect(Collectors.toList()));
+                childDtoList.add(childDto);
+            }
+            parentDto.setReplies(childDtoList);
             responseDtoList.add(parentDto);
         }
         return responseDtoList;
-
     }
-    private List<CommentEntity> getChildComments(CommentEntity parentEntity){
+
+//    @Transactional
+//    public List<CommentResponseDto> getCommentOfBoard(Long boardId){
+//        if (!boardRepository.existsById(boardId)) {
+//            throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION,ErrorCode.NOT_FOUND_EXCEPTION.getMessage());
+//        }
+//        QCommentEntity qCommentEntity = QCommentEntity.commentEntity;
+//        QBoardEntity qBoardEntity = QBoardEntity.boardEntity;
+//
+//        List<CommentEntity> result = jpaQueryFactory.select(qCommentEntity)
+//                .from(qCommentEntity)
+//                .innerJoin(qCommentEntity.boardEntity,qBoardEntity)
+//                .where(qCommentEntity.boardEntity.id.eq(boardId).and(qCommentEntity.parent.isNull())) //부모 댓글만 먼저 싹 가져옴
+//                .orderBy(qCommentEntity.id.asc())
+//                .fetch();
+//
+//        List<CommentResponseDto> responseDtoList = new ArrayList<>();
+//        for (CommentEntity parentComment : result) {
+//            List<CommentEntity> child = getChildComments(parentComment);
+//            CommentResponseDto parentDto = new CommentResponseDto(parentComment);
+//            parentDto.setReplies(child.stream().map(CommentResponseDto::new).collect(Collectors.toList()));
+//            responseDtoList.add(parentDto);
+//        }
+//        return responseDtoList;
+//
+//    }
+    private List<CommentEntity> getChildComments(CommentEntity parentComment) {
         QCommentEntity qCommentEntity = QCommentEntity.commentEntity;
-        return jpaQueryFactory.select(qCommentEntity)
-                .from(qCommentEntity)
-                .where(qCommentEntity.parent.eq(parentEntity))
+        List<CommentEntity> result = jpaQueryFactory.selectFrom(qCommentEntity)
+                .where(qCommentEntity.parent.id.eq(parentComment.getId())) //부모 댓글의 자식 댓글 가져오기
                 .orderBy(qCommentEntity.id.asc())
                 .fetch();
+        List<CommentEntity> childComments = new ArrayList<>();
+        for (CommentEntity comment : result) {
+            childComments.add(comment);
+            if(comment.getReplies() != null && !comment.getReplies().isEmpty()) { //대댓글이 있을 경우 대댓글 가져오기
+                List<CommentEntity> grandchildComments = getChildComments(comment);
+                comment.setReplies(grandchildComments); //대댓글의 replies 필드에 대대댓글 추가
+            }
+        }
+        CommentEntity comment = parentComment;
+        comment.setReplies(childComments); // 대댓글의 replies 필드에 자식 댓글 추가
+        return childComments;
     }
 
     @Transactional

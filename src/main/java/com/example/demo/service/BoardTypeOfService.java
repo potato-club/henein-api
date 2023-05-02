@@ -7,7 +7,7 @@ import com.example.demo.entity.S3File;
 import com.example.demo.enumCustom.BoardType;
 //import com.example.demo.error.exception.NotFoundException;
 import com.example.demo.error.ErrorCode;
-import com.example.demo.error.Exception.NotFoundException;
+import com.example.demo.error.exception.NotFoundException;
 import com.example.demo.repository.BoardRepository;
 import com.example.demo.repository.S3FileRespository;
 import lombok.RequiredArgsConstructor;
@@ -17,12 +17,9 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
-import java.io.File;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 

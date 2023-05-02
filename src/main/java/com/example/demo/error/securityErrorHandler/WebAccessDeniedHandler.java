@@ -1,4 +1,4 @@
-package com.example.demo.error.SecurityErrorHandler;
+package com.example.demo.error.securityErrorHandler;
 
 
 import com.example.demo.error.ErrorCode;
