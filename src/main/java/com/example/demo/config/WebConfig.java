@@ -13,7 +13,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .exposedHeaders("Authorization","RefreshToken","exception")
                 .allowedMethods("*")
                 .allowedHeaders("*")
-                .allowCredentials(true);
+                .allowCredentials(false);
 
     }
 }
