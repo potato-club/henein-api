@@ -25,7 +25,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 @Api(tags = {"게시글 Controller"})
-@CrossOrigin(origins = "http://localhost:3000")
 public class BoardController {
 
     private final CommonBoardService commonBoardService;
