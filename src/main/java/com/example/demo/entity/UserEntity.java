@@ -20,6 +20,8 @@ public class UserEntity extends BaseTimeEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(nullable = false)
+    private UserRole userRole;
     @Column(unique = true)
     private String username;
     @Column
@@ -36,10 +38,11 @@ public class UserEntity extends BaseTimeEntity{
     private String refreshToken;
 
 
-    public UserEntity(String email, int guestCount) {
+    public UserEntity(String email, int guestCount, UserRole userRole) {
         this.email =email;
         String username = "guest"+guestCount;
         this.username = username;
+        this.userRole = userRole;
     }
     public void Update(String username) {
         this.username = username;
