@@ -19,7 +19,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 @Slf4j
 @Api(tags = {"JWT 로그인 Controller"})
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:3000",exposedHeaders = {"Authorization","RefreshToken"})
 public class AuthenticationController {
 
     private final UserService userService;

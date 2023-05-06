@@ -7,7 +7,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Getter
 @Builder
@@ -32,6 +34,7 @@ public class UserEntity extends BaseTimeEntity{
     private String email;
     @Column(length = 512)
     private String refreshToken;
+
 
     public UserEntity(String email, int guestCount) {
         this.email =email;
