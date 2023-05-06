@@ -14,6 +14,7 @@ import java.util.List;
 @RequestMapping(value = "/board")
 @RequiredArgsConstructor
 @Api(tags = {"댓글 Controller"})
+@CrossOrigin(origins = "http://localhost:3000",exposedHeaders = {"Authorization","RefreshToken","exception"})
 public class CommentController {
     final private CommentService commentService;
     @GetMapping("/{id}/comment") //넘겨주는건 게시판의 id, 댓글 보는건 인증 X

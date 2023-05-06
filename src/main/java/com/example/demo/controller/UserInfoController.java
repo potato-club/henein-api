@@ -20,6 +20,7 @@ import java.io.UnsupportedEncodingException;
 @RequiredArgsConstructor
 @Slf4j
 @Api(tags = {"유저 Controller"})
+@CrossOrigin(origins = "http://localhost:3000",exposedHeaders = {"Authorization","RefreshToken","exception"})
 public class UserInfoController {
     private final UserService userService;
     @GetMapping
