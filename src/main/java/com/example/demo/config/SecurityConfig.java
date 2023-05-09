@@ -53,6 +53,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST,"/board/recommend").hasAnyAuthority("USER","ADMIN") //이 링크에 관해 로그인 절차 없이 허용
+                .antMatchers(HttpMethod.OPTIONS,"/**").permitAll()//userinfo불러올때의 CORS를 해결하기 위해 OPTIONS에 대한 설정함
                 .anyRequest().permitAll()
 
                 .and()
