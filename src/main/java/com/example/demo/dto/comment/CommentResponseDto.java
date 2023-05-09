@@ -1,6 +1,7 @@
 package com.example.demo.dto.comment;
 
 import com.example.demo.entity.CommentEntity;
+import com.example.demo.entity.ReplyEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 
@@ -12,7 +13,9 @@ import java.util.List;
 public class CommentResponseDto {
     private Long commentId;
     private String userId;
+    private String tag;
     private String comment;
+    private List<CommentResponseDto> reply;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime modifiedDate;
     private List<CommentResponseDto> replies;
@@ -22,6 +25,13 @@ public class CommentResponseDto {
         this.userId = commentEntity.getUserId();
         this.comment = commentEntity.getComment();
         this.modifiedDate = commentEntity.getModifiedDate();
+    }
+    public CommentResponseDto(ReplyEntity replyEntity){
+        this.commentId = replyEntity.getId();
+        this.userId = replyEntity.getUserId();
+        this.tag = replyEntity.getTag();
+        this.comment = replyEntity.getComment();
+        this.modifiedDate = replyEntity.getModifiedDate();
     }
     public void setReplies(List<CommentResponseDto> replies){
         this.replies = replies;

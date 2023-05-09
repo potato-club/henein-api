@@ -14,7 +14,7 @@ import java.util.List;
 @RequestMapping(value = "/board")
 @RequiredArgsConstructor
 @Api(tags = {"댓글 Controller"})
-@CrossOrigin(origins = "http://localhost:3000",exposedHeaders = {"Authorization","RefreshToken","exception"})
+
 public class CommentController {
     final private CommentService commentService;
     @GetMapping("/{id}/comment") //넘겨주는건 게시판의 id, 댓글 보는건 인증 X
@@ -26,15 +26,23 @@ public class CommentController {
         return commentService.addCommentOfParent(commentRequsetDto,request);
     }
     @PostMapping("/comment/child")
-    public String addCommentOfChile(@RequestBody CommentRequsetDto commentRequsetDto,HttpServletRequest request){
+    public String addCommentOfChild(@RequestBody CommentRequsetDto commentRequsetDto,HttpServletRequest request){
         return commentService.addCommentOfChild(commentRequsetDto,request);
     }
     @PutMapping("/comment")
-    public String updateComment(@RequestBody CommentRequsetDto commentRequsetDto,HttpServletRequest request){
-        return commentService.updateCommentOfId(commentRequsetDto,request);
+    public String updateCommentOfParent(@RequestBody CommentRequsetDto commentRequsetDto,HttpServletRequest request){
+        return commentService.updateCommentOfParent(commentRequsetDto,request);
     }
-    @DeleteMapping("/comment")
-    public String deleteComment(@RequestBody CommentRequsetDto commentRequsetDto, HttpServletRequest request){
-        return commentService.deleteComment(commentRequsetDto,request);
+    @PutMapping("/comment/child")
+    public String updateCommentOfChild(@RequestBody CommentRequsetDto commentRequsetDto,HttpServletRequest request){
+        return commentService.updateCommentOfChild(commentRequsetDto,request);
+    }
+    @DeleteMapping("/comment/")
+    public String deleteCommentOfParent(@RequestBody CommentRequsetDto commentRequsetDto, HttpServletRequest request){
+        return commentService.deleteCommentOfParent(commentRequsetDto,request);
+    }
+    @DeleteMapping("/comment/parent")
+    public String deleteCommentOfChild(@RequestBody CommentRequsetDto commentRequsetDto, HttpServletRequest request){
+        return commentService.deleteCommentOfChild(commentRequsetDto,request);
     }
 }

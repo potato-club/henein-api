@@ -3,15 +3,13 @@ package com.example.demo.service;
 import com.example.demo.dto.comment.CommentRequsetDto;
 import com.example.demo.dto.comment.CommentResponseDto;
 import com.example.demo.dto.comment.CommentNumUpdateDto;
-import com.example.demo.entity.BoardEntity;
-import com.example.demo.entity.CommentEntity;
-import com.example.demo.entity.QBoardEntity;
-import com.example.demo.entity.QCommentEntity;
+import com.example.demo.entity.*;
 import com.example.demo.error.ErrorCode;
 
 import com.example.demo.error.exception.NotFoundException;
 import com.example.demo.repository.BoardRepository;
 import com.example.demo.repository.CommentRepository;
+import com.example.demo.repository.ReplyRepository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,88 +24,59 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CommentService {
     final private CommentRepository commentRepository;
+    final private ReplyRepository replyRepository;
     final private BoardRepository boardRepository;
     final private JPAQueryFactory jpaQueryFactory;
 
     @Transactional
     public List<CommentResponseDto> getCommentOfBoard(Long boardId) {
         if (!boardRepository.existsById(boardId)) {
-            throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION, ErrorCode.NOT_FOUND_EXCEPTION.getMessage());
+            throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION,ErrorCode.NOT_FOUND_EXCEPTION.getMessage());
         }
         QCommentEntity qCommentEntity = QCommentEntity.commentEntity;
-        QBoardEntity qBoardEntity = QBoardEntity.boardEntity;
+        QReplyEntity qReplyEntity = QReplyEntity.replyEntity;
 
-        List<CommentEntity> parentComments = jpaQueryFactory.selectFrom(qCommentEntity)
-                .innerJoin(qCommentEntity.boardEntity, qBoardEntity)
-                .where(qCommentEntity.boardEntity.id.eq(boardId).and(qCommentEntity.parent.isNull()))
+        List<CommentEntity> commentEntityList = jpaQueryFactory.select(qCommentEntity)
+                .from(qCommentEntity)
+                .innerJoin(qCommentEntity.replies, qReplyEntity)
+                .where(qCommentEntity.boardEntity.id.eq(boardId))//부모댓글부터 가져옴
                 .orderBy(qCommentEntity.id.asc())
                 .fetch();
 
-        List<CommentResponseDto> responseDtoList = new ArrayList<>();
-        for (CommentEntity parentComment : parentComments) {
+        List<CommentResponseDto> resultDtoList = new ArrayList<>();
+        for (CommentEntity parentComment : commentEntityList){
+            List<ReplyEntity> childComment = getChildComment(parentComment);
+
             CommentResponseDto parentDto = new CommentResponseDto(parentComment);
-            List<CommentEntity> childComments = getChildComments(parentComment);
-            List<CommentResponseDto> childDtoList = new ArrayList<>();
-            for (CommentEntity childComment : childComments) {
-                List<CommentEntity> grandchildComments = getChildComments(childComment);
-                CommentResponseDto childDto = new CommentResponseDto(childComment);
-                childDto.setReplies(grandchildComments.stream().map(CommentResponseDto::new).collect(Collectors.toList()));
-                childDtoList.add(childDto);
-            }
-            parentDto.setReplies(childDtoList);
-            responseDtoList.add(parentDto);
+            parentDto.setReplies(childComment.stream().map(CommentResponseDto::new).collect(Collectors.toList()));
+            resultDtoList.add(parentDto);
         }
-        return responseDtoList;
+        return resultDtoList;
     }
 
-//    @Transactional
-//    public List<CommentResponseDto> getCommentOfBoard(Long boardId){
-//        if (!boardRepository.existsById(boardId)) {
-//            throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION,ErrorCode.NOT_FOUND_EXCEPTION.getMessage());
-//        }
-//        QCommentEntity qCommentEntity = QCommentEntity.commentEntity;
-//        QBoardEntity qBoardEntity = QBoardEntity.boardEntity;
-//
-//        List<CommentEntity> result = jpaQueryFactory.select(qCommentEntity)
-//                .from(qCommentEntity)
-//                .innerJoin(qCommentEntity.boardEntity,qBoardEntity)
-//                .where(qCommentEntity.boardEntity.id.eq(boardId).and(qCommentEntity.parent.isNull())) //부모 댓글만 먼저 싹 가져옴
-//                .orderBy(qCommentEntity.id.asc())
-//                .fetch();
-//
-//        List<CommentResponseDto> responseDtoList = new ArrayList<>();
-//        for (CommentEntity parentComment : result) {
-//            List<CommentEntity> child = getChildComments(parentComment);
-//            CommentResponseDto parentDto = new CommentResponseDto(parentComment);
-//            parentDto.setReplies(child.stream().map(CommentResponseDto::new).collect(Collectors.toList()));
-//            responseDtoList.add(parentDto);
-//        }
-//        return responseDtoList;
-//
-//    }
-    private List<CommentEntity> getChildComments(CommentEntity parentComment) {
+
+    private List<ReplyEntity> getChildComment(CommentEntity commentEntity){
+        QReplyEntity qReplyEntity = QReplyEntity.replyEntity;
         QCommentEntity qCommentEntity = QCommentEntity.commentEntity;
-        List<CommentEntity> result = jpaQueryFactory.selectFrom(qCommentEntity)
-                .where(qCommentEntity.parent.id.eq(parentComment.getId())) //부모 댓글의 자식 댓글 가져오기
+
+        List<ReplyEntity> childList = jpaQueryFactory.select(qReplyEntity)
+                .from(qReplyEntity)
+                .innerJoin(qReplyEntity.parent,qCommentEntity)
+                .where(qReplyEntity.parent.id.eq(commentEntity.getId()))
                 .orderBy(qCommentEntity.id.asc())
                 .fetch();
-        List<CommentEntity> childComments = new ArrayList<>();
-        for (CommentEntity comment : result) {
-            childComments.add(comment);
-            if(comment.getReplies() != null && !comment.getReplies().isEmpty()) { //대댓글이 있을 경우 대댓글 가져오기
-                List<CommentEntity> grandchildComments = getChildComments(comment);
-                comment.setReplies(grandchildComments); //대댓글의 replies 필드에 대대댓글 추가
-            }
-        }
-        CommentEntity comment = parentComment;
-        comment.setReplies(childComments); // 대댓글의 replies 필드에 자식 댓글 추가
-        return childComments;
+        return childList;
     }
 
     @Transactional
     public String addCommentOfParent(CommentRequsetDto commentRequsetDto, HttpServletRequest request ){
         BoardEntity boardEntity = boardRepository.findById(commentRequsetDto.getBoardId()).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION,ErrorCode.NOT_FOUND_EXCEPTION.getMessage());});
-        CommentEntity commentEntity = createComment(boardEntity,commentRequsetDto);
+        CommentEntity commentEntity = CommentEntity.builder()
+                .comment(commentRequsetDto.getComment())
+                .userId("댓글작성유저")
+                .boardEntity(boardEntity)
+                .updated(false)
+                .build();
         commentRepository.save(commentEntity);
 
         //보드 게시판의 댓글수 업데이트
@@ -121,11 +90,17 @@ public class CommentService {
     @Transactional
     public String addCommentOfChild(CommentRequsetDto commentRequsetDto, HttpServletRequest request){
         BoardEntity boardEntity = boardRepository.findById(commentRequsetDto.getBoardId()).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION,ErrorCode.NOT_FOUND_EXCEPTION.getMessage());});
-        CommentEntity parentComment = commentRepository.findById(commentRequsetDto.getCommentId()).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION,ErrorCode.NOT_FOUND_EXCEPTION.getMessage());});
+        CommentEntity parentComment = commentRepository.findById(commentRequsetDto.getParentCommentId()).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION,ErrorCode.NOT_FOUND_EXCEPTION.getMessage());});
 
-        CommentEntity childComment = createComment(parentComment.getBoardEntity(),commentRequsetDto);
-        commentRepository.save(childComment);
-        parentComment.addReply(childComment);
+        ReplyEntity replyEntity = ReplyEntity.builder()
+                .tag(commentRequsetDto.getTag())
+                .comment(commentRequsetDto.getComment())
+                .userId("대댓글작성유저")
+                .parent(parentComment)
+                .updated(false)
+                .build();
+        replyRepository.save(replyEntity);
+
 
         //보드 게시판의 댓글수 업데이트
         CommentNumUpdateDto commentNumUpdateDto = new CommentNumUpdateDto();
@@ -137,16 +112,26 @@ public class CommentService {
     }
 
     @Transactional
-    public String updateCommentOfId(CommentRequsetDto commentRequsetDto, HttpServletRequest request){
-        CommentEntity commentEntity = commentRepository.findById(commentRequsetDto.getCommentId()).orElseThrow(()->{throw new RuntimeException("해당 댓글이 없습니다");});
+    public String updateCommentOfParent(CommentRequsetDto commentRequsetDto, HttpServletRequest request){
+        if (!boardRepository.existsById(commentRequsetDto.getBoardId())) {
+            throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION,ErrorCode.NOT_FOUND_EXCEPTION.getMessage());
+        }
+        CommentEntity commentEntity = commentRepository.findById(commentRequsetDto.getParentCommentId()).orElseThrow(()->{throw new RuntimeException("해당 댓글이 없습니다");});
         commentEntity.update(commentRequsetDto);
         commentRepository.save(commentEntity);
         return "수정 완료";
     }
+    @Transactional
+    public String updateCommentOfChild(CommentRequsetDto commentRequsetDto, HttpServletRequest request){
+        ReplyEntity replyEntity = replyRepository.findById(commentRequsetDto.getChildCommentId()).orElseThrow(()->{throw new RuntimeException("해당 댓글이 없습니다");});
+        replyEntity.update(commentRequsetDto);
+        replyRepository.save(replyEntity);
+        return "수정 완료";
+    }
 
     @Transactional
-    public String deleteComment(CommentRequsetDto commentRequsetDto, HttpServletRequest request){
-        CommentEntity commentEntity = commentRepository.findById(commentRequsetDto.getCommentId()).orElseThrow(()->{throw new RuntimeException("해당 댓글이 없습니다");});
+    public String deleteCommentOfParent(CommentRequsetDto commentRequsetDto, HttpServletRequest request){
+        CommentEntity commentEntity = commentRepository.findById(commentRequsetDto.getParentCommentId()).orElseThrow(()->{throw new RuntimeException("해당 댓글이 없습니다");});
         BoardEntity boardEntity = boardRepository.findById(commentRequsetDto.getBoardId()).orElseThrow(()->{throw new RuntimeException("해당 댓글이 없습니다");});
         //보드 게시판의 댓글수 업데이트
         if(boardEntity.getCommentNum() > 0) {
@@ -157,13 +142,18 @@ public class CommentService {
         commentRepository.delete(commentEntity);
         return "삭제완료";
     }
-    private CommentEntity createComment(BoardEntity boardEntity,CommentRequsetDto commentRequsetDto){
-        CommentEntity commentEntity = CommentEntity.builder()
-                .boardEntity(boardEntity)
-                .comment(commentRequsetDto.getComment())
-                .updated(false)
-                .userId(commentRequsetDto.getUserId())
-                .build();
-        return commentEntity;
+    @Transactional
+    public String deleteCommentOfChild(CommentRequsetDto commentRequsetDto, HttpServletRequest request){
+        CommentEntity commentEntity = commentRepository.findById(commentRequsetDto.getChildCommentId()).orElseThrow(()->{throw new RuntimeException("해당 댓글이 없습니다");});
+        BoardEntity boardEntity = boardRepository.findById(commentRequsetDto.getBoardId()).orElseThrow(()->{throw new RuntimeException("해당 댓글이 없습니다");});
+        //보드 게시판의 댓글수 업데이트
+        if(boardEntity.getCommentNum() > 0) {
+            CommentNumUpdateDto commentNumUpdateDto = new CommentNumUpdateDto();
+            commentNumUpdateDto.setCommentNum(boardEntity.getCommentNum() - 1);
+            boardEntity.Update(commentNumUpdateDto);
+        }
+        commentRepository.delete(commentEntity);
+        return "삭제완료";
     }
+
 }

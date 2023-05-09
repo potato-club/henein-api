@@ -54,6 +54,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST,"/board/recommend").hasAnyAuthority("USER","ADMIN") //이 링크에 관해 로그인 절차 없이 허용
                 .anyRequest().permitAll()
+
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
