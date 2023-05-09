@@ -38,7 +38,7 @@ public class CommentService {
 
         List<CommentEntity> commentEntityList = jpaQueryFactory.select(qCommentEntity)
                 .from(qCommentEntity)
-                .innerJoin(qCommentEntity.replies, qReplyEntity)
+                .leftJoin(qCommentEntity.replies, qReplyEntity)
                 .where(qCommentEntity.boardEntity.id.eq(boardId))//부모댓글부터 가져옴
                 .orderBy(qCommentEntity.id.asc())
                 .fetch();

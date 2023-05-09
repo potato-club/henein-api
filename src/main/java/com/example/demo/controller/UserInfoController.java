@@ -18,17 +18,19 @@ import java.io.UnsupportedEncodingException;
 @RestController
 @RequestMapping("/userinfo")
 @RequiredArgsConstructor
-@Slf4j
 @Api(tags = {"유저 Controller"})
+@Slf4j
 public class UserInfoController {
     private final UserService userService;
     @GetMapping
     public UserInfoResponseDto userInfo(HttpServletRequest request){
+        log.info("유저컨트롤러진입----------------------------------------------");
         return userService.userInfo(request);
     }
     @Tag(name = "신규유저 이름변경처리", description = "username: 변경할 이름")
-    @PutMapping("/setname")
+    @PutMapping("/set-name")
     public String userNicknameChange(@RequestBody UserNicknameChange userNicknameChange, HttpServletRequest request , HttpServletResponse response) throws UnsupportedEncodingException {
+        log.info("유저 이름 컨트롤러진입----------------------------------------------");
         return userService.userNicknameChange(request,response, userNicknameChange);
     }
 }

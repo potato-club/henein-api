@@ -20,14 +20,11 @@ public class ReplyEntity extends BaseTimeEntity{
     private String comment;
     @Column(nullable = false)
     private String userId;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id",nullable = false)
     private CommentEntity parent;
-
     @Column(nullable = false)
     private Boolean updated;
-
     public void update(CommentRequsetDto commentRequsetDto) {
         this.comment = commentRequsetDto.getComment();
     }
