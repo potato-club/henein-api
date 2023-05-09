@@ -15,7 +15,6 @@ public class CommentResponseDto {
     private String userId;
     private String tag;
     private String comment;
-    private List<CommentResponseDto> reply;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime modifiedDate;
     private List<CommentResponseDto> replies;
