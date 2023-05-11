@@ -38,7 +38,6 @@ public class CommentService {
 
         List<CommentEntity> commentEntityList = jpaQueryFactory.select(qCommentEntity)
                 .from(qCommentEntity)
-                .leftJoin(qCommentEntity.replies, qReplyEntity)
                 .where(qCommentEntity.boardEntity.id.eq(boardId))//부모댓글부터 가져옴
                 .orderBy(qCommentEntity.id.asc())
                 .fetch();
@@ -61,7 +60,7 @@ public class CommentService {
 
         List<ReplyEntity> childList = jpaQueryFactory.select(qReplyEntity)
                 .from(qReplyEntity)
-                .innerJoin(qReplyEntity.parent,qCommentEntity)
+                .leftJoin(qReplyEntity.parent,qCommentEntity)
                 .where(qReplyEntity.parent.id.eq(commentEntity.getId()))
                 .orderBy(qCommentEntity.id.asc())
                 .fetch();
