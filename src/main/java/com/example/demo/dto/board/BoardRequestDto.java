@@ -13,14 +13,10 @@ import java.time.format.DateTimeFormatter;
 @Setter
 @NoArgsConstructor
 public class BoardRequestDto {
-    Long id;
-    @ApiModelProperty(value="수정 시간", example = "yyyy-MM-dd HH:mm", hidden = true)
-    private LocalDateTime modifiedDate = LocalDateTime.now();
     @ApiModelProperty(value="게시글 제목", example = "테스트 제목입니다.", required = true)
     private String title;
-    @ApiModelProperty(value="사용자 정보", hidden = true)
-    private String nickname;
     @ApiModelProperty(value="게시글 내용", example = "테스트 글입니다.", required = true)
     private String text;
+    @ApiModelProperty(value = "게시판 유형", example = "E,A,B,H,I,N", required = true)
     private String boardType;
 }

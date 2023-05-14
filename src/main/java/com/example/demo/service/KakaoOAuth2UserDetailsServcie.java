@@ -33,7 +33,7 @@ public class KakaoOAuth2UserDetailsServcie implements UserDetailsService {
     public UserDetails loadUserByKakaoOAuth2User(String email, String RT) {
         // 받은 정보로 찾고, 정보가 없으면 회원가입으로 갑니다.
         log.info("DB저장 service 진입");
-        UserEntity userEntity = userRepository.findByEmail(email)
+        UserEntity userEntity = userRepository.findByUserEmail(email)
                 .orElseGet(() ->controlUser(email));
 
         userEntity.setRefreshToken(RT);

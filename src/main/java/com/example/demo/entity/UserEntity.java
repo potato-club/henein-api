@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 
 
 import javax.persistence.*;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 @Getter
@@ -22,8 +24,11 @@ public class UserEntity extends BaseTimeEntity{
     private Long id;
     @Column(nullable = false)
     private UserRole userRole;
+    @Column(unique = true,nullable = false)
+    private String userEmail;
     @Column(unique = true)
-    private String username;
+    @Size(min=5,max=50)
+    private String userName;
     @Column
     private String floor;
     @Column
@@ -32,20 +37,18 @@ public class UserEntity extends BaseTimeEntity{
     private String  job;
     @Column
     private String password;
-    @Column(unique = true,nullable = false)
-    private String email;
+
     @Column(length = 512)
     private String refreshToken;
 
 
     public UserEntity(String email, int guestCount, UserRole userRole) {
-        this.email =email;
-        String username = "guest"+guestCount;
-        this.username = username;
+        this.userEmail =email;
+        this.userName = "guest"+guestCount;
         this.userRole = userRole;
     }
     public void Update(String username) {
-        this.username = username;
+        this.userName = username;
     }
 
     public void setRefreshToken(String refreshToken){

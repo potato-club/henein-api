@@ -22,7 +22,9 @@ public class CommentEntity extends BaseTimeEntity {
     @Column(nullable = false)
     private String comment;
     @Column(nullable = false)
-    private String userId;
+    private String userEmail;
+    @Column(nullable = false)
+    private String userName;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id", nullable = false)
     private BoardEntity boardEntity;

@@ -67,7 +67,7 @@ public class CommonBoardService {
         String AT = jwtTokenProvider.resolveAccessToken(request);
         String userEmail = jwtTokenProvider.getUserEmailFromAccessToken(AT); // 정보 가져옴
 
-        UserEntity userEntity = userRepository.findByEmail(userEmail).
+        UserEntity userEntity = userRepository.findByUserEmail(userEmail).
                 orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + userEmail));
 
         RecommendEntity recommendEntity = recommandRepository.findByBoardEntityAndUserEntity(boardEntity,userEntity);

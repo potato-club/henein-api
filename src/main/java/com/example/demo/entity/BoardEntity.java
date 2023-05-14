@@ -34,7 +34,9 @@ public class BoardEntity extends BaseTimeEntity{
     @Column
     private int commentNum;
     @Column
-    private String nickname;
+    private String userEmail;
+    @Column
+    private String userName;
     @Column
     private int views;
     @Column
@@ -49,15 +51,17 @@ public class BoardEntity extends BaseTimeEntity{
     private List<CommentEntity> commentEntityList = new ArrayList<>();
 
     @Builder
-    public BoardEntity (String title, String nickname,String text, BoardType boardType){
-        this.title = title;
-        this.nickname = nickname;
-        this.text = text;
-        this.boardType = boardType;
+    public BoardEntity (BoardRequestDto boardRequestDto, BoardType board){
+        this.title = boardRequestDto.getTitle();
+        this.userName = "테스트 작성자";
+        this.userEmail = "테스트 이메일";
+        this.text = boardRequestDto.getText();
+        this.boardType = board;
     }
     public void Update(BoardRequestDto boardRequestDto){
         this.title = boardRequestDto.getTitle();
-        this.nickname = boardRequestDto.getNickname();
+        this.userName = "테스트 작성자";
+        this.userEmail = "테스트 이메일";
         this.text = boardRequestDto.getText();
     }
     public void Update(BoardRecommendDTO boardRecommendDTO){

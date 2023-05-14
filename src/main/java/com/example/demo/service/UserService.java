@@ -1,7 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.login.KakaoOAuth2User;
-import com.example.demo.dto.login.UserRegisterRequest;
+
 import com.example.demo.dto.user.UserInfoResponseDto;
 import com.example.demo.dto.user.UserNicknameChange;
 import com.example.demo.entity.UserEntity;
@@ -44,7 +44,7 @@ public class UserService {
     public UserInfoResponseDto userInfo(HttpServletRequest request){
         String AT = jwtTokenProvider.resolveAccessToken(request);
         String userEmail = jwtTokenProvider.getUserEmailFromAccessToken(AT); // 정보 가져옴
-        UserEntity userEntity = userRepository.findByEmail(userEmail).
+        UserEntity userEntity = userRepository.findByUserEmail(userEmail).
                 orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + userEmail));
         return new UserInfoResponseDto(userEntity);
     }
@@ -53,9 +53,9 @@ public class UserService {
         String AT = jwtTokenProvider.resolveAccessToken(request);
         jwtTokenProvider.validateToken(response,AT);
         String userEmail = jwtTokenProvider.getUserEmailFromAccessToken(AT); // 정보 가져옴
-        UserEntity userEntity = userRepository.findByEmail(userEmail).
+        UserEntity userEntity = userRepository.findByUserEmail(userEmail).
                 orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + userEmail));
-        userEntity.Update(userNicknameChange.getUsername());
+        userEntity.Update(userNicknameChange.getUserName());
         userRepository.save(userEntity);
         return "유저 이름 설정 완료";
     }
@@ -77,7 +77,7 @@ public class UserService {
         String refreshToken = jwtTokenProvider.generateRefreshToken(email);
         String existsUser ="신규 유저입니다.";
         Map<String, String> tokens =new HashMap<>();
-        if (!userRepository.existsByEmail(email)){
+        if (!userRepository.existsByUserEmail(email)){
             tokens.put("status",existsUser);
         }
         // 로그인한 사용자의 정보를 저장합니다.
@@ -113,17 +113,17 @@ public class UserService {
             throw new RuntimeException(e);
         }
     }
-    @Transactional
-    public String registerUser(UserRegisterRequest userRegisterRequest){
-        //이미 있는 이름인지 확인
-        if (userRepository.existsByUsername(userRegisterRequest.getUsername())) {
-            throw new RuntimeException("Username is already taken");
-        }
-        // Create a new user and Save
-        userRegisterRequest.setPassword(passwordEncoder.encode(userRegisterRequest.getPassword()));
-        userRepository.save(userRegisterRequest.toEntity(userRegisterRequest));
-
-        return "저장 완료";
-
-    }
+//    @Transactional
+//    public String registerUser(UserRegisterRequest userRegisterRequest){
+//        //이미 있는 이름인지 확인
+//        if (userRepository.existsByUsername(userRegisterRequest.getUsername())) {
+//            throw new RuntimeException("Username is already taken");
+//        }
+//        // Create a new user and Save
+//        userRegisterRequest.setPassword(passwordEncoder.encode(userRegisterRequest.getPassword()));
+//        userRepository.save(userRegisterRequest.toEntity(userRegisterRequest));
+//
+//        return "저장 완료";
+//
+//    }
 }

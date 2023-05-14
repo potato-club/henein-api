@@ -18,11 +18,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         // Retrieve the user from the database
-        UserEntity userEntity = userRepository.findByEmail(email)
+        UserEntity userEntity = userRepository.findByUserEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + email));
 
         // Create a UserDetails object using the user's information
-        return User.withUsername(userEntity.getUsername())
+        return User.withUsername(userEntity.getUserName())
                 .password("password_not_used")
                 .authorities(new SimpleGrantedAuthority("ROLE_USER"))
                 .accountExpired(false)

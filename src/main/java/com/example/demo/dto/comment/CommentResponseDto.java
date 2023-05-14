@@ -12,7 +12,7 @@ import java.util.List;
 @Getter
 public class CommentResponseDto {
     private Long commentId;
-    private String userId;
+    private String userName;
     private String tag;
     private String comment;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
@@ -21,13 +21,13 @@ public class CommentResponseDto {
 
     public CommentResponseDto(CommentEntity commentEntity){
         this.commentId = commentEntity.getId();
-        this.userId = commentEntity.getUserId();
+        this.userName = commentEntity.getUserName();
         this.comment = commentEntity.getComment();
         this.modifiedDate = commentEntity.getModifiedDate();
     }
     public CommentResponseDto(ReplyEntity replyEntity){
         this.commentId = replyEntity.getId();
-        this.userId = replyEntity.getUserId();
+        this.userName = replyEntity.getUserName();
         this.tag = replyEntity.getTag();
         this.comment = replyEntity.getComment();
         this.modifiedDate = replyEntity.getModifiedDate();

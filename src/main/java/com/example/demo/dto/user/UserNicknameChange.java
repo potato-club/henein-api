@@ -4,5 +4,5 @@ import lombok.Getter;
 
 @Getter
 public class UserNicknameChange {
-    private String username;
+    private String userName;
 }

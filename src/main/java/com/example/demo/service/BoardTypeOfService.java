@@ -32,14 +32,6 @@ public class BoardTypeOfService {
     final private S3FileRespository s3FileRespository;
     final private S3Service s3Service;
 
-/*    @Transactional //전체게시판
-    public Page<BoardResponseDto> getEntireBoard(int page){
-        //id를 이용한 내림차순 정렬
-        PageRequest pageRequest = PageRequest.of(page-1, 20);
-        Page<BoardEntity> boardEntityList = boardRepository.findAllNotNotice(pageRequest);
-        return new PageImpl<>(boardEntityList.stream().map(BoardResponseDto::new).collect(Collectors.toList()));
-    }*/
-
     @Transactional //
     public Page<BoardResponseDto> getTypeOfBoard(int page, int boardType){
         BoardType board;
@@ -74,7 +66,7 @@ public class BoardTypeOfService {
             case "N": board = BoardType.Notice; break;
             default: throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION,ErrorCode.NOT_FOUND_EXCEPTION.getMessage());
         }
-        BoardEntity boardEntity = new BoardEntity(boardRequestDto.getTitle(),boardRequestDto.getNickname(),boardRequestDto.getText(),board);
+        BoardEntity boardEntity = new BoardEntity(boardRequestDto,board);
         if (image != null){
             uploadBoardFile(image,boardEntity);
         }
