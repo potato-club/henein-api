@@ -20,9 +20,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -41,16 +38,7 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final KakaoOAuth2UserDetailsServcie kakaoOAuth2UserDetailsServcie;
     private final KakaoOAuth2Client kakaoOAuth2Client;
-    //private final WebClient webClient;
-//    @Transactional
-//    public Flux<UserNameResponseDto> getUserNameOnCube(UserMapleApi userMapleApi){
-//        String url = "/cube";
-//        return this.webClient.post()
-//                .uri(url)
-//                .body(BodyInserters.fromValue(userMapleApi))
-//                .retrieve()
-//                .bodyToFlux(UserNameResponseDto.class);
-//    }
+
 
     @Transactional
     public UserInfoResponseDto userInfo(HttpServletRequest request){
