@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -29,7 +30,7 @@ public class CommentController {
     }
     @Operation(summary = "댓글 작성 API [commentId = null]")
     @PostMapping("/comment")
-    public String addCommentOfParent(@RequestBody CommentRequsetDto commentRequsetDto,@ApiIgnore HttpServletRequest request){
+    public String addCommentOfParent(@Valid @RequestBody CommentRequsetDto commentRequsetDto, @ApiIgnore HttpServletRequest request){
         log.info(commentRequsetDto.getBoardId()+"과"+commentRequsetDto.getCommentId());
         return commentService.addCommentOfParent(commentRequsetDto,request);
     }
