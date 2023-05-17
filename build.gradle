@@ -55,6 +55,8 @@ dependencies {
 	implementation "com.querydsl:querydsl-jpa:${queryDslVersion}"
 	annotationProcessor "com.querydsl:querydsl-apt:${queryDslVersion}"
 
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
 
 }
 

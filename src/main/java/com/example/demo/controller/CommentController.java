@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
@@ -18,7 +19,7 @@ import java.util.List;
 @RequestMapping(value = "/board")
 @RequiredArgsConstructor
 @Api(tags = {"댓글 Controller"})
-
+@Slf4j
 public class CommentController {
     final private CommentService commentService;
     @Operation(summary = "게시판의 id로 댓글 전부 호출 API")
@@ -29,6 +30,7 @@ public class CommentController {
     @Operation(summary = "댓글 작성 API [commentId = null]")
     @PostMapping("/comment")
     public String addCommentOfParent(@RequestBody CommentRequsetDto commentRequsetDto,@ApiIgnore HttpServletRequest request){
+        log.info(commentRequsetDto.getBoardId()+"과"+commentRequsetDto.getCommentId());
         return commentService.addCommentOfParent(commentRequsetDto,request);
     }
     @Operation(summary = "대댓글 작성 API [commentId = 부모댓글의 id")

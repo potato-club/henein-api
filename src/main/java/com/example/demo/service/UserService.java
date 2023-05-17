@@ -3,6 +3,8 @@ package com.example.demo.service;
 import com.example.demo.dto.login.KakaoOAuth2User;
 
 import com.example.demo.dto.user.UserInfoResponseDto;
+import com.example.demo.dto.user.UserMapleApi;
+import com.example.demo.dto.user.UserNameResponseDto;
 import com.example.demo.dto.user.UserNicknameChange;
 import com.example.demo.entity.UserEntity;
 import com.example.demo.jwt.JwtTokenProvider;
@@ -20,6 +22,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -38,7 +43,16 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final KakaoOAuth2UserDetailsServcie kakaoOAuth2UserDetailsServcie;
     private final KakaoOAuth2Client kakaoOAuth2Client;
-
+    private final WebClient webClient;
+    @Transactional
+    public Flux<UserNameResponseDto> getUserNameOnCube(UserMapleApi userMapleApi){
+        String url = "/cube";
+        return this.webClient.post()
+                .uri(url)
+                .body(BodyInserters.fromValue(userMapleApi))
+                .retrieve()
+                .bodyToFlux(UserNameResponseDto.class);
+    }
 
     @Transactional
     public UserInfoResponseDto userInfo(HttpServletRequest request){

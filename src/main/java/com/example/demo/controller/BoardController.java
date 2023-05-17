@@ -52,6 +52,7 @@ public class BoardController {
                                  @RequestParam("title") String title,
                                  @RequestParam("text") String text,
                                  @RequestParam("boardType") String boardType) {
+        log.info(title+"과"+text+"과"+boardType);
         BoardRequestDto boardRequestDto = new BoardRequestDto();
         boardRequestDto.setTitle(title);
         boardRequestDto.setText(text);
