@@ -40,8 +40,9 @@ public class UserInfoController {
     @PutMapping("/set-name")
     public String userNicknameChange(@RequestBody UserNicknameChange userNickname, HttpServletRequest request , HttpServletResponse response) throws UnsupportedEncodingException {
         log.info("유저 이름 컨트롤러진입----------------------------------------------");
-        if (userNickname.getUserName() == null){
-            throw new UsernameNotFoundException("NULL 값이 들어왔어요");
+        String userName = userNickname.getUserName();
+        if (userName == null || userName.length() < 2 || userName.length() >= 15) {
+            throw new NotFoundException(ErrorCode.INVALID_USER,"유저이름이 너무 짧거나 깁니다");
         }
         return userService.userNicknameChange(request,response, userNickname);
     }
