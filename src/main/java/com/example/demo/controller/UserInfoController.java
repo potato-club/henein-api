@@ -3,6 +3,8 @@ package com.example.demo.controller;
 import com.example.demo.dto.user.UserInfoResponseDto;
 
 import com.example.demo.dto.user.UserNicknameChange;
+import com.example.demo.error.ErrorCode;
+import com.example.demo.error.exception.NotFoundException;
 import com.example.demo.service.UserService;
 import io.swagger.annotations.Api;
 
@@ -11,11 +13,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
+
+import static com.example.demo.error.ErrorCode.NULL_VALUE;
 
 @RestController
 @RequestMapping("/userinfo")
@@ -35,7 +40,9 @@ public class UserInfoController {
     @PutMapping("/set-name")
     public String userNicknameChange(@RequestBody UserNicknameChange userNickname, HttpServletRequest request , HttpServletResponse response) throws UnsupportedEncodingException {
         log.info("유저 이름 컨트롤러진입----------------------------------------------");
-        log.info(userNickname.getUserName());
+        if (userNickname.getUserName() == null){
+            throw new UsernameNotFoundException("NULL 값이 들어왔어요");
+        }
         return userService.userNicknameChange(request,response, userNickname);
     }
 //    @PostMapping("/character-name")

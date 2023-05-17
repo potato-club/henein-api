@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 @ToString
 public enum ErrorCode {
+  NULL_VALUE(600,HttpStatus.BAD_REQUEST,"데이터가 없습니다."),
   INVALID_USER(400, HttpStatus.BAD_REQUEST, "아이디 또는 비밀번호가 일치하지 않습니다."),
   BAD_REQUEST(400, HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
   DUPLICATE_EMAIL(409, HttpStatus.CONFLICT, "이미 존재하는 이메일입니다."),
