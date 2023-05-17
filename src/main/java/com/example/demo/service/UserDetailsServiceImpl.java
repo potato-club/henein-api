@@ -24,9 +24,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         UserEntity userEntity = userRepository.findByUserEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + email));
         log.info("hello2");
-        log.info("userName : "+ userEntity.getUserName());
+        log.info("userName : "+ userEntity.getUserEmail());
         // Create a UserDetails object using the user's information
-        return User.withUsername(userEntity.getUserName())
+        return User.withUsername(userEntity.getUserEmail())
                 .password("password_not_used")
                 .authorities(new SimpleGrantedAuthority("ROLE_USER"))
                 .accountExpired(false)
