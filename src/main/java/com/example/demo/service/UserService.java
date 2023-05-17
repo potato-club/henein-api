@@ -93,6 +93,14 @@ public class UserService {
 
         return ResponseEntity.ok(tokens);
     }
+    ////////////
+    @Transactional
+    public String test(String email, String RT){
+        kakaoOAuth2UserDetailsServcie.loadUserByKakaoOAuth2User(email, RT);
+
+        return "good";
+    }
+    ////////////
     @Transactional
     public ResponseEntity<?> refreshAT(HttpServletRequest request,HttpServletResponse response){
         //bearer 지우기

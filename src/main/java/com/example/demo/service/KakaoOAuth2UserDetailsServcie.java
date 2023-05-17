@@ -35,7 +35,7 @@ public class KakaoOAuth2UserDetailsServcie implements UserDetailsService {
         log.info("DB저장 service 진입: "+ email);
         UserEntity userEntity = userRepository.findByUserEmail(email)
                 .orElseGet(() ->controlUser(email));
-
+        log.info("1");
         userEntity.setRefreshToken(RT);
         userRepository.save(userEntity);
 
