@@ -51,6 +51,7 @@ public class UserEntity extends BaseTimeEntity{
     }
 
     public void setRefreshToken(String refreshToken){
+
         this.refreshToken = refreshToken;
     }
 

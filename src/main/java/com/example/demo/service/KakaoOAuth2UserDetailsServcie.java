@@ -37,6 +37,7 @@ public class KakaoOAuth2UserDetailsServcie implements UserDetailsService {
                 .orElseGet(() ->controlUser(email));
         log.info("1");
         userEntity.setRefreshToken(RT);
+        log.info("2");
         userRepository.save(userEntity);
 
         return new CustomeUserDetails(userEntity);
