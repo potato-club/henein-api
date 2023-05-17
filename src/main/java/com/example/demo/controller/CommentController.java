@@ -30,10 +30,9 @@ public class CommentController {
     }
     @Operation(summary = "댓글 작성 API [commentId = null]")
     @PostMapping("/comment")
-    public String addCommentOfParent(  @ApiIgnore HttpServletRequest request){
-        //log.info(commentRequsetDto.getBoardId()+"과"+commentRequsetDto.getCommentId());
-        //return commentService.addCommentOfParent(commentRequsetDto,request);
-        return null;
+    public String addCommentOfParent(@RequestBody CommentRequsetDto commentRequsetDto, @ApiIgnore HttpServletRequest request){
+        log.info(commentRequsetDto.getBoardId()+"과"+commentRequsetDto.getCommentId());
+        return commentService.addCommentOfParent(commentRequsetDto,request);
     }
     @Operation(summary = "대댓글 작성 API [commentId = 부모댓글의 id")
     @PostMapping("/comment/child")
