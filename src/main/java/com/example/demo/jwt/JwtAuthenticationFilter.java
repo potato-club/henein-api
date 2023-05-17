@@ -2,6 +2,7 @@ package com.example.demo.jwt;
 
 import com.example.demo.service.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+@Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -32,16 +34,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 헤더에서 Token을 따옴
         String accessToken = jwtTokenProvider.resolveAccessToken(request);
         if (accessToken != null && jwtTokenProvider.validateToken(response, accessToken)) {
+            log.info("hi1");
             // Get the username from the access token
             String email = jwtTokenProvider.getUserEmailFromAccessToken(accessToken);
-
+            log.info("hi2");
             // Load the user details
             UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(email);
-
+            log.info("hi3");
             // Create an authentication object
             Authentication authentication =
                     new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-
+            log.info("hi4");
             // Set the authentication object in the security context
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }

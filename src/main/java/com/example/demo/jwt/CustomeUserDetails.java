@@ -1,16 +1,19 @@
 package com.example.demo.jwt;
 
 import com.example.demo.entity.UserEntity;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 
+@Slf4j
 public class CustomeUserDetails implements UserDetails {
 
     private UserEntity userEntity;
 
     public CustomeUserDetails(UserEntity userEntity){
+        log.info("3");
         this.userEntity = userEntity;
     }
     public UserEntity getUserEntity(){
