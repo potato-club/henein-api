@@ -32,7 +32,7 @@ public class KakaoOAuth2UserDetailsServcie implements UserDetailsService {
     @Transactional
     public UserDetails loadUserByKakaoOAuth2User(String email, String RT) {
         // 받은 정보로 찾고, 정보가 없으면 회원가입으로 갑니다.
-        log.info("DB저장 service 진입");
+        log.info("DB저장 service 진입: "+ email);
         UserEntity userEntity = userRepository.findByUserEmail(email)
                 .orElseGet(() ->controlUser(email));
 
@@ -50,7 +50,8 @@ public class KakaoOAuth2UserDetailsServcie implements UserDetailsService {
         GuestCountEntity guestCount = guestCountRepository.getById(new Long(1));
         guestCount.addCount();
         //유저이름을 "guest" + guestCount로 설정
-        UserEntity userEntity = new UserEntity(email, guestCount.getGuestCount(), UserRole.USER);
+        log.info("controlUser진입: "+ email);
+        UserEntity userEntity = new UserEntity(email, guestCount.getGuestCount());
         guestCountRepository.save(guestCount);
         return userEntity;
     }

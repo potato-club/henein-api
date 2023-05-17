@@ -26,8 +26,7 @@ public class UserEntity extends BaseTimeEntity{
     private UserRole userRole;
     @Column(unique = true,nullable = false)
     private String userEmail;
-    @Column(unique = true)
-    @Size(min=5,max=50)
+    @Column(nullable = false)
     private String userName;
     @Column
     private String floor;
@@ -42,10 +41,10 @@ public class UserEntity extends BaseTimeEntity{
     private String refreshToken;
 
 
-    public UserEntity(String email, int guestCount, UserRole userRole) {
-        this.userEmail =email;
+    public UserEntity(String email, int guestCount) {
+        this.userEmail = email;
         this.userName = "guest"+guestCount;
-        this.userRole = userRole;
+        this.userRole = UserRole.USER;
     }
     public void Update(String username) {
         this.userName = username;

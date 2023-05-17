@@ -62,7 +62,7 @@ public class CommentService {
                 .from(qReplyEntity)
                 .leftJoin(qReplyEntity.parent,qCommentEntity)
                 .where(qReplyEntity.parent.id.eq(commentEntity.getId()))
-                .orderBy(qCommentEntity.id.asc())
+                .orderBy(qReplyEntity.id.asc())
                 .fetch();
         return childList;
     }
@@ -73,6 +73,7 @@ public class CommentService {
         CommentEntity commentEntity = CommentEntity.builder()
                 .comment(commentRequsetDto.getComment())
                 .userName("댓글작성유저")
+                .userEmail("temp") // 바꿀분
                 .boardEntity(boardEntity)
                 .updated(false)
                 .build();
@@ -95,6 +96,7 @@ public class CommentService {
                 .tag(commentRequsetDto.getTag())
                 .comment(commentRequsetDto.getComment())
                 .userName("대댓글작성유저")
+                .userEmail("temp") // 바꿀분
                 .parent(parentComment)
                 .updated(false)
                 .build();
