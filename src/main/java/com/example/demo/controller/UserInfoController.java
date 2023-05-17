@@ -1,8 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.user.UserInfoResponseDto;
-import com.example.demo.dto.user.UserMapleApi;
-import com.example.demo.dto.user.UserNameResponseDto;
+
 import com.example.demo.dto.user.UserNicknameChange;
 import com.example.demo.service.UserService;
 import io.swagger.annotations.Api;
@@ -39,8 +38,8 @@ public class UserInfoController {
         log.info("유저 이름 컨트롤러진입----------------------------------------------");
         return userService.userNicknameChange(request,response, userNicknameChange);
     }
-    @PostMapping("/character-name")
-    public Flux<UserNameResponseDto> getUserInfo(@RequestBody UserMapleApi userMapleApi){
-        return userService.getUserNameOnCube(userMapleApi);
-    }
+//    @PostMapping("/character-name")
+//    public Flux<UserNameResponseDto> getUserInfo(@RequestBody UserMapleApi userMapleApi){
+//        return userService.getUserNameOnCube(userMapleApi);
+//    }
 }

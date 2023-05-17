@@ -41,7 +41,7 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final KakaoOAuth2UserDetailsServcie kakaoOAuth2UserDetailsServcie;
     private final KakaoOAuth2Client kakaoOAuth2Client;
-    private final WebClient webClient;
+    //private final WebClient webClient;
 //    @Transactional
 //    public Flux<UserNameResponseDto> getUserNameOnCube(UserMapleApi userMapleApi){
 //        String url = "/cube";
