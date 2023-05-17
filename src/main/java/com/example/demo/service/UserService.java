@@ -49,13 +49,16 @@ public class UserService {
         return new UserInfoResponseDto(userEntity);
     }
     @Transactional
-    public String userNicknameChange(HttpServletRequest request, HttpServletResponse response, UserNicknameChange userNicknameChange) throws UnsupportedEncodingException {
+    public String userNicknameChange(HttpServletRequest request, HttpServletResponse response, UserNicknameChange userNickname) throws UnsupportedEncodingException {
         String AT = jwtTokenProvider.resolveAccessToken(request);
         jwtTokenProvider.validateToken(response,AT);
         String userEmail = jwtTokenProvider.getUserEmailFromAccessToken(AT); // 정보 가져옴
+        log.info(userNickname.getUserName());
         UserEntity userEntity = userRepository.findByUserEmail(userEmail).
                 orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + userEmail));
-        userEntity.Update(userNicknameChange.getUserName());
+        log.info(userEntity.getUserName());
+        userEntity.Update(userNickname);
+        log.info(userEntity.getUserName());
         userRepository.save(userEntity);
         return "유저 이름 설정 완료";
     }

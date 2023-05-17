@@ -33,9 +33,10 @@ public class UserInfoController {
     //@Tag(name = "신규유저 이름변경처리", description = "username: 변경할 이름")
     @Operation(summary = "유저 이름 변경 API")
     @PutMapping("/set-name")
-    public String userNicknameChange(@RequestBody UserNicknameChange userNicknameChange, HttpServletRequest request , HttpServletResponse response) throws UnsupportedEncodingException {
+    public String userNicknameChange(@RequestBody UserNicknameChange userNickname, HttpServletRequest request , HttpServletResponse response) throws UnsupportedEncodingException {
         log.info("유저 이름 컨트롤러진입----------------------------------------------");
-        return userService.userNicknameChange(request,response, userNicknameChange);
+        log.info(userNickname.getUserName());
+        return userService.userNicknameChange(request,response, userNickname);
     }
 //    @PostMapping("/character-name")
 //    public Flux<UserNameResponseDto> getUserInfo(@RequestBody UserMapleApi userMapleApi){

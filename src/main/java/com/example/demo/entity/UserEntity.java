@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.example.demo.dto.user.UserNicknameChange;
 import com.example.demo.enumCustom.UserRole;
 import com.sun.istack.NotNull;
 import lombok.AllArgsConstructor;
@@ -46,8 +47,8 @@ public class UserEntity extends BaseTimeEntity{
         this.userName = "guest"+guestCount;
         this.userRole = UserRole.USER;
     }
-    public void Update(String username) {
-        this.userName = username;
+    public void Update(UserNicknameChange userNicknameChange) {
+        this.userName = userNicknameChange.getUserName();
     }
 
     public void setRefreshToken(String refreshToken){
