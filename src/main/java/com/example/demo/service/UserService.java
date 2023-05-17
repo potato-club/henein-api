@@ -3,8 +3,6 @@ package com.example.demo.service;
 import com.example.demo.dto.login.KakaoOAuth2User;
 
 import com.example.demo.dto.user.UserInfoResponseDto;
-import com.example.demo.dto.user.UserMapleApi;
-import com.example.demo.dto.user.UserNameResponseDto;
 import com.example.demo.dto.user.UserNicknameChange;
 import com.example.demo.entity.UserEntity;
 import com.example.demo.jwt.JwtTokenProvider;
@@ -44,15 +42,15 @@ public class UserService {
     private final KakaoOAuth2UserDetailsServcie kakaoOAuth2UserDetailsServcie;
     private final KakaoOAuth2Client kakaoOAuth2Client;
     private final WebClient webClient;
-    @Transactional
-    public Flux<UserNameResponseDto> getUserNameOnCube(UserMapleApi userMapleApi){
-        String url = "/cube";
-        return this.webClient.post()
-                .uri(url)
-                .body(BodyInserters.fromValue(userMapleApi))
-                .retrieve()
-                .bodyToFlux(UserNameResponseDto.class);
-    }
+//    @Transactional
+//    public Flux<UserNameResponseDto> getUserNameOnCube(UserMapleApi userMapleApi){
+//        String url = "/cube";
+//        return this.webClient.post()
+//                .uri(url)
+//                .body(BodyInserters.fromValue(userMapleApi))
+//                .retrieve()
+//                .bodyToFlux(UserNameResponseDto.class);
+//    }
 
     @Transactional
     public UserInfoResponseDto userInfo(HttpServletRequest request){
