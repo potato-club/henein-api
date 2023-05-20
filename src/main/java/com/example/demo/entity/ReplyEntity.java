@@ -26,7 +26,8 @@ public class ReplyEntity extends BaseTimeEntity{
     private CommentEntity parent;
     @Column(nullable = false)
     private Boolean updated;
-    public void update(CommentRequsetDto commentRequsetDto) {
+    public void update(CommentRequsetDto commentRequsetDto, String userName) {
         this.comment = commentRequsetDto.getComment();
+        this.userName = userName;
     }
 }

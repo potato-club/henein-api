@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.security.core.userdetails.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -51,10 +52,10 @@ public class BoardEntity extends BaseTimeEntity{
     private List<CommentEntity> commentEntityList = new ArrayList<>();
 
     @Builder
-    public BoardEntity (BoardRequestDto boardRequestDto, BoardType board){
+    public BoardEntity (BoardRequestDto boardRequestDto, BoardType board, UserEntity userEntity){
         this.title = boardRequestDto.getTitle();
-        this.userName = "테스트 작성자";
-        this.userEmail = "테스트 이메일";
+        this.userName = userEntity.getUserName();
+        this.userEmail = userEntity.getUserEmail();
         this.text = boardRequestDto.getText();
         this.boardType = board;
     }

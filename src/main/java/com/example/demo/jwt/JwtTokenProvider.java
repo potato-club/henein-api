@@ -31,6 +31,7 @@ public class JwtTokenProvider {
 
     //토큰 생성 메서드 구현
     //AT 구현
+
     public String generateAccessToken(String email) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + accessTokenExpiration);

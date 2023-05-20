@@ -1,13 +1,16 @@
 package com.example.demo.service;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.example.demo.dto.board.BoardRequestDto;
 import com.example.demo.dto.board.BoardResponseDto;
 import com.example.demo.entity.BoardEntity;
 import com.example.demo.entity.S3File;
+import com.example.demo.entity.UserEntity;
 import com.example.demo.enumCustom.BoardType;
 //import com.example.demo.error.exception.NotFoundException;
 import com.example.demo.error.ErrorCode;
 import com.example.demo.error.exception.NotFoundException;
+import com.example.demo.jwt.JwtTokenProvider;
 import com.example.demo.repository.BoardRepository;
 import com.example.demo.repository.S3FileRespository;
 import lombok.RequiredArgsConstructor;
@@ -15,10 +18,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,9 +34,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class BoardTypeOfService {
-    final private BoardRepository boardRepository;
-    final private S3FileRespository s3FileRespository;
-    final private S3Service s3Service;
+    private final BoardRepository boardRepository;
+    private final S3FileRespository s3FileRespository;
+    private final S3Service s3Service;
+    private final UserService userService;
 
     @Transactional //
     public Page<BoardResponseDto> getTypeOfBoard(int page, int boardType){
@@ -55,7 +62,9 @@ public class BoardTypeOfService {
 
     //===================================================================================================
     @Transactional
-    public String addTypeOfBoard(List<MultipartFile> image ,BoardRequestDto boardRequestDto){
+    public String addTypeOfBoard(List<MultipartFile> image , BoardRequestDto boardRequestDto, HttpServletRequest request, HttpServletResponse response){
+        UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request, response); // jwt 로직 추가
+
         BoardType board;
         switch (boardRequestDto.getBoardType()){
             case "A": board = BoardType.Advertise; break;
@@ -66,7 +75,7 @@ public class BoardTypeOfService {
             case "N": board = BoardType.Notice; break;
             default: throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION,ErrorCode.NOT_FOUND_EXCEPTION.getMessage());
         }
-        BoardEntity boardEntity = new BoardEntity(boardRequestDto,board);
+        BoardEntity boardEntity = new BoardEntity(boardRequestDto,board, userEntity);
         if (image != null){
             uploadBoardFile(image,boardEntity);
         }
@@ -89,4 +98,5 @@ public class BoardTypeOfService {
                 .boardEntity(boardEntity)
                 .build());
     }
+
 }

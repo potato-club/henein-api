@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.example.demo.dto.board.BoardRecommendDTO;
 import com.example.demo.dto.board.BoardRequestDto;
 import com.example.demo.dto.board.BoardResponseDto;
@@ -17,15 +18,15 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 @Service
 @RequiredArgsConstructor
 public class CommonBoardService {
     private final BoardRepository boardRepository;
-    private final UserRepository userRepository;
     private final RecommandRepository recommandRepository;
-    private final JwtTokenProvider jwtTokenProvider;
-    private final JPAQueryFactory jpaQueryFactory;
+    private final UserService userService;
+
     @Transactional
     public BoardResponseDto getOneService(Long id){
         BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 게시글 정보가 없습니다");});
@@ -33,20 +34,25 @@ public class CommonBoardService {
         return boardResponseDto;
     }
     @Transactional
-    public String updateService(Long id, BoardRequestDto boardRequestDto){
+    public String updateService(Long id, BoardRequestDto boardRequestDto, HttpServletRequest request, HttpServletResponse response){
+        UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request,response);
         BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 게시글 정보가 없습니다");});
-        try{
-            boardEntity.Update(boardRequestDto);
-            boardRepository.save(boardEntity);
-        } catch (NullPointerException e) {
-            throw new NullPointerException("값이 NULL입니다.");
+        if (boardEntity.getUserEmail() != userEntity.getUserEmail()){
+            throw new RuntimeException("게시글 수정 권한이 없습니다.");
         }
+
+        boardEntity.Update(boardRequestDto);
+        boardRepository.save(boardEntity);
 
         return "수정완료";
     }
     @Transactional
-    public String deleteService(Long id){
+    public String deleteService(Long id, HttpServletRequest request, HttpServletResponse response){
+        UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request, response);
         BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 게시글 정보가 없습니다");});
+        if (boardEntity.getUserEmail() != userEntity.getUserEmail()){
+            throw new RuntimeException("게시글 삭제 권한이 없습니다.");
+        }
         boardRepository.delete(boardEntity);
         return "삭제완료";
     }
@@ -62,13 +68,9 @@ public class CommonBoardService {
         return "조회수 증가완료";
     }
     @Transactional
-    public String recommendThisBoard(Long id, HttpServletRequest request){
+    public String recommendThisBoard(Long id, HttpServletRequest request, HttpServletResponse response){
         BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 게시글 정보가 없습니다");});
-        String AT = jwtTokenProvider.resolveAccessToken(request);
-        String userEmail = jwtTokenProvider.getUserEmailFromAccessToken(AT); // 정보 가져옴
-
-        UserEntity userEntity = userRepository.findByUserEmail(userEmail).
-                orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + userEmail));
+        UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request, response);
 
         RecommendEntity recommendEntity = recommandRepository.findByBoardEntityAndUserEntity(boardEntity,userEntity);
         //추천 DB에 없는 인원일때 ( 해당 게시글에 처음 추천을 누른 유저일시 )

@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.example.demo.dto.login.KakaoOAuth2User;
 
 import com.example.demo.dto.user.UserInfoResponseDto;
@@ -34,31 +35,34 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final KakaoOAuth2UserDetailsServcie kakaoOAuth2UserDetailsServcie;
     private final KakaoOAuth2Client kakaoOAuth2Client;
 
-
     @Transactional
-    public UserInfoResponseDto userInfo(HttpServletRequest request){
-        String AT = jwtTokenProvider.resolveAccessToken(request);
-        String userEmail = jwtTokenProvider.getUserEmailFromAccessToken(AT); // 정보 가져옴
-        UserEntity userEntity = userRepository.findByUserEmail(userEmail).
-                orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + userEmail));
+    public UserEntity fetchUserEntityByHttpRequest(HttpServletRequest request, HttpServletResponse response){
+        try {
+            String AT = jwtTokenProvider.resolveAccessToken(request);
+            if (!jwtTokenProvider.validateToken(response, AT)) {
+                throw new JWTVerificationException("토큰에러. exception 헤더를 확인하세요");
+            }
+            String userEmail = jwtTokenProvider.getUserEmailFromAccessToken(AT); // 정보 가져옴
+            UserEntity userEntity = userRepository.findByUserEmail(userEmail).
+                    orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + userEmail));
+            return userEntity;
+        }catch (NullPointerException e){
+            throw new NullPointerException(e.getMessage());
+        }
+    }
+    @Transactional
+    public UserInfoResponseDto userInfo(HttpServletRequest request, HttpServletResponse response){
+        UserEntity userEntity = fetchUserEntityByHttpRequest(request,response);
         return new UserInfoResponseDto(userEntity);
     }
     @Transactional
     public String userNicknameChange(HttpServletRequest request, HttpServletResponse response, UserNicknameChange userNickname) throws UnsupportedEncodingException {
-        String AT = jwtTokenProvider.resolveAccessToken(request);
-        jwtTokenProvider.validateToken(response,AT);
-        String userEmail = jwtTokenProvider.getUserEmailFromAccessToken(AT); // 정보 가져옴
-        log.info(userNickname.getUserName());
-        UserEntity userEntity = userRepository.findByUserEmail(userEmail).
-                orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + userEmail));
-        log.info(userEntity.getUserName());
+        UserEntity userEntity = fetchUserEntityByHttpRequest(request, response);
         userEntity.Update(userNickname);
-        log.info(userEntity.getUserName());
         userRepository.save(userEntity);
         return "유저 이름 설정 완료";
     }
@@ -90,20 +94,9 @@ public class UserService {
         response.setHeader("Authorization","Bearer " + accessToken);
         response.setHeader("RefreshToken","Bearer " + refreshToken);
 
-
-        tokens.put("access_token","Bearer " + accessToken);
-        tokens.put("refresh_token","Bearer " + refreshToken);
-
         return ResponseEntity.ok(tokens);
     }
-    ////////////
-    @Transactional
-    public String test(String email, String RT){
-        kakaoOAuth2UserDetailsServcie.loadUserByKakaoOAuth2User(email, RT);
 
-        return "good";
-    }
-    ////////////
     @Transactional
     public ResponseEntity<?> refreshAT(HttpServletRequest request,HttpServletResponse response){
         //bearer 지우기
@@ -124,17 +117,4 @@ public class UserService {
             throw new RuntimeException(e);
         }
     }
-//    @Transactional
-//    public String registerUser(UserRegisterRequest userRegisterRequest){
-//        //이미 있는 이름인지 확인
-//        if (userRepository.existsByUsername(userRegisterRequest.getUsername())) {
-//            throw new RuntimeException("Username is already taken");
-//        }
-//        // Create a new user and Save
-//        userRegisterRequest.setPassword(passwordEncoder.encode(userRegisterRequest.getPassword()));
-//        userRepository.save(userRegisterRequest.toEntity(userRegisterRequest));
-//
-//        return "저장 완료";
-//
-//    }
 }

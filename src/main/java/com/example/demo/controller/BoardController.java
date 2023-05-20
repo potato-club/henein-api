@@ -8,16 +8,17 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.http.MediaType;
+
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServlet;
+
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 
@@ -46,19 +47,19 @@ public class BoardController {
     public Page<BoardResponseDto> getTypeOfBoard(@RequestParam("board")char boardtype, @RequestParam("page")int page){
         return boardTypeOfService.getTypeOfBoard(page, boardtype);
     }
-    @Operation(summary = "Json이 아닌 form-data형식으로 보내주세요")
+    @Operation(summary = "Json이 아닌 form-data형식으로 보내주세요 [보안]")
     @PostMapping() //Create
     public String addTypeOfBoard(@RequestParam("image") List<MultipartFile> image,
                                  @RequestParam("title") String title,
                                  @RequestParam("text") String text,
-                                 @RequestParam("boardType") String boardType) {
+                                 @RequestParam("boardType") String boardType, HttpServletRequest request, HttpServletResponse response) {
         log.info(title+"과"+text+"과"+boardType);
         BoardRequestDto boardRequestDto = new BoardRequestDto();
         boardRequestDto.setTitle(title);
         boardRequestDto.setText(text);
         boardRequestDto.setBoardType(boardType);
 
-        return boardTypeOfService.addTypeOfBoard(image,boardRequestDto);
+        return boardTypeOfService.addTypeOfBoard(image,boardRequestDto, request, response);
     }
     //Read
     @GetMapping("/{id}")
@@ -66,18 +67,19 @@ public class BoardController {
         return commonBoardService.getOneService(id);
     }
 
+    @Operation(summary = "[보안]")
     @PutMapping("/{id}")
-    public String updateBoard(@PathVariable Long id,@RequestBody BoardRequestDto boardRequestDto){
-        return commonBoardService.updateService(id, boardRequestDto);
+    public String updateBoard(@PathVariable Long id,@RequestBody BoardRequestDto boardRequestDto, HttpServletRequest request, HttpServletResponse response){
+        return commonBoardService.updateService(id, boardRequestDto, request, response);
     }
+    @Operation(summary = "[보안]")
     @DeleteMapping("/{id}")
-    public String deleteBoard(@PathVariable("id")Long id){
-        return commonBoardService.deleteService(id);
+    public String deleteBoard(@PathVariable("id")Long id, HttpServletRequest request, HttpServletResponse response){
+        return commonBoardService.deleteService(id, request, response);
     }
-
-    //추천 로직
+    @Operation(summary = "[보안]")
     @PostMapping("/recommend")
-    public String recommendThisBoard(@RequestBody BoardIdRequestDTO boardIdRequestDTO, HttpServletRequest request){
-        return commonBoardService.recommendThisBoard(boardIdRequestDTO.getId(),request);
+    public String recommendThisBoard(@RequestBody BoardIdRequestDTO boardIdRequestDTO, HttpServletRequest request, HttpServletResponse response){
+        return commonBoardService.recommendThisBoard(boardIdRequestDTO.getId(),request, response);
     }
 }
