@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -28,35 +29,36 @@ public class CommentController {
     public List<CommentResponseDto> getComment(@PathVariable("id") Long id){
         return commentService.getCommentOfBoard(id);
     }
-    @Operation(summary = "댓글 작성 API [commentId = null]")
+    @Operation(summary = "댓글 작성 API [commentId = null], [보안]")
     @PostMapping("/comment")
-    public String addCommentOfParent(@RequestBody CommentRequsetDto commentRequsetDto, @ApiIgnore HttpServletRequest request){
+    public String addCommentOfParent(@RequestBody CommentRequsetDto commentRequsetDto, HttpServletRequest request, HttpServletResponse response){
         log.info(commentRequsetDto.getBoardId()+"과"+commentRequsetDto.getCommentId());
-        return commentService.addCommentOfParent(commentRequsetDto,request);
+
+        return commentService.addCommentOfParent(commentRequsetDto,request,response);
     }
-    @Operation(summary = "대댓글 작성 API [commentId = 부모댓글의 id")
+    @Operation(summary = "대댓글 작성 API [commentId = 부모댓글의 id], [보안]")
     @PostMapping("/comment/child")
-    public String addCommentOfChild(@RequestBody CommentRequsetDto commentRequsetDto,@ApiIgnore HttpServletRequest request){
-        return commentService.addCommentOfChild(commentRequsetDto,request);
+    public String addCommentOfChild(@RequestBody CommentRequsetDto commentRequsetDto, HttpServletRequest request, HttpServletResponse response){
+        return commentService.addCommentOfChild(commentRequsetDto,request,response);
     }
-    @Operation(summary = "댓글수정 API [commentId = 수정될 댓글Id]")
+    @Operation(summary = "댓글수정 API [commentId = 수정될 댓글Id], [보안]")
     @PutMapping("/comment")
-    public String updateCommentOfParent(@RequestBody CommentRequsetDto commentRequsetDto,@ApiIgnore HttpServletRequest request){
-        return commentService.updateCommentOfParent(commentRequsetDto,request);
+    public String updateCommentOfParent(@RequestBody CommentRequsetDto commentRequsetDto, HttpServletRequest request, HttpServletResponse response){
+        return commentService.updateCommentOfParent(commentRequsetDto,request,response);
     }
-    @Operation(summary = "대댓글 수정 API [commentId = 수정될 대댓글 id]")
+    @Operation(summary = "대댓글 수정 API [commentId = 수정될 대댓글 id], [보안]")
     @PutMapping("/comment/child")
-    public String updateCommentOfChild(@RequestBody CommentRequsetDto commentRequsetDto,@ApiIgnore HttpServletRequest request){
-        return commentService.updateCommentOfChild(commentRequsetDto,request);
+    public String updateCommentOfChild(@RequestBody CommentRequsetDto commentRequsetDto, HttpServletRequest request, HttpServletResponse response){
+        return commentService.updateCommentOfChild(commentRequsetDto,request,response);
     }
-    @Operation(summary = "댓글 삭제 API")
+    @Operation(summary = "댓글 삭제 API [보안]")
     @DeleteMapping("/comment")
-    public String deleteCommentOfParent(@RequestBody CommentRequsetDto commentRequsetDto,@ApiIgnore HttpServletRequest request){
-        return commentService.deleteCommentOfParent(commentRequsetDto,request);
+    public String deleteCommentOfParent(@RequestBody CommentRequsetDto commentRequsetDto, HttpServletRequest request, HttpServletResponse response){
+        return commentService.deleteCommentOfParent(commentRequsetDto,request,response);
     }
-    @Operation(summary = "대댓글 수정 API")
+    @Operation(summary = "대댓글 수정 API [보안]")
     @DeleteMapping("/comment/parent")
-    public String deleteCommentOfChild(@RequestBody CommentRequsetDto commentRequsetDto,@ApiIgnore HttpServletRequest request){
-        return commentService.deleteCommentOfChild(commentRequsetDto,request);
+    public String deleteCommentOfChild(@RequestBody CommentRequsetDto commentRequsetDto, HttpServletRequest request, HttpServletResponse response){
+        return commentService.deleteCommentOfChild(commentRequsetDto,request,response);
     }
 }

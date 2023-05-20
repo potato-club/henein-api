@@ -29,11 +29,11 @@ import static com.example.demo.error.ErrorCode.NULL_VALUE;
 @Slf4j
 public class UserInfoController {
     private final UserService userService;
-    @Operation(summary = "유저 정보에 대한 요청 API")
+    @Operation(summary = "유저 정보에 대한 요청 API [보안]")
     @GetMapping
-    public UserInfoResponseDto userInfo(HttpServletRequest request){
+    public UserInfoResponseDto userInfo(HttpServletRequest request, HttpServletResponse response){
         log.info("유저컨트롤러진입----------------------------------------------");
-        return userService.userInfo(request);
+        return userService.userInfo(request, response);
     }
     //@Tag(name = "신규유저 이름변경처리", description = "username: 변경할 이름")
     @Operation(summary = "유저 이름 변경 API")
