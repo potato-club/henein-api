@@ -49,17 +49,9 @@ public class BoardController {
     }
     @Operation(summary = "Json이 아닌 form-data형식으로 보내주세요 [보안]")
     @PostMapping() //Create
-    public String addTypeOfBoard(@RequestParam("image") List<MultipartFile> image,
-                                 @RequestParam("title") String title,
-                                 @RequestParam("text") String text,
-                                 @RequestParam("boardType") String boardType, HttpServletRequest request, HttpServletResponse response) {
-        log.info(title+"과"+text+"과"+boardType);
-        BoardRequestDto boardRequestDto = new BoardRequestDto();
-        boardRequestDto.setTitle(title);
-        boardRequestDto.setText(text);
-        boardRequestDto.setBoardType(boardType);
+    public String addTypeOfBoard(@ModelAttribute BoardRequestDto boardRequestDto ,HttpServletRequest request, HttpServletResponse response) {
 
-        return boardTypeOfService.addTypeOfBoard(image,boardRequestDto, request, response);
+        return boardTypeOfService.addTypeOfBoard(boardRequestDto, request, response);
     }
     //Read
     @GetMapping("/{id}")

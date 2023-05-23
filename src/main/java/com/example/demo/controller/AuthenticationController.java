@@ -15,6 +15,7 @@ import springfox.documentation.annotations.ApiIgnore;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 @RestController
 @RequestMapping("/auth")
@@ -47,7 +48,7 @@ public class AuthenticationController {
     }
     @Operation(summary = "AT를 재발급 받기 위한 API")
     @GetMapping("/refresh")
-    public ResponseEntity<?> refreshAT(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<?> refreshAT(HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
        return userService.refreshAT(request, response);
     }
 }

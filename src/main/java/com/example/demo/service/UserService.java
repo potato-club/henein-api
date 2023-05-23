@@ -6,6 +6,8 @@ import com.example.demo.dto.login.KakaoOAuth2User;
 import com.example.demo.dto.user.UserInfoResponseDto;
 import com.example.demo.dto.user.UserNicknameChange;
 import com.example.demo.entity.UserEntity;
+import com.example.demo.error.ErrorCode;
+import com.example.demo.error.exception.AuthenticationException;
 import com.example.demo.jwt.JwtTokenProvider;
 import com.example.demo.jwt.KakaoOAuth2AccessTokenResponse;
 import com.example.demo.jwt.KakaoOAuth2Client;
@@ -98,23 +100,24 @@ public class UserService {
     }
 
     @Transactional
-    public ResponseEntity<?> refreshAT(HttpServletRequest request,HttpServletResponse response){
+    public ResponseEntity<?> refreshAT(HttpServletRequest request,HttpServletResponse response) throws UnsupportedEncodingException {
         //bearer 지우기
         String RTHeader = jwtTokenProvider.resolveRefreshToken(request);
 
-        try {
-            // Validate the refreshToken and generate a new accessToken
-            String newAccessToken = jwtTokenProvider.refreshAccessToken(RTHeader ,response);
-
-            // Set the new access token in the HTTP response headers
-            response.setHeader("Authorization", "Bearer " + newAccessToken);
-
-            // Optionally, return the new access token in the response body as well
-            return ResponseEntity.ok(newAccessToken);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
+        // rt 넣어서 검증하고 유저이름 가져오기 /
+        String userEmail = jwtTokenProvider.refreshAccessToken(RTHeader ,response);
+        UserEntity userEntity = userRepository.findByUserEmail(userEmail).orElseThrow(()->{throw new RuntimeException();});
+        //db에 있는 토큰값과 넘어온 토큰이 같은지
+        if (!userEntity.getUserEmail().equals(RTHeader)){
+            response.addHeader("exception", String.valueOf(ErrorCode.INVALID_TOKEN.getCode()));
+            throw new AuthenticationException(ErrorCode.INVALID_TOKEN);
         }
+        String newAccessToken = jwtTokenProvider.generateAccessToken(userEmail);
+
+        // Set the new access token in the HTTP response headers
+        response.setHeader("Authorization", "Bearer " + newAccessToken);
+
+        // Optionally, return the new access token in the response body as well
+        return ResponseEntity.ok(newAccessToken);
     }
 }

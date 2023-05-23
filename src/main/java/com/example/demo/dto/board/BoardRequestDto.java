@@ -5,18 +5,18 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Getter
 @Setter
-@NoArgsConstructor
 public class BoardRequestDto {
-    @ApiModelProperty(value="게시글 제목", example = "테스트 제목입니다.", required = true)
+    private List<MultipartFile> image;
     private String title;
-    @ApiModelProperty(value="게시글 내용", example = "테스트 글입니다.", required = true)
     private String text;
-    @ApiModelProperty(value = "게시판 유형", example = "E,A,B,H,I,N", required = true)
     private String boardType;
+
 }

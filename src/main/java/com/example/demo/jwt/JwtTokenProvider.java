@@ -113,15 +113,11 @@ public class JwtTokenProvider {
 //    }
 
     public String refreshAccessToken(String token, HttpServletResponse response) throws UnsupportedEncodingException {
-//        if (!isRefreshToken(token)) {
-//            throw new RuntimeException("Invalid refresh token");
-//        }
 
         if (!validateToken(response, token)) {
             throw new RuntimeException("Invalid refresh token");
         }
-
-        String username = getUsernameFromRefreshToken(token);
-        return generateAccessToken(username);
+        String userEmail = getUsernameFromRefreshToken(token);
+        return userEmail;
     }
 }

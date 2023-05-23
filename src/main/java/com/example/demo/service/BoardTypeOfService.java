@@ -62,7 +62,7 @@ public class BoardTypeOfService {
 
     //===================================================================================================
     @Transactional
-    public String addTypeOfBoard(List<MultipartFile> image , BoardRequestDto boardRequestDto, HttpServletRequest request, HttpServletResponse response){
+    public String addTypeOfBoard( BoardRequestDto boardRequestDto, HttpServletRequest request, HttpServletResponse response){
         UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request, response); // jwt 로직 추가
 
         BoardType board;
@@ -76,8 +76,8 @@ public class BoardTypeOfService {
             default: throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION,ErrorCode.NOT_FOUND_EXCEPTION.getMessage());
         }
         BoardEntity boardEntity = new BoardEntity(boardRequestDto,board, userEntity);
-        if (image != null){
-            uploadBoardFile(image,boardEntity);
+        if (boardRequestDto.getImage() != null){
+            uploadBoardFile(boardRequestDto.getImage(),boardEntity);
         }
         boardRepository.save(boardEntity);
         return "저장 완료";
