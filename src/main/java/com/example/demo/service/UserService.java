@@ -109,8 +109,8 @@ public class UserService {
         UserEntity userEntity = userRepository.findByUserEmail(userEmail).orElseThrow(()->{throw new RuntimeException();});
         //db에 있는 토큰값과 넘어온 토큰이 같은지
         if (!userEntity.getUserEmail().equals(RTHeader)){
-            response.addHeader("exception", String.valueOf(ErrorCode.INVALID_TOKEN.getCode()));
-            throw new AuthenticationException(ErrorCode.INVALID_TOKEN);
+            response.addHeader("exception", String.valueOf(ErrorCode.NON_LOGIN.getCode()));
+            throw new AuthenticationException(ErrorCode.NON_LOGIN);
         }
         String newAccessToken = jwtTokenProvider.generateAccessToken(userEmail);
 
