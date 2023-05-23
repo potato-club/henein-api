@@ -70,10 +70,7 @@ public class JwtTokenProvider {
             return request.getHeader("RefreshToken").substring(7);
         return null;
     }
-   /* public String getUserEmailFromAccessToken(String token) {
-        String temp = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
-        return temp;
-    }*/
+
    public String getUserEmailFromAccessToken(String token) {
        try {
            String temp = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();

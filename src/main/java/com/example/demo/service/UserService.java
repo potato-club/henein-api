@@ -45,9 +45,7 @@ public class UserService {
     public UserEntity fetchUserEntityByHttpRequest(HttpServletRequest request, HttpServletResponse response){
         try {
             String AT = jwtTokenProvider.resolveAccessToken(request);
-            if (!jwtTokenProvider.validateToken(response, AT)) {
-                throw new JWTVerificationException("토큰에러. exception 헤더를 확인하세요");
-            }
+
             String userEmail = jwtTokenProvider.getUserEmailFromAccessToken(AT); // 정보 가져옴
             UserEntity userEntity = userRepository.findByUserEmail(userEmail).
                     orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + userEmail));
