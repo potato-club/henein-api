@@ -13,7 +13,6 @@ public class CustomeUserDetails implements UserDetails {
     private UserEntity userEntity;
 
     public CustomeUserDetails(UserEntity userEntity){
-        log.info("3");
         this.userEntity = userEntity;
     }
     public UserEntity getUserEntity(){

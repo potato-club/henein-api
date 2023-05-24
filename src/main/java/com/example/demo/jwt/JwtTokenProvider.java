@@ -76,9 +76,6 @@ public class JwtTokenProvider {
            String temp = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
            return temp;
        } catch (NullPointerException e) {
-           // JWT 토큰 형식이 잘못되었거나 | 서명이 유효하지 않은 경우
-           // 적절한 로그를 출력하거나 처리할 수 있습니다.
-           System.out.println("이메일을 찾을 수 없어요: " + e.getMessage());
            return null;
        }
    }
@@ -103,11 +100,6 @@ public class JwtTokenProvider {
         }
         return false;
     }
-
-//    public boolean isRefreshToken(String token) {
-//        Claims claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
-//        return claims.get("type") != null && claims.get("type").equals("refresh");
-//    }
 
     public String refreshAccessToken(String token, HttpServletResponse response) throws UnsupportedEncodingException {
 

@@ -33,18 +33,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         // 헤더에서 Token을 따옴
         String accessToken = jwtTokenProvider.resolveAccessToken(request);
+        log.info("jwt필터진입");
         if (accessToken != null && jwtTokenProvider.validateToken(response, accessToken)) {
-            log.info("Filter1");
             // Get the username from the access token
             String email = jwtTokenProvider.getUserEmailFromAccessToken(accessToken);
-            log.info("Filter2");
             // Load the user details
             UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(email);
-            log.info("Filter3");
             // Create an authentication object
             Authentication authentication =
                     new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-            log.info("Filter4");
             // Set the authentication object in the security context
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }

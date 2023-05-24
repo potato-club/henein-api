@@ -35,16 +35,9 @@ public class KakaoOAuth2UserDetailsServcie implements UserDetailsService {
         log.info("DB저장 service 진입: "+ email);
         UserEntity userEntity = userRepository.findByUserEmail(email)
                 .orElseGet(() ->controlUser(email));
-        log.info("1");
-        log.info(userEntity.getUserEmail());
-        log.info(userEntity.getUserName());
-        log.info(String.valueOf(userEntity.getUserRole()));
 
         userEntity.setRefreshToken(RT);
-        log.info("2");
-        log.info(userEntity.getUserEmail());
-        log.info(userEntity.getUserName());
-        log.info(String.valueOf(userEntity.getUserRole()));
+        log.info("유저역할"+userEntity.getUserRole().getKey());
 
         userRepository.save(userEntity);
 
@@ -59,7 +52,6 @@ public class KakaoOAuth2UserDetailsServcie implements UserDetailsService {
         GuestCountEntity guestCount = guestCountRepository.getById(new Long(1));
         guestCount.addCount();
         //유저이름을 "guest" + guestCount로 설정
-        log.info("controlUser진입: "+ email);
         UserEntity userEntity = new UserEntity(email, guestCount.getGuestCount());
         guestCountRepository.save(guestCount);
         return userEntity;
