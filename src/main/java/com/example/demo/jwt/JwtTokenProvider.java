@@ -35,7 +35,6 @@ public class JwtTokenProvider {
     public String generateAccessToken(String email) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + accessTokenExpiration);
-        log.info(String.valueOf(now.getTime()));
         return Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(now)
