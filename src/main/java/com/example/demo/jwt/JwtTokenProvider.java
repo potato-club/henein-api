@@ -99,10 +99,25 @@ public class JwtTokenProvider {
         }
         return false;
     }
+    public boolean validateRefreshToken(HttpServletResponse response, String token){
+        try {
+            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+            return true;
+        } catch (ExpiredJwtException e) {
+            response.addHeader("exception", String.valueOf(ErrorCode.RE_LOGIN.getCode()));
+        } catch (SignatureException e) {
+            response.addHeader("exception", String.valueOf(ErrorCode.INVALID_TOKEN.getCode()));
+        } catch (UnsupportedJwtException e) {
+            response.addHeader("exception", String.valueOf(ErrorCode.INVALID_TOKEN.getCode()));
+        } catch (IllegalArgumentException e) {
+            response.addHeader("exception", String.valueOf(ErrorCode.NON_LOGIN.getCode()));
+        }
+        return false;
+    }
 
     public String refreshAccessToken(String token, HttpServletResponse response) throws UnsupportedEncodingException {
 
-        if (!validateToken(response, token)) {
+        if (!validateRefreshToken(response, token)) {
             throw new RuntimeException("Invalid refresh token");
         }
         String userEmail = getUsernameFromRefreshToken(token);
