@@ -34,10 +34,9 @@ public class BoardEntity extends BaseTimeEntity{
     private String title;
     @Column
     private int commentNum;
-    @Column
-    private String userEmail;
-    @Column
-    private String userName;
+    @ManyToOne
+    @JoinColumn(name ="user", nullable = false)
+    private UserEntity userEntity;
     @Column
     private int views;
     @Column
@@ -54,15 +53,12 @@ public class BoardEntity extends BaseTimeEntity{
     @Builder
     public BoardEntity (BoardRequestDto boardRequestDto, BoardType board, UserEntity userEntity){
         this.title = boardRequestDto.getTitle();
-        this.userName = userEntity.getUserName();
-        this.userEmail = userEntity.getUserEmail();
+        this.userEntity = userEntity;
         this.text = boardRequestDto.getText();
         this.boardType = board;
     }
     public void Update(BoardRequestDto boardRequestDto){
         this.title = boardRequestDto.getTitle();
-        this.userName = "테스트 작성자";
-        this.userEmail = "테스트 이메일";
         this.text = boardRequestDto.getText();
     }
     public void Update(BoardRecommendDTO boardRecommendDTO){

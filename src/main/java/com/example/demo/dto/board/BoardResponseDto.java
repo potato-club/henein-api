@@ -1,6 +1,7 @@
 package com.example.demo.dto.board;
 
 import com.example.demo.dto.file.FileResponseDto;
+import com.example.demo.dto.user.UserInfoResponseDto;
 import com.example.demo.entity.*;
 import com.example.demo.enumCustom.BoardType;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -23,7 +24,7 @@ public class BoardResponseDto {
     @ApiModelProperty(value="댓글 갯수", example = "정수값", required = true)
     private int commentNum;
     @ApiModelProperty(value="게시글 작성자", example = "테스트 글쓴이", required = true)
-    private String userName;
+    private UserInfoResponseDto userInfoResponseDto;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime createTime;
     @ApiModelProperty(value="조회수", example = "정수값", required = true)
@@ -34,17 +35,32 @@ public class BoardResponseDto {
     private String text;
     @ApiModelProperty(value="첨부된 이미지들", example = "URL 링크로 날라감", required = false)
     private List<FileResponseDto> image;
+    @ApiModelProperty(value = "추천했는지", example = "T or F")
+    private boolean recommended = false;
 
     public BoardResponseDto (BoardEntity boardEntity){
         this.id = boardEntity.getId();
         this.boardType =boardEntity.getBoardType();
         this.title = boardEntity.getTitle();
         this.commentNum = boardEntity.getCommentNum();
-        this.userName = boardEntity.getUserName();
-        this.createTime = boardEntity.getCreatedDate();
+        this.userInfoResponseDto = new UserInfoResponseDto(boardEntity.getUserEntity());
+        this.createTime = boardEntity.getModifiedDate();
         this.views = boardEntity.getViews();
         this.recommend = boardEntity.getRecommend();
         this.text = boardEntity.getText();
         this.image = boardEntity.getImage().stream().map(FileResponseDto::new).collect(Collectors.toList());
+    }
+    public BoardResponseDto (BoardEntity boardEntity, boolean recommended){
+        this.id = boardEntity.getId();
+        this.boardType =boardEntity.getBoardType();
+        this.title = boardEntity.getTitle();
+        this.commentNum = boardEntity.getCommentNum();
+        this.userInfoResponseDto = new UserInfoResponseDto(boardEntity.getUserEntity());
+        this.createTime = boardEntity.getModifiedDate();
+        this.views = boardEntity.getViews();
+        this.recommend = boardEntity.getRecommend();
+        this.text = boardEntity.getText();
+        this.image = boardEntity.getImage().stream().map(FileResponseDto::new).collect(Collectors.toList());
+        this.recommended = recommended;
     }
 }

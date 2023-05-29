@@ -1,9 +1,11 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.board.BoardIdRequestDTO;
+import com.example.demo.dto.board.BoardListResponseDto;
 import com.example.demo.dto.board.BoardRequestDto;
 import com.example.demo.dto.board.BoardResponseDto;
 import com.example.demo.service.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -13,12 +15,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 
@@ -44,19 +48,23 @@ public class BoardController {
             @ApiImplicitParam(name = "page", value = "원하는 페이지 값", required = true)
     })
     @GetMapping()
-    public Page<BoardResponseDto> getTypeOfBoard(@RequestParam("board")char boardtype, @RequestParam("page")int page){
+    public Page<BoardListResponseDto> getTypeOfBoard(@RequestParam("board")char boardtype, @RequestParam("page")int page){
         return boardTypeOfService.getTypeOfBoard(page, boardtype);
     }
     @Operation(summary = "Json이 아닌 form-data형식으로 보내주세요 [보안]")
     @PostMapping() //Create
-    public String addTypeOfBoard(@ModelAttribute BoardRequestDto boardRequestDto ,HttpServletRequest request, HttpServletResponse response) {
-
+    public String addTypeOfBoard(@RequestPart(value = "image",required = false) List<MultipartFile> images,
+                                 @RequestPart(value = "title") String title,
+                                 @RequestPart(value = "text") String text,
+                                 @RequestPart(value = "boardType") String boardType,
+                                 HttpServletRequest request, HttpServletResponse response) {
+       BoardRequestDto boardRequestDto = new BoardRequestDto(title,text,boardType, images);
         return boardTypeOfService.addTypeOfBoard(boardRequestDto, request, response);
     }
     //Read
     @GetMapping("/{id}")
-    public BoardResponseDto getOneBoard(@PathVariable Long id){
-        return commonBoardService.getOneService(id);
+    public BoardResponseDto getOneBoard(@PathVariable Long id, @RequestHeader(value = "Authorization",required = false)String authentication){
+        return commonBoardService.getOneService(id, authentication);
     }
 
     @Operation(summary = "[보안]")

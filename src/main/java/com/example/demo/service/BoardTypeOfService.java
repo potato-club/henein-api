@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.example.demo.dto.board.BoardListResponseDto;
 import com.example.demo.dto.board.BoardRequestDto;
 import com.example.demo.dto.board.BoardResponseDto;
 import com.example.demo.entity.BoardEntity;
@@ -40,7 +41,7 @@ public class BoardTypeOfService {
     private final UserService userService;
 
     @Transactional //
-    public Page<BoardResponseDto> getTypeOfBoard(int page, int boardType){
+    public Page<BoardListResponseDto> getTypeOfBoard(int page, int boardType){
         BoardType board;
         PageRequest pageRequest = PageRequest.of(page-1, 20);
 
@@ -48,7 +49,7 @@ public class BoardTypeOfService {
             case 65: board = BoardType.Advertise; break;
             case 66: board = BoardType.Boss; break;
             case 69: {Page<BoardEntity> boardEntityList = boardRepository.findAllNotNotice(pageRequest);
-                return new PageImpl<>(boardEntityList.stream().map(BoardResponseDto::new).collect(Collectors.toList()));}
+                return new PageImpl<>(boardEntityList.stream().map(BoardListResponseDto::new).collect(Collectors.toList()));}
             case 70: board = BoardType.Free; break;
             case 72: board = BoardType.Humor; break;
             case 73: board = BoardType.Info; break;
@@ -57,12 +58,12 @@ public class BoardTypeOfService {
         }
 
         Page<BoardEntity> boardEntityList = boardRepository.findByBoardType(board,pageRequest);
-        return new PageImpl<>(boardEntityList.stream().map(BoardResponseDto::new).collect(Collectors.toList()));
+        return new PageImpl<>(boardEntityList.stream().map(BoardListResponseDto::new).collect(Collectors.toList()));
     }
 
     //===================================================================================================
     @Transactional
-    public String addTypeOfBoard( BoardRequestDto boardRequestDto, HttpServletRequest request, HttpServletResponse response){
+    public String addTypeOfBoard(BoardRequestDto boardRequestDto, HttpServletRequest request, HttpServletResponse response){
         UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request, response); // jwt 로직 추가
 
         BoardType board;
@@ -76,8 +77,8 @@ public class BoardTypeOfService {
             default: throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION,ErrorCode.NOT_FOUND_EXCEPTION.getMessage());
         }
         BoardEntity boardEntity = new BoardEntity(boardRequestDto,board, userEntity);
-        if (boardRequestDto.getImage() != null){
-            uploadBoardFile(boardRequestDto.getImage(),boardEntity);
+        if (boardRequestDto.getImages() != null){
+            uploadBoardFile(boardRequestDto.getImages(),boardEntity);
         }
         boardRepository.save(boardEntity);
         return "저장 완료";
