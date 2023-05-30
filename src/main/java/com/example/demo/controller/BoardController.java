@@ -38,7 +38,7 @@ public class BoardController {
     private final BoardTypeOfService boardTypeOfService;
 
     @PostMapping("/test")
-    public String test(@RequestBody BoardRequestDto boardRequestDto){
+    public String test(@RequestBody BoardIdRequestDTO boardIdRequestDTO){
         return "들어왔네";
     }
 
