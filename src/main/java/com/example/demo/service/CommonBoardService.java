@@ -1,10 +1,7 @@
 package com.example.demo.service;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.example.demo.dto.board.BoardRecommendDTO;
-import com.example.demo.dto.board.BoardRequestDto;
-import com.example.demo.dto.board.BoardResponseDto;
-import com.example.demo.dto.board.ViewIncreaseDto;
+import com.example.demo.dto.board.*;
 import com.example.demo.entity.BoardEntity;
 import com.example.demo.entity.RecommendEntity;
 import com.example.demo.entity.UserEntity;
@@ -50,14 +47,14 @@ public class CommonBoardService {
         return boardResponseDto;
     }
     @Transactional
-    public String updateService(Long id, BoardRequestDto boardRequestDto, HttpServletRequest request, HttpServletResponse response){
+    public String updateService(Long id, TestDto testDto, HttpServletRequest request, HttpServletResponse response){
         UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request,response);
         BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 게시글 정보가 없습니다");});
         if (boardEntity.getUserEntity().getUserEmail() != userEntity.getUserEmail()){
             throw new RuntimeException("게시글 수정 권한이 없습니다.");
         }
 
-        boardEntity.Update(boardRequestDto);
+        boardEntity.Update(testDto);
         boardRepository.save(boardEntity);
 
         return "수정완료";

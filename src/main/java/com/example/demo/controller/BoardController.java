@@ -1,11 +1,7 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.board.BoardIdRequestDTO;
-import com.example.demo.dto.board.BoardListResponseDto;
-import com.example.demo.dto.board.BoardRequestDto;
-import com.example.demo.dto.board.BoardResponseDto;
+import com.example.demo.dto.board.*;
 import com.example.demo.service.*;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -15,14 +11,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 
@@ -75,8 +69,8 @@ public class BoardController {
 
     @Operation(summary = "[보안]")
     @PutMapping("/{id}")
-    public String updateBoard(@PathVariable Long id,@RequestBody BoardRequestDto boardRequestDto, HttpServletRequest request, HttpServletResponse response){
-        return commonBoardService.updateService(id, boardRequestDto, request, response);
+    public String updateBoard(@PathVariable Long id, @RequestBody TestDto testDto, HttpServletRequest request, HttpServletResponse response){
+        return commonBoardService.updateService(id, testDto, request, response);
     }
     @Operation(summary = "[보안]")
     @DeleteMapping("/{id}")

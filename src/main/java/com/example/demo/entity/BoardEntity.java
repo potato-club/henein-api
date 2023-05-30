@@ -2,6 +2,7 @@ package com.example.demo.entity;
 
 import com.example.demo.dto.board.BoardRecommendDTO;
 import com.example.demo.dto.board.BoardRequestDto;
+import com.example.demo.dto.board.TestDto;
 import com.example.demo.dto.comment.CommentNumUpdateDto;
 import com.example.demo.dto.board.ViewIncreaseDto;
 import com.example.demo.enumCustom.BoardType;
@@ -57,9 +58,9 @@ public class BoardEntity extends BaseTimeEntity{
         this.text = boardRequestDto.getText();
         this.boardType = board;
     }
-    public void Update(BoardRequestDto boardRequestDto){
-        this.title = boardRequestDto.getTitle();
-        this.text = boardRequestDto.getText();
+    public void Update(TestDto testDto){
+        this.title = testDto.getTitle();
+        this.text = testDto.getText();
     }
     public void Update(BoardRecommendDTO boardRecommendDTO){
         this.recommend = boardRecommendDTO.getRecommend();
