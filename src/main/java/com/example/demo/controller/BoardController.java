@@ -37,6 +37,11 @@ public class BoardController {
     private final CommonBoardService commonBoardService;
     private final BoardTypeOfService boardTypeOfService;
 
+    @PostMapping("/test")
+    public String test(@RequestBody BoardRequestDto boardRequestDto){
+        return "들어왔네";
+    }
+
     @Operation(summary = "게시글 호출시에 같이 호출하여 게시판 조회수 업")
     @PostMapping("/updateview")
     public String updateView(@RequestBody BoardIdRequestDTO boardIdRequestDTO){
@@ -58,6 +63,7 @@ public class BoardController {
                                  @RequestPart(value = "text") String text,
                                  @RequestPart(value = "boardType") String boardType,
                                  HttpServletRequest request, HttpServletResponse response) {
+        log.info("작성 컨트롤러 진입");
        BoardRequestDto boardRequestDto = new BoardRequestDto(title,text,boardType, images);
         return boardTypeOfService.addTypeOfBoard(boardRequestDto, request, response);
     }
