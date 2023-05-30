@@ -13,6 +13,8 @@ import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Builder
@@ -37,10 +39,8 @@ public class UserEntity extends BaseTimeEntity{
     private String  job;
     @Column
     private String password;
-
     @Column(length = 512)
     private String refreshToken;
-
 
     public UserEntity(String email, int guestCount) {
         this.userEmail = email;

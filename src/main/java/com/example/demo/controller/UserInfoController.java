@@ -46,8 +46,9 @@ public class UserInfoController {
         }
         return userService.userNicknameChange(request,response, userNickname);
     }
-//    @PostMapping("/character-name")
-//    public Flux<UserNameResponseDto> getUserInfo(@RequestBody UserMapleApi userMapleApi){
-//        return userService.getUserNameOnCube(userMapleApi);
-//    }
+    @GetMapping("/achieve")
+    public void getAchieveList(HttpServletRequest request,HttpServletResponse response){
+        //보안로직
+
+    }
 }
