@@ -44,7 +44,7 @@ public class BoardResponseDto {
         this.title = boardEntity.getTitle();
         this.commentNum = boardEntity.getCommentNum();
         this.userInfoResponseDto = new UserInfoResponseDto(boardEntity.getUserEntity());
-        this.createTime = boardEntity.getModifiedDate();
+        this.createTime = boardEntity.getCreatedDate();
         this.views = boardEntity.getViews();
         this.recommend = boardEntity.getRecommend();
         this.text = boardEntity.getText();
@@ -56,7 +56,7 @@ public class BoardResponseDto {
         this.title = boardEntity.getTitle();
         this.commentNum = boardEntity.getCommentNum();
         this.userInfoResponseDto = new UserInfoResponseDto(boardEntity.getUserEntity());
-        this.createTime = boardEntity.getModifiedDate();
+        this.createTime = boardEntity.getCreatedDate();
         this.views = boardEntity.getViews();
         this.recommend = boardEntity.getRecommend();
         this.text = boardEntity.getText();
