@@ -57,7 +57,7 @@ public class CommentController {
         return commentService.deleteCommentOfParent(commentRequsetDto,request,response);
     }
     @Operation(summary = "대댓글 수정 API [보안]")
-    @DeleteMapping("/comment/parent")
+    @DeleteMapping("/comment/child")
     public String deleteCommentOfChild(@RequestBody CommentRequsetDto commentRequsetDto, HttpServletRequest request, HttpServletResponse response){
         return commentService.deleteCommentOfChild(commentRequsetDto,request,response);
     }
