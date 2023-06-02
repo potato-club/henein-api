@@ -1,6 +1,7 @@
 package com.example.demo.entity;
 
 import com.example.demo.dto.comment.CommentRequsetDto;
+import com.example.demo.dto.comment.ReplyRequestDto;
 import lombok.*;
 
 import javax.persistence.*;
@@ -26,8 +27,8 @@ public class ReplyEntity extends BaseTimeEntity{
     private CommentEntity parent;
     @Column(nullable = false)
     private Boolean updated;
-    public void update(CommentRequsetDto commentRequsetDto, String userName) {
-        this.comment = commentRequsetDto.getComment();
+    public void update(ReplyRequestDto replyRequestDto, String userName) {
+        this.comment = replyRequestDto.getComment();
         this.userName = userName;
     }
 }

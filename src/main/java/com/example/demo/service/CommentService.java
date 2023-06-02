@@ -3,6 +3,7 @@ package com.example.demo.service;
 import com.example.demo.dto.comment.CommentRequsetDto;
 import com.example.demo.dto.comment.CommentResponseDto;
 import com.example.demo.dto.comment.CommentNumUpdateDto;
+import com.example.demo.dto.comment.ReplyRequestDto;
 import com.example.demo.entity.*;
 import com.example.demo.error.ErrorCode;
 
@@ -68,9 +69,10 @@ public class CommentService {
                 .fetch();
         return childList;
     }
+///////////////////////////////
 
     @Transactional
-    public String addCommentOfParent(CommentRequsetDto commentRequsetDto, HttpServletRequest request , HttpServletResponse response){
+    public String addCommentOfParent(CommentRequsetDto commentRequsetDto, HttpServletRequest request, HttpServletResponse response){
         UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request,response);
         BoardEntity boardEntity = boardRepository.findById(commentRequsetDto.getBoardId()).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION,ErrorCode.NOT_FOUND_EXCEPTION.getMessage());});
         CommentEntity commentEntity = CommentEntity.builder()
@@ -91,14 +93,14 @@ public class CommentService {
         return "댓글 작성 완료";
     }
     @Transactional
-    public String addCommentOfChild(CommentRequsetDto commentRequsetDto, HttpServletRequest request, HttpServletResponse response){
+    public String addCommentOfChild(ReplyRequestDto replyRequestDto, HttpServletRequest request, HttpServletResponse response){
         UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request,response);
-        BoardEntity boardEntity = boardRepository.findById(commentRequsetDto.getBoardId()).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION,ErrorCode.NOT_FOUND_EXCEPTION.getMessage());});
-        CommentEntity parentComment = commentRepository.findById(commentRequsetDto.getCommentId()).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION,ErrorCode.NOT_FOUND_EXCEPTION.getMessage());});
+        BoardEntity boardEntity = boardRepository.findById(replyRequestDto.getBoardId()).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION,ErrorCode.NOT_FOUND_EXCEPTION.getMessage());});
+        CommentEntity parentComment = commentRepository.findById(replyRequestDto.getCommentId()).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION,ErrorCode.NOT_FOUND_EXCEPTION.getMessage());});
 
         ReplyEntity replyEntity = ReplyEntity.builder()
-                .tag(commentRequsetDto.getTag())
-                .comment(commentRequsetDto.getComment())
+                .tag(replyRequestDto.getTag())
+                .comment(replyRequestDto.getComment())
                 .userName(userEntity.getUserName())
                 .userEmail(userEntity.getUserEmail())
                 .parent(parentComment)
@@ -131,13 +133,13 @@ public class CommentService {
         return "수정 완료";
     }
     @Transactional
-    public String updateCommentOfChild(CommentRequsetDto commentRequsetDto, HttpServletRequest request, HttpServletResponse response){
+    public String updateCommentOfChild(ReplyRequestDto replyRequestDto, HttpServletRequest request, HttpServletResponse response){
         UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request,response);
-        ReplyEntity replyEntity = replyRepository.findById(commentRequsetDto.getCommentId()).orElseThrow(()->{throw new RuntimeException("해당 댓글이 없습니다");});
+        ReplyEntity replyEntity = replyRepository.findById(replyRequestDto.getCommentId()).orElseThrow(()->{throw new RuntimeException("해당 댓글이 없습니다");});
         if (replyEntity.getUserEmail() != userEntity.getUserEmail()){
             throw new RuntimeException("권한이 없는 사용자 입니다.");
         }
-        replyEntity.update(commentRequsetDto,userEntity.getUserName());
+        replyEntity.update(replyRequestDto,userEntity.getUserName());
         replyRepository.save(replyEntity);
         return "수정 완료";
     }
@@ -161,14 +163,14 @@ public class CommentService {
         return "삭제완료";
     }
     @Transactional
-    public String deleteCommentOfChild(CommentRequsetDto commentRequsetDto, HttpServletRequest request, HttpServletResponse response){
+    public String deleteCommentOfChild(ReplyRequestDto replyRequestDto, HttpServletRequest request, HttpServletResponse response){
         UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request,response);
-        ReplyEntity replyEntity = replyRepository.findById(commentRequsetDto.getCommentId()).orElseThrow(()->{throw new RuntimeException("해당 댓글이 없습니다");});
+        ReplyEntity replyEntity = replyRepository.findById(replyRequestDto.getCommentId()).orElseThrow(()->{throw new RuntimeException("해당 댓글이 없습니다");});
         if (replyEntity.getUserEmail()!=userEntity.getUserEmail()){
             throw new RuntimeException("권한이 없는 사용자 입니다");
         }
 
-        BoardEntity boardEntity = boardRepository.findById(commentRequsetDto.getBoardId()).orElseThrow(()->{throw new RuntimeException("해당 댓글이 없습니다");});
+        BoardEntity boardEntity = boardRepository.findById(replyRequestDto.getBoardId()).orElseThrow(()->{throw new RuntimeException("해당 댓글이 없습니다");});
         //보드 게시판의 댓글수 업데이트
         if(boardEntity.getCommentNum() > 0) {
             CommentNumUpdateDto commentNumUpdateDto = new CommentNumUpdateDto();

@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.comment.CommentRequsetDto;
 import com.example.demo.dto.comment.CommentResponseDto;
+import com.example.demo.dto.comment.ReplyRequestDto;
 import com.example.demo.service.CommentService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -32,14 +33,12 @@ public class CommentController {
     @Operation(summary = "댓글 작성 API [commentId = null], [보안]")
     @PostMapping("/comment")
     public String addCommentOfParent(@RequestBody CommentRequsetDto commentRequsetDto, HttpServletRequest request, HttpServletResponse response){
-        log.info(commentRequsetDto.getBoardId()+"과"+commentRequsetDto.getCommentId());
-
         return commentService.addCommentOfParent(commentRequsetDto,request,response);
     }
     @Operation(summary = "대댓글 작성 API [commentId = 부모댓글의 id], [보안]")
     @PostMapping("/comment/child")
-    public String addCommentOfChild(@RequestBody CommentRequsetDto commentRequsetDto, HttpServletRequest request, HttpServletResponse response){
-        return commentService.addCommentOfChild(commentRequsetDto,request,response);
+    public String addCommentOfChild(@RequestBody ReplyRequestDto replyRequestDto, HttpServletRequest request, HttpServletResponse response){
+        return commentService.addCommentOfChild(replyRequestDto,request,response);
     }
     @Operation(summary = "댓글수정 API [commentId = 수정될 댓글Id], [보안]")
     @PutMapping("/comment")
@@ -48,8 +47,8 @@ public class CommentController {
     }
     @Operation(summary = "대댓글 수정 API [commentId = 수정될 대댓글 id], [보안]")
     @PutMapping("/comment/child")
-    public String updateCommentOfChild(@RequestBody CommentRequsetDto commentRequsetDto, HttpServletRequest request, HttpServletResponse response){
-        return commentService.updateCommentOfChild(commentRequsetDto,request,response);
+    public String updateCommentOfChild(@RequestBody ReplyRequestDto replyRequestDto, HttpServletRequest request, HttpServletResponse response){
+        return commentService.updateCommentOfChild(replyRequestDto,request,response);
     }
     @Operation(summary = "댓글 삭제 API [보안]")
     @DeleteMapping("/comment")
@@ -58,7 +57,7 @@ public class CommentController {
     }
     @Operation(summary = "대댓글 수정 API [보안]")
     @DeleteMapping("/comment/child")
-    public String deleteCommentOfChild(@RequestBody CommentRequsetDto commentRequsetDto, HttpServletRequest request, HttpServletResponse response){
-        return commentService.deleteCommentOfChild(commentRequsetDto,request,response);
+    public String deleteCommentOfChild(@RequestBody ReplyRequestDto replyRequestDto, HttpServletRequest request, HttpServletResponse response){
+        return commentService.deleteCommentOfChild(replyRequestDto,request,response);
     }
 }
