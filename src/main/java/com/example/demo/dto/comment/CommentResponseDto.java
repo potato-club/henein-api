@@ -17,7 +17,7 @@ public class CommentResponseDto {
     private String comment;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime modifiedDate;
-    private List<CommentResponseDto> replies;
+    private List<ReplyResponseDto> replies;
 
     public CommentResponseDto(CommentEntity commentEntity){
         this.commentId = commentEntity.getId();
@@ -32,7 +32,7 @@ public class CommentResponseDto {
         this.comment = replyEntity.getComment();
         this.modifiedDate = replyEntity.getModifiedDate();
     }
-    public void setReplies(List<CommentResponseDto> replies){
+    public void setReplies(List<ReplyResponseDto> replies){
         this.replies = replies;
     }
 }

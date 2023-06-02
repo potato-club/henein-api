@@ -1,9 +1,6 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.comment.CommentRequsetDto;
-import com.example.demo.dto.comment.CommentResponseDto;
-import com.example.demo.dto.comment.CommentNumUpdateDto;
-import com.example.demo.dto.comment.ReplyRequestDto;
+import com.example.demo.dto.comment.*;
 import com.example.demo.entity.*;
 import com.example.demo.error.ErrorCode;
 
@@ -38,7 +35,6 @@ public class CommentService {
             throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION,ErrorCode.NOT_FOUND_EXCEPTION.getMessage());
         }
         QCommentEntity qCommentEntity = QCommentEntity.commentEntity;
-        QReplyEntity qReplyEntity = QReplyEntity.replyEntity;
 
         List<CommentEntity> commentEntityList = jpaQueryFactory.select(qCommentEntity)
                 .from(qCommentEntity)
@@ -51,7 +47,7 @@ public class CommentService {
             List<ReplyEntity> childComment = getChildComment(parentComment);
 
             CommentResponseDto parentDto = new CommentResponseDto(parentComment);
-            parentDto.setReplies(childComment.stream().map(CommentResponseDto::new).collect(Collectors.toList()));
+            parentDto.setReplies(childComment.stream().map(ReplyResponseDto::new).collect(Collectors.toList()));
             resultDtoList.add(parentDto);
         }
         return resultDtoList;
