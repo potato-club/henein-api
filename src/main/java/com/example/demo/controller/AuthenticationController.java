@@ -29,13 +29,13 @@ public class AuthenticationController {
     private final UserService userService;
 
 
-    @Operation()
+    @Operation(summary = "로컬 로그인 userEmail,password")
     @GetMapping("/login")
     public ResponseEntity<String> basicLogin(@RequestBody BasicLoginRequestDto basicLoginRequestDto, HttpServletResponse response) {
 
         return userService.basicLogin(basicLoginRequestDto,response);
     }
-    @Operation()
+    @Operation(summary = "로컬 회원가입 userEmail,password")
     @PostMapping("/login/register")
     public ResponseEntity<String> basicSignUp(@RequestBody BasicLoginRequestDto basicLoginRequestDto, HttpServletResponse response) {
 
