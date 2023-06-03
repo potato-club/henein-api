@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.login.BasicLoginRequestDto;
 import com.example.demo.error.ErrorCode;
 import com.example.demo.jwt.JwtTokenProvider;
 import com.example.demo.service.UserService;
@@ -27,18 +28,18 @@ public class AuthenticationController {
 
     private final UserService userService;
 
-    private final JwtTokenProvider jwtTokenProvider;
 
-    @ApiIgnore
+    @Operation()
     @GetMapping("/login")
-    public ResponseEntity<String> login(@RequestParam String email, HttpServletResponse response) {
-        String accessToken = jwtTokenProvider.generateAccessToken(email);
-        String refreshToken = jwtTokenProvider.generateRefreshToken(email);
+    public ResponseEntity<String> basicLogin(@RequestBody BasicLoginRequestDto basicLoginRequestDto, HttpServletResponse response) {
 
-        response.setHeader("Authorization","Bearer " + accessToken);
-        response.setHeader("RefreshToken","Bearer "+ refreshToken);
+        return userService.basicLogin(basicLoginRequestDto,response);
+    }
+    @Operation()
+    @PostMapping("/login/register")
+    public ResponseEntity<String> basicSignUp(@RequestBody BasicLoginRequestDto basicLoginRequestDto, HttpServletResponse response) {
 
-        return ResponseEntity.ok("로그인 성공");
+        return userService.basicSignUp(basicLoginRequestDto,response);
     }
     @Operation(summary = "Authorization에 accessToken, RefreshToken에 refreshToken이 들어있음")
     @GetMapping("/login/kakao")

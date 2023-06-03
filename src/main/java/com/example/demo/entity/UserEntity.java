@@ -38,7 +38,7 @@ public class UserEntity extends BaseTimeEntity{
     @Column
     private String password;
 
-    @Column(length = 512)
+    @Column(length = 512,nullable = false)
     private String refreshToken;
 
 

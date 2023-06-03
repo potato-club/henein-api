@@ -1,16 +1,21 @@
 package com.example.demo.service;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.example.demo.dto.login.BasicLoginRequestDto;
 import com.example.demo.dto.login.KakaoOAuth2User;
 
 import com.example.demo.dto.user.UserInfoResponseDto;
 import com.example.demo.dto.user.UserNicknameChange;
+import com.example.demo.entity.GuestCountEntity;
 import com.example.demo.entity.UserEntity;
+import com.example.demo.enumCustom.UserRole;
 import com.example.demo.error.ErrorCode;
 import com.example.demo.error.exception.AuthenticationException;
+import com.example.demo.error.exception.DuplicateException;
 import com.example.demo.jwt.JwtTokenProvider;
 import com.example.demo.jwt.KakaoOAuth2AccessTokenResponse;
 import com.example.demo.jwt.KakaoOAuth2Client;
+import com.example.demo.repository.GuestCountRepository;
 import com.example.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +45,9 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final KakaoOAuth2UserDetailsServcie kakaoOAuth2UserDetailsServcie;
     private final KakaoOAuth2Client kakaoOAuth2Client;
-
+    private final GuestCountRepository guestCountRepository;
+    private final PasswordEncoder passwordEncoder;
+//=================필터사용
     @Transactional
     public UserEntity fetchUserEntityByHttpRequest(HttpServletRequest request, HttpServletResponse response){
         try {
@@ -55,6 +62,28 @@ public class UserService {
         }
     }
     @Transactional
+    public ResponseEntity<?> refreshAT(HttpServletRequest request,HttpServletResponse response) throws UnsupportedEncodingException {
+        //bearer 지우기
+        String RTHeader = jwtTokenProvider.resolveRefreshToken(request);
+
+        // rt 넣어서 검증하고 유저이름 가져오기 /
+        String userEmail = jwtTokenProvider.refreshAccessToken(RTHeader ,response);
+        UserEntity userEntity = userRepository.findByUserEmail(userEmail).orElseThrow(()->{throw new RuntimeException();});
+        //db에 있는 토큰값과 넘어온 토큰이 같은지
+        if (!userEntity.getRefreshToken().equals(RTHeader)){
+            response.addHeader("exception", String.valueOf(ErrorCode.INVALID_TOKEN.getCode()));
+            throw new AuthenticationException(ErrorCode.INVALID_TOKEN);
+        }
+        String newAccessToken = jwtTokenProvider.generateAccessToken(userEmail);
+
+        // Set the new access token in the HTTP response headers
+        response.setHeader("Authorization", "Bearer " + newAccessToken);
+
+        // Optionally, return the new access token in the response body as well
+        return ResponseEntity.ok(newAccessToken);
+    }
+    //===============마이페이지 관련
+    @Transactional
     public UserInfoResponseDto userInfo(HttpServletRequest request, HttpServletResponse response){
         UserEntity userEntity = fetchUserEntityByHttpRequest(request,response);
         return new UserInfoResponseDto(userEntity);
@@ -66,6 +95,53 @@ public class UserService {
         userRepository.save(userEntity);
         return "유저 이름 설정 완료";
     }
+
+    //==================로그인 관련
+    @Transactional
+    public ResponseEntity<String> basicLogin(BasicLoginRequestDto basicLoginRequestDto, HttpServletResponse response){
+        UserEntity userEntity = userRepository.findByUserEmail(basicLoginRequestDto.getUserEmail()).orElseThrow(()->{
+            throw new AuthenticationException(ErrorCode.INVALID_USER,ErrorCode.INVALID_USER.getMessage());});
+
+        if ( !passwordEncoder.matches(basicLoginRequestDto.getPassword(),userEntity.getPassword()) ){
+            throw new AuthenticationException(ErrorCode.INVALID_USER,ErrorCode.INVALID_USER.getMessage());
+        }
+
+        String accessToken = jwtTokenProvider.generateAccessToken(basicLoginRequestDto.getUserEmail());
+        String refreshToken = jwtTokenProvider.generateRefreshToken(basicLoginRequestDto.getUserEmail());
+
+        response.setHeader("Authorization","Bearer " + accessToken);
+        response.setHeader("RefreshToken","Bearer "+ refreshToken);
+        return ResponseEntity.ok("로그인 성공");
+    }
+
+    @Transactional
+    public ResponseEntity<String> basicSignUp(BasicLoginRequestDto basicLoginRequestDto, HttpServletResponse response){
+        //이미 있는 이메일인지 확인
+        if (userRepository.existsByUserEmail(basicLoginRequestDto.getUserEmail())){
+            throw new DuplicateException(ErrorCode.DUPLICATE_EMAIL,ErrorCode.DUPLICATE_EMAIL.getMessage());
+        }
+
+        //토큰 발급
+        String accessToken = jwtTokenProvider.generateAccessToken(basicLoginRequestDto.getUserEmail());
+        String refreshToken = jwtTokenProvider.generateRefreshToken(basicLoginRequestDto.getUserEmail());
+
+        //디비 저장
+        GuestCountEntity guestCount = guestCountRepository.getById(new Long(1));
+        guestCount.addCount();
+        UserEntity userEntity = new UserEntity().builder()
+                .userRole(UserRole.USER)
+                .userName("guest"+guestCount.getGuestCount())
+                .userEmail(basicLoginRequestDto.getUserEmail())
+                .password(passwordEncoder.encode(basicLoginRequestDto.getPassword()))
+                .refreshToken(refreshToken)
+                .build();
+        userRepository.save(userEntity);
+
+        response.setHeader("Authorization","Bearer " + accessToken);
+        response.setHeader("RefreshToken","Bearer "+ refreshToken);
+        return ResponseEntity.ok("회원가입 성공");
+    }
+
     @Transactional
     public ResponseEntity<?> kakaoLogin(String code, HttpServletResponse response) throws IOException {
         KakaoOAuth2AccessTokenResponse tokenResponse = kakaoOAuth2Client.getAccessToken(code);
@@ -97,25 +173,5 @@ public class UserService {
         return ResponseEntity.ok(tokens);
     }
 
-    @Transactional
-    public ResponseEntity<?> refreshAT(HttpServletRequest request,HttpServletResponse response) throws UnsupportedEncodingException {
-        //bearer 지우기
-        String RTHeader = jwtTokenProvider.resolveRefreshToken(request);
 
-        // rt 넣어서 검증하고 유저이름 가져오기 /
-        String userEmail = jwtTokenProvider.refreshAccessToken(RTHeader ,response);
-        UserEntity userEntity = userRepository.findByUserEmail(userEmail).orElseThrow(()->{throw new RuntimeException();});
-        //db에 있는 토큰값과 넘어온 토큰이 같은지
-        if (!userEntity.getRefreshToken().equals(RTHeader)){
-            response.addHeader("exception", String.valueOf(ErrorCode.INVALID_TOKEN.getCode()));
-            throw new AuthenticationException(ErrorCode.INVALID_TOKEN);
-        }
-        String newAccessToken = jwtTokenProvider.generateAccessToken(userEmail);
-
-        // Set the new access token in the HTTP response headers
-        response.setHeader("Authorization", "Bearer " + newAccessToken);
-
-        // Optionally, return the new access token in the response body as well
-        return ResponseEntity.ok(newAccessToken);
-    }
 }
