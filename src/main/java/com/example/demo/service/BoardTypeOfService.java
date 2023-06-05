@@ -77,9 +77,9 @@ public class BoardTypeOfService {
             default: throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION,ErrorCode.NOT_FOUND_EXCEPTION.getMessage());
         }
         BoardEntity boardEntity = new BoardEntity(boardRequestDto,board, userEntity);
-        if (boardRequestDto.getImages() != null){
-            uploadBoardFile(boardRequestDto.getImages(),boardEntity);
-        }
+//        if (boardRequestDto.getImages() != null){
+//            uploadBoardFile(boardRequestDto.getImages(),boardEntity);
+//        }
         boardRepository.save(boardEntity);
         return "저장 완료";
     }
