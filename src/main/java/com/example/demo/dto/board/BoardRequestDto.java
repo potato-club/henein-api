@@ -14,7 +14,6 @@ import java.util.List;
 
 @Getter
 @Setter
-@AllArgsConstructor
 public class BoardRequestDto {
     private String title;
     private String text;
