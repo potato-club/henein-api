@@ -50,15 +50,22 @@ public class BoardController {
     public Page<BoardListResponseDto> getTypeOfBoard(@RequestParam("board")char boardtype, @RequestParam("page")int page){
         return boardTypeOfService.getTypeOfBoard(page, boardtype);
     }
-    @Operation(summary = "Json이 아닌 form-data형식으로 보내주세요 [보안]")
+//    @Operation(summary = "Json이 아닌 form-data형식으로 보내주세요 [보안]")
+//    @PostMapping() //Create
+//    public String addTypeOfBoard(@RequestPart(value = "image",required = false) List<MultipartFile> images,
+//                                 @RequestPart(value = "title") String title,
+//                                 @RequestPart(value = "text") String text,
+//                                 @RequestPart(value = "boardType") String boardType,
+//                                 HttpServletRequest request, HttpServletResponse response) {
+//        log.info("작성 컨트롤러 진입");
+//       BoardRequestDto boardRequestDto = new BoardRequestDto(title,text,boardType, images);
+//        return boardTypeOfService.addTypeOfBoard(boardRequestDto, request, response);
+//    }
+    @Operation(summary = "Json 으로 보내주세요 [보안]")
     @PostMapping() //Create
-    public String addTypeOfBoard(@RequestPart(value = "image",required = false) List<MultipartFile> images,
-                                 @RequestPart(value = "title") String title,
-                                 @RequestPart(value = "text") String text,
-                                 @RequestPart(value = "boardType") String boardType,
-                                 HttpServletRequest request, HttpServletResponse response) {
+        public String addTypeOfBoard(@RequestBody BoardRequestDto boardRequestDto,
+                             HttpServletRequest request, HttpServletResponse response) {
         log.info("작성 컨트롤러 진입");
-       BoardRequestDto boardRequestDto = new BoardRequestDto(title,text,boardType, images);
         return boardTypeOfService.addTypeOfBoard(boardRequestDto, request, response);
     }
     //Read

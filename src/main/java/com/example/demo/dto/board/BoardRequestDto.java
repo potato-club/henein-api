@@ -19,6 +19,6 @@ public class BoardRequestDto {
     private String title;
     private String text;
     private String boardType;
-    private List<MultipartFile> images;
+    //private List<MultipartFile> images;
 
 }
