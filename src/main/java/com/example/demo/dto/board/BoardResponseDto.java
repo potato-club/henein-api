@@ -48,7 +48,6 @@ public class BoardResponseDto {
         this.views = boardEntity.getViews();
         this.recommend = boardEntity.getRecommend();
         this.text = boardEntity.getText();
-        this.image = boardEntity.getImage().stream().map(FileResponseDto::new).collect(Collectors.toList());
     }
     public BoardResponseDto (BoardEntity boardEntity, boolean recommended){
         this.id = boardEntity.getId();
@@ -60,7 +59,6 @@ public class BoardResponseDto {
         this.views = boardEntity.getViews();
         this.recommend = boardEntity.getRecommend();
         this.text = boardEntity.getText();
-        this.image = boardEntity.getImage().stream().map(FileResponseDto::new).collect(Collectors.toList());
         this.recommended = recommended;
     }
 }

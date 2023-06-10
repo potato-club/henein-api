@@ -9,6 +9,7 @@ import com.example.demo.entity.S3File;
 import com.example.demo.entity.UserEntity;
 import com.example.demo.enumCustom.BoardType;
 //import com.example.demo.error.exception.NotFoundException;
+import com.example.demo.enumCustom.S3EntityType;
 import com.example.demo.error.ErrorCode;
 import com.example.demo.error.exception.NotFoundException;
 import com.example.demo.jwt.JwtTokenProvider;
@@ -27,7 +28,10 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 
@@ -76,28 +80,25 @@ public class BoardTypeOfService {
             case "N": board = BoardType.Notice; break;
             default: throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION,ErrorCode.NOT_FOUND_EXCEPTION.getMessage());
         }
+
         BoardEntity boardEntity = new BoardEntity(boardRequestDto,board, userEntity);
-//        if (boardRequestDto.getImages() != null){
-//            uploadBoardFile(boardRequestDto.getImages(),boardEntity);
-//        }
-        boardRepository.save(boardEntity);
+        BoardEntity savedBoard = boardRepository.save(boardEntity);
+
+        //이미지 파일 첨부되어있는지 문자열 슬라이싱
+        Pattern pattern = Pattern.compile("\\[img (.*?)\\]");
+        Matcher matcher = pattern.matcher(boardRequestDto.getText());
+
+        List<String> imagesUrl = new ArrayList<>();
+        while (matcher.find()){
+            imagesUrl.add(matcher.group(1));
+        }
+        //이미지가 있으면 해당 이미지를 사용중인거로 업데이트
+        if (imagesUrl != null){
+            savedBoard.setHasImage();
+            s3Service.changeImageInfo(imagesUrl, S3EntityType.BOARD, savedBoard.getId());
+        }
+        // 이제 파일 다운로드 완성해야함
         return "저장 완료";
-    }
-    // 사진을 S3 저장소에 올리고 그 요소들을 리스트로 반환하는 기능이다.
-    private List<String> uploadBoardFile(List<MultipartFile> image, BoardEntity boardEntity){
-        return image.stream()
-                .map(file -> s3Service.upload(file))
-                .map(url ->createFile(boardEntity, url))
-                .map(file -> file.getFileUrl())
-                .collect(Collectors.toList());
-    }
-    // DB에 올린 사진의 Url과 이름을 저장하는 기능이다.
-    private S3File createFile(BoardEntity boardEntity,String url){
-        return s3FileRespository.save(S3File.builder()
-                .fileUrl(url)
-                .fileName(StringUtils.getFilename(url))
-                .boardEntity(boardEntity)
-                .build());
     }
 
 }

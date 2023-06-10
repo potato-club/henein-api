@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.example.demo.enumCustom.S3EntityType;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,17 +24,23 @@ public class S3File extends BaseTimeEntity{
     @Column(name = "file_url")
     private String fileUrl;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "board_entity_id")
-    private BoardEntity boardEntity;
+    @Enumerated(EnumType.STRING)
+    @Column
+    private S3EntityType s3EntityType; //게시글의 사진인지 유저의 사진인지 분류
+    @Column
+    private Long typeId; //게시글이면 게시글의 id
 
+    @Column
+    private String email;
 
 
     @Builder
-    public S3File(String fileName, String fileUrl, BoardEntity boardEntity){
+    public S3File(String fileName, String fileUrl){
         this.fileName = fileName;
         this.fileUrl = fileUrl;
-        this.boardEntity = boardEntity;
+    }
+    public void setEntityData(S3EntityType s3EntityType,Long typeId) {
+        this.s3EntityType = s3EntityType;
+        this.typeId = typeId;
     }
 }

@@ -44,12 +44,10 @@ public class BoardEntity extends BaseTimeEntity{
     private int recommend;
     @Column(nullable = false)
     private String text;
-
-    @OneToMany(mappedBy = "boardEntity", orphanRemoval = true)
-    private List<S3File> image = new ArrayList<>();
-
     @OneToMany(mappedBy = "boardEntity", orphanRemoval = true)
     private List<CommentEntity> commentEntityList = new ArrayList<>();
+    @Column
+    private boolean hasImage;
 
     @Builder
     public BoardEntity (BoardRequestDto boardRequestDto, BoardType board, UserEntity userEntity){
@@ -58,6 +56,11 @@ public class BoardEntity extends BaseTimeEntity{
         this.text = boardRequestDto.getText();
         this.boardType = board;
     }
+
+    public void setHasImage() {
+        this.hasImage = true;
+    }
+
     public void Update(TestDto testDto){
         this.title = testDto.getTitle();
         this.text = testDto.getText();

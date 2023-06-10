@@ -55,8 +55,6 @@ public class CommonBoardService {
         }
 
         boardEntity.Update(testDto);
-        boardRepository.save(boardEntity);
-
         return "수정완료";
     }
     @Transactional
@@ -97,7 +95,6 @@ public class CommonBoardService {
             boardEntity.Update(boardRecommendDTO);
 
             recommandRepository.save(recommend);
-            boardRepository.save(boardEntity);
             return "추천 완료";
         }
         //이미 추천한 흔적이 있는 유저들
@@ -106,7 +103,6 @@ public class CommonBoardService {
             boardEntity.Update(boardRecommendDTO);
             recommendEntity.setValue(false);
 
-            boardRepository.save(boardEntity);
             recommandRepository.save(recommendEntity);
             return "추천 취소";
         } else {
@@ -114,7 +110,6 @@ public class CommonBoardService {
             boardEntity.Update(boardRecommendDTO);
             recommendEntity.setValue(true);
 
-            boardRepository.save(boardEntity);
             recommandRepository.save(recommendEntity);
             return "재추천 완료";
         }

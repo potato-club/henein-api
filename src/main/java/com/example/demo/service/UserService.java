@@ -141,7 +141,6 @@ public class UserService {
         response.setHeader("RefreshToken","Bearer "+ refreshToken);
         return ResponseEntity.ok("회원가입 성공");
     }
-
     @Transactional
     public ResponseEntity<?> kakaoLogin(String code, HttpServletResponse response) throws IOException {
         KakaoOAuth2AccessTokenResponse tokenResponse = kakaoOAuth2Client.getAccessToken(code);

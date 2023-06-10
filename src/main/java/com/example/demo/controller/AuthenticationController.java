@@ -30,17 +30,18 @@ public class AuthenticationController {
 
 
     @Operation(summary = "로컬 로그인 userEmail,password")
-    @GetMapping("/login")
+    @PostMapping("/login")
     public ResponseEntity<String> basicLogin(@RequestBody BasicLoginRequestDto basicLoginRequestDto, HttpServletResponse response) {
-
+        log.info(basicLoginRequestDto.getUserEmail()+"__"+basicLoginRequestDto.getPassword());
         return userService.basicLogin(basicLoginRequestDto,response);
     }
     @Operation(summary = "로컬 회원가입 userEmail,password")
     @PostMapping("/login/register")
     public ResponseEntity<String> basicSignUp(@RequestBody BasicLoginRequestDto basicLoginRequestDto, HttpServletResponse response) {
-
+        log.info(basicLoginRequestDto.getUserEmail()+"__"+basicLoginRequestDto.getPassword());
         return userService.basicSignUp(basicLoginRequestDto,response);
     }
+
     @Operation(summary = "Authorization에 accessToken, RefreshToken에 refreshToken이 들어있음")
     @GetMapping("/login/kakao")
     public ResponseEntity<?> kakaoLogin(@RequestParam("code") String code, HttpServletResponse response) throws IOException {

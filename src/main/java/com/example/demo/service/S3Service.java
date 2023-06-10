@@ -1,7 +1,11 @@
 package com.example.demo.service;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.example.demo.entity.S3File;
+import com.example.demo.enumCustom.S3EntityType;
+import com.example.demo.repository.S3FileRespository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -13,6 +17,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -21,27 +27,46 @@ public class S3Service {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
     private final AmazonS3 amazonS3;
+    private final S3FileRespository s3FileRespository;
 
-    /**
-     * AWS S3에 이미지 파일 업로드
-     * @param multipartFile : 파일
-     * @return : Url
-     */
-    public String upload(MultipartFile multipartFile){
-        String fileName = createFileName(multipartFile.getOriginalFilename());
+    public String uploadImageBeforeSavedBoardEntity(MultipartFile image) throws IOException {
+        List<MultipartFile> s3FileList = new ArrayList<>();
+        s3FileList.add(image);
+        List<S3File> resultList = this.existsFiles(s3FileList);
+        //아직 글쓰기 중인 유저가 저장한 이미지로 연결되지 않은 것으로 표기함. 추후 글쓰기 완료되면 바꿔야함
+        resultList.get(0).setEntityData(S3EntityType.NON_APPOINT, null);
+        s3FileRespository.save(resultList.get(0));
 
-        // s3에 이미지 저장
-        try(InputStream inputStream = multipartFile.getInputStream()){
-            amazonS3.putObject(new PutObjectRequest(bucket, fileName, inputStream,null));
-        } catch (IOException e){
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
-        }
-        String url =amazonS3.getUrl(bucket,fileName).toString();
-        return url;
+        String resultString = resultList.get(0).getFileName();
+        return "[img " + resultString + "]";
     }
 
-    // 파일 이름이 같으면 저장이 안 된다. 따라서 파일이름 앞에 UUID를 붙인다.
-    private String createFileName(String fileName){
-        return UUID.randomUUID()+ "-" + fileName;
+    private List<S3File> existsFiles(List<MultipartFile> imageList) throws IOException {
+        List<S3File> List = new ArrayList<>();
+        for (MultipartFile image : imageList) {
+            String key = image.getOriginalFilename();
+            if (amazonS3.doesObjectExist(bucket, key)) {
+                continue;
+            }
+            String imageName = UUID.randomUUID() + "-" + key;
+            InputStream inputStream = image.getInputStream();
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(image.getSize());
+            amazonS3.putObject(new PutObjectRequest(bucket, imageName, inputStream, metadata));
+            S3File file = S3File.builder()
+                    .fileName(imageName)
+                    .fileUrl(amazonS3.getUrl(bucket, imageName).toString())
+                    .build();
+            List.add(file);
+        }
+        return List;
+    }
+    public void changeImageInfo(List<String> imageNameList, S3EntityType s3EntityType, Long typeId ){
+        List<S3File> s3FileList = new ArrayList<>();
+        for (int i = 0; i < s3FileList.toArray().length; i++){
+            S3File s3File = s3FileRespository.findByFileName(imageNameList.get(i));
+            s3FileList.add(s3File);
+        }
+        s3FileList.stream().forEach(s3File -> s3File.setEntityData(s3EntityType, typeId));
     }
 }
