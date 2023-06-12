@@ -73,7 +73,7 @@ public class BoardController {
         return commonBoardService.recommendThisBoard(boardIdRequestDTO.getId(),request, response);
     }
     @Operation(summary = "사진 name return api")
-    @GetMapping("/image")
+    @PostMapping("/image")
     public String saveImageAndGetName(@RequestPart MultipartFile image) throws IOException {
         return s3Service.uploadImageBeforeSavedBoardEntity(image);
     }
