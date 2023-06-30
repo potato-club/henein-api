@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.UserMapleApi;
 import com.example.demo.dto.user.UserInfoResponseDto;
 
 import com.example.demo.dto.user.UserNicknameChange;
@@ -9,18 +10,17 @@ import com.example.demo.service.UserService;
 import io.swagger.annotations.Api;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.Getter;
+
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 
-import static com.example.demo.error.ErrorCode.NULL_VALUE;
 
 @RestController
 @RequestMapping("/userinfo")
@@ -46,8 +46,10 @@ public class UserInfoController {
         }
         return userService.userNicknameChange(request,response, userNickname);
     }
-//    @PostMapping("/character-name")
-//    public Flux<UserNameResponseDto> getUserInfo(@RequestBody UserMapleApi userMapleApi){
-//        return userService.getUserNameOnCube(userMapleApi);
-//    }
+    @Operation(summary = "유저의 캐릭터 이름 요청")
+    @PostMapping("/CharacterName")
+    public Flux<String> getCharacterName (@RequestBody UserMapleApi userMapleApi){
+        return userService.getCharacterName(userMapleApi);
+    }
+
 }

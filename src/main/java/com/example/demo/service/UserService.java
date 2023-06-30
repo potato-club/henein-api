@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.example.demo.dto.UserMapleApi;
 import com.example.demo.dto.login.BasicLoginRequestDto;
 import com.example.demo.dto.login.KakaoOAuth2User;
 
@@ -28,6 +29,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -47,6 +51,15 @@ public class UserService {
     private final KakaoOAuth2Client kakaoOAuth2Client;
     private final GuestCountRepository guestCountRepository;
     private final PasswordEncoder passwordEncoder;
+
+    private final WebClient webClient;
+    @Transactional
+    public Flux<String> getCharacterName(UserMapleApi userMapleApi){
+        return webClient.post()
+                .body(Mono.just(userMapleApi),UserMapleApi.class)
+                .retrieve()
+                .bodyToFlux(String.class);
+    }
 //=================필터사용
     @Transactional
     public UserEntity fetchUserEntityByHttpRequest(HttpServletRequest request, HttpServletResponse response){
