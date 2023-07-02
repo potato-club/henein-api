@@ -144,7 +144,7 @@ public class CommentService {
     public String deleteCommentOfParent(CommentRequsetDto commentRequsetDto, HttpServletRequest request, HttpServletResponse response){
         UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request,response);
         CommentEntity commentEntity = commentRepository.findById(commentRequsetDto.getCommentId()).orElseThrow(()->{throw new RuntimeException("해당 댓글이 없습니다");});
-        if (commentEntity.getUserEmail() != userEntity.getUserEmail()){
+        if (!(commentEntity.getUserEmail().equals(userEntity.getUserEmail()))){
             throw new RuntimeException("권한이 없는 사용자 입니다.");
         }
 
@@ -162,7 +162,7 @@ public class CommentService {
     public String deleteCommentOfChild(ReplyRequestDto replyRequestDto, HttpServletRequest request, HttpServletResponse response){
         UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request,response);
         ReplyEntity replyEntity = replyRepository.findById(replyRequestDto.getCommentId()).orElseThrow(()->{throw new RuntimeException("해당 댓글이 없습니다");});
-        if (replyEntity.getUserEmail()!=userEntity.getUserEmail()){
+        if (!(replyEntity.getUserEmail().equals(userEntity.getUserEmail()))){
             throw new RuntimeException("권한이 없는 사용자 입니다");
         }
 
