@@ -131,7 +131,7 @@ public class CommentService {
     @Transactional
     public String updateCommentOfChild(ReplyRequestDto replyRequestDto, HttpServletRequest request, HttpServletResponse response){
         UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request,response);
-        ReplyEntity replyEntity = replyRepository.findById(replyRequestDto.getCommentId()).orElseThrow(()->{throw new RuntimeException("해당 댓글이 없습니다");});
+        ReplyEntity replyEntity = replyRepository.findById(replyRequestDto.getReplyId()).orElseThrow(()->{throw new RuntimeException("해당 댓글이 없습니다");});
         if (replyEntity.getUserEmail() != userEntity.getUserEmail()){
             throw new RuntimeException("권한이 없는 사용자 입니다.");
         }
