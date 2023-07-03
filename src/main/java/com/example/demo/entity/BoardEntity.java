@@ -42,6 +42,7 @@ public class BoardEntity extends BaseTimeEntity{
     private int views;
     @Column
     private int recommend;
+    @Lob
     @Column(nullable = false)
     private String text;
     @OneToMany(mappedBy = "boardEntity", orphanRemoval = true)

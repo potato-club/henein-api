@@ -30,16 +30,13 @@ public class S3File extends BaseTimeEntity{
     @Column
     private Long typeId; //게시글이면 게시글의 id
 
-    @Column
-    private String email;
-
 
     @Builder
     public S3File(String fileName, String fileUrl){
         this.fileName = fileName;
         this.fileUrl = fileUrl;
     }
-    public void setEntityData(S3EntityType s3EntityType,Long typeId) {
+    public void setEntityData(S3EntityType s3EntityType, Long typeId) {
         this.s3EntityType = s3EntityType;
         this.typeId = typeId;
     }

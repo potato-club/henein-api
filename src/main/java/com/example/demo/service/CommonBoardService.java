@@ -4,10 +4,13 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.example.demo.dto.board.*;
 import com.example.demo.entity.BoardEntity;
 import com.example.demo.entity.RecommendEntity;
+import com.example.demo.entity.S3File;
 import com.example.demo.entity.UserEntity;
+import com.example.demo.enumCustom.S3EntityType;
 import com.example.demo.jwt.JwtTokenProvider;
 import com.example.demo.repository.BoardRepository;
 import com.example.demo.repository.RecommandRepository;
+import com.example.demo.repository.S3FileRespository;
 import com.example.demo.repository.UserRepository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +20,8 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class CommonBoardService {
@@ -25,6 +30,7 @@ public class CommonBoardService {
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
+    private final S3FileRespository s3FileRespository;
 
     @Transactional
     public BoardResponseDto getOneService(Long id, String authentication){
@@ -64,7 +70,11 @@ public class CommonBoardService {
         if (boardEntity.getUserEntity().getUserEmail() != userEntity.getUserEmail()){
             throw new RuntimeException("게시글 삭제 권한이 없습니다.");
         }
+        //게시글에 저장되어있던 사진들 전부 미사용으로 전환
+        List<S3File> fileList = s3FileRespository.findAllByTypeId(boardEntity.getId());
+        fileList.stream().forEach(s3File -> s3File.setEntityData(S3EntityType.NON_USED, null));
         boardRepository.delete(boardEntity);
+
         return "삭제완료";
     }
     @Transactional

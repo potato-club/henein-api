@@ -3,6 +3,9 @@ package com.example.demo.service;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.amazonaws.util.IOUtils;
 import com.example.demo.entity.S3File;
 import com.example.demo.enumCustom.S3EntityType;
 import com.example.demo.repository.S3FileRespository;
@@ -34,11 +37,10 @@ public class S3Service {
         s3FileList.add(image);
         List<S3File> resultList = this.existsFiles(s3FileList);
         //아직 글쓰기 중인 유저가 저장한 이미지로 연결되지 않은 것으로 표기함. 추후 글쓰기 완료되면 바꿔야함
-        resultList.get(0).setEntityData(S3EntityType.NON_APPOINT, null);
+        resultList.get(0).setEntityData(S3EntityType.NON_USED, null);
         s3FileRespository.save(resultList.get(0));
 
-        String resultString = resultList.get(0).getFileName();
-        return "[img " + resultString + "]";
+        return resultList.get(0).getFileUrl();
     }
 
     private List<S3File> existsFiles(List<MultipartFile> imageList) throws IOException {
@@ -63,10 +65,22 @@ public class S3Service {
     }
     public void changeImageInfo(List<String> imageNameList, S3EntityType s3EntityType, Long typeId ){
         List<S3File> s3FileList = new ArrayList<>();
-        for (int i = 0; i < s3FileList.toArray().length; i++){
-            S3File s3File = s3FileRespository.findByFileName(imageNameList.get(i));
+        for (int i = 0; i < imageNameList.toArray().length; i++){
+            S3File s3File = s3FileRespository.findByFileUrl(imageNameList.get(i));
             s3FileList.add(s3File);
         }
         s3FileList.stream().forEach(s3File -> s3File.setEntityData(s3EntityType, typeId));
+    }
+    public byte[] downloadImage(String key) throws IOException {
+        byte[] content;
+        final S3Object s3Object = amazonS3.getObject(bucket, key);
+        final S3ObjectInputStream stream = s3Object.getObjectContent();
+        try {
+            content = IOUtils.toByteArray(stream);
+            s3Object.close();
+        } catch(final IOException ex) {
+            throw new IOException("IO Error Message= " + ex.getMessage());
+        }
+        return content;
     }
 }

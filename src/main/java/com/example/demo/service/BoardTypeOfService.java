@@ -85,7 +85,8 @@ public class BoardTypeOfService {
         BoardEntity savedBoard = boardRepository.save(boardEntity);
 
         //이미지 파일 첨부되어있는지 문자열 슬라이싱
-        Pattern pattern = Pattern.compile("\\[img (.*?)\\]");
+        String regex = "(https://henesys-bucket.s3.ap-northeast-2.amazonaws.com/.*?\\.jpg)";
+        Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(boardRequestDto.getText());
 
         List<String> imagesUrl = new ArrayList<>();
