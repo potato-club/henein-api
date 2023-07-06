@@ -121,7 +121,7 @@ public class CommentService {
             throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION,ErrorCode.NOT_FOUND_EXCEPTION.getMessage());
         }
         CommentEntity commentEntity = commentRepository.findById(coId).orElseThrow(()->{throw new RuntimeException("해당 댓글이 없습니다");});
-        if (commentEntity.getUserEmail() != userEntity.getUserEmail()){
+        if (!commentEntity.getUserEmail().equals(userEntity.getUserEmail())) {
             throw new RuntimeException("권한이 없는 사용자 입니다.");
         }
         commentEntity.update(commentRequsetDto,userEntity.getUserName());
@@ -134,7 +134,7 @@ public class CommentService {
             throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION,ErrorCode.NOT_FOUND_EXCEPTION.getMessage());
         }
         ReplyEntity replyEntity = replyRepository.findById(reId).orElseThrow(()->{throw new RuntimeException("해당 댓글이 없습니다");});
-        if (replyEntity.getUserEmail() != userEntity.getUserEmail()){
+        if (!replyEntity.getUserEmail().equals(userEntity.getUserEmail())){
             throw new RuntimeException("권한이 없는 사용자 입니다.");
         }
         replyEntity.update(replyRequestDto,userEntity.getUserName());
