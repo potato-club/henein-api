@@ -22,7 +22,7 @@ public class ReplyEntity extends BaseTimeEntity{
     @Column(nullable = false)
     private String userEmail;
     private String userName;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "parent_id",nullable = false)
     private CommentEntity parent;
     @Column(nullable = false)

@@ -10,8 +10,11 @@ import com.example.demo.repository.CommentRepository;
 import com.example.demo.repository.ReplyRepository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
@@ -21,12 +24,15 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+
 public class CommentService {
     private final CommentRepository commentRepository;
     private final ReplyRepository replyRepository;
     private final BoardRepository boardRepository;
     private final JPAQueryFactory jpaQueryFactory;
     private final UserService userService;
+    @PersistenceContext
+    private EntityManager em;
 
 
     @Transactional
@@ -77,6 +83,7 @@ public class CommentService {
                 .userEmail(userEntity.getUserEmail())
                 .boardEntity(boardEntity)
                 .updated(false)
+                .deleted(false)
                 .build();
         commentRepository.save(commentEntity);
 
@@ -148,16 +155,17 @@ public class CommentService {
         if (!(commentEntity.getUserEmail().equals(userEntity.getUserEmail()))){
             throw new RuntimeException("권한이 없는 사용자 입니다.");
         }
-
-        BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 게시글이 없습니다");});
-        //보드 게시판의 댓글수 업데이트
-        if(boardEntity.getCommentNum() > 0) {
-            CommentNumUpdateDto commentNumUpdateDto = new CommentNumUpdateDto();
-            commentNumUpdateDto.setCommentNum(boardEntity.getCommentNum() - 1);
-            boardEntity.Update(commentNumUpdateDto);
+        //자식이 있으면 deleted == true
+        if (commentEntity.getReplies() != null){
+            commentEntity.delete();
+            decreaseBoardCommentNum(id);
+            return "임시 삭제완료";
+        }else{
+            decreaseBoardCommentNum(id);
+            commentRepository.delete(commentEntity);
+            return "삭제완료";
         }
-        commentRepository.delete(commentEntity);
-        return "삭제완료";
+
     }
     @Transactional
     public String deleteCommentOfChild(Long id,Long reId,HttpServletRequest request, HttpServletResponse response){
@@ -167,6 +175,23 @@ public class CommentService {
             throw new RuntimeException("권한이 없는 사용자 입니다");
         }
 
+        decreaseBoardCommentNum(id);
+        if (replyEntity.getParent().getDeleted()){
+            CommentEntity commentEntity = replyEntity.getParent();
+            replyRepository.delete(replyEntity);
+            em.flush();
+            em.refresh(commentEntity);
+            if (commentEntity.getReplies().isEmpty()){
+                commentRepository.delete(commentEntity);
+            }
+            return "삭제완료";
+        }
+        replyRepository.delete(replyEntity);
+
+
+        return "삭제완료";
+    }
+    public void decreaseBoardCommentNum(Long id){
         BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 게시글이 없습니다");});
         //보드 게시판의 댓글수 업데이트
         if(boardEntity.getCommentNum() > 0) {
@@ -174,8 +199,5 @@ public class CommentService {
             commentNumUpdateDto.setCommentNum(boardEntity.getCommentNum() - 1);
             boardEntity.Update(commentNumUpdateDto);
         }
-        replyRepository.delete(replyEntity);
-        return "삭제완료";
     }
-
 }

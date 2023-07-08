@@ -63,6 +63,6 @@ public class CommentController {
     @DeleteMapping("/{id}/comment/child/{re-id}")
     public String deleteCommentOfChild(@PathVariable("id") Long id, @PathVariable("re-id") Long reId,
                                         HttpServletRequest request, HttpServletResponse response){
-        return commentService.deleteCommentOfChild(id, reId,request,response);
+        return commentService.deleteCommentOfChild(id,reId,request,response);
     }
 }
