@@ -30,12 +30,6 @@ public class UserEntity extends BaseTimeEntity{
     @Column(nullable = false)
     private String userName;
     @Column
-    private String floor;
-    @Column
-    private int userLevel;
-    @Column
-    private String  job;
-    @Column
     private String password;
 
     @Column(length = 512,nullable = false)

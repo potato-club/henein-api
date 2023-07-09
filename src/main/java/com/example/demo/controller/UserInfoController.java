@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.UserMapleApi;
+import com.example.demo.dto.userchar.CharConnection;
+import com.example.demo.dto.userchar.UserMapleApi;
 import com.example.demo.dto.user.UserInfoResponseDto;
 
 import com.example.demo.dto.user.UserNicknameChange;
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -47,9 +49,11 @@ public class UserInfoController {
         return userService.userNicknameChange(request,response, userNickname);
     }
     @Operation(summary = "유저의 캐릭터 이름 요청")
-    @PostMapping("/CharacterName")
+    @PostMapping("/character-info")
     public Flux<String> getCharacterName (@RequestBody UserMapleApi userMapleApi){
         return userService.getCharacterName(userMapleApi);
     }
+    @GetMapping("/test")
+    public Mono<CharConnection> test()
 
 }

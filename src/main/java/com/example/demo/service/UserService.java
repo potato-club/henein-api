@@ -1,7 +1,6 @@
 package com.example.demo.service;
 
-import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.example.demo.dto.UserMapleApi;
+import com.example.demo.dto.userchar.UserMapleApi;
 import com.example.demo.dto.login.BasicLoginRequestDto;
 import com.example.demo.dto.login.KakaoOAuth2User;
 
@@ -20,9 +19,7 @@ import com.example.demo.repository.GuestCountRepository;
 import com.example.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -55,11 +52,16 @@ public class UserService {
     private final WebClient webClient;
     @Transactional
     public Flux<String> getCharacterName(UserMapleApi userMapleApi){
-        return webClient.post()
+        //내 heneinbackapi에서 유저 이름 리스트 받아오고
+        Flux<String> charName = webClient.post()
                 .body(Mono.just(userMapleApi),UserMapleApi.class)
                 .retrieve()
                 .bodyToFlux(String.class);
+        //이걸 호빈이한테 보내고
+
     }
+
+
 //=================필터사용
     @Transactional
     public UserEntity fetchUserEntityByHttpRequest(HttpServletRequest request, HttpServletResponse response){
