@@ -33,8 +33,8 @@ public class BoardResponseDto {
     private int recommend;
     @ApiModelProperty(value="게시글 내용", example = "테스트 내용입니다~~", required = true)
     private String text;
-    @ApiModelProperty(value="첨부된 이미지들", example = "URL 링크로 날라감", required = false)
-    private List<FileResponseDto> image;
+    @ApiModelProperty(value="사진 첨부 여부",example = "T or F",required = true)
+    private boolean hasImage;
     @ApiModelProperty(value = "추천했는지", example = "T or F")
     private boolean recommended = false;
 
@@ -46,6 +46,7 @@ public class BoardResponseDto {
         this.userInfoResponseDto = new UserInfoResponseDto(boardEntity.getUserEntity());
         this.createTime = boardEntity.getCreatedDate();
         this.views = boardEntity.getViews();
+        this.hasImage = boardEntity.isHasImage();
         this.recommend = boardEntity.getRecommend();
         this.text = boardEntity.getText();
     }
@@ -57,6 +58,7 @@ public class BoardResponseDto {
         this.userInfoResponseDto = new UserInfoResponseDto(boardEntity.getUserEntity());
         this.createTime = boardEntity.getCreatedDate();
         this.views = boardEntity.getViews();
+        this.hasImage = boardEntity.isHasImage();
         this.recommend = boardEntity.getRecommend();
         this.text = boardEntity.getText();
         this.recommended = recommended;

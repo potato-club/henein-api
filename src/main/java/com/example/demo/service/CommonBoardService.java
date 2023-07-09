@@ -20,7 +20,12 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +33,7 @@ public class CommonBoardService {
     private final BoardRepository boardRepository;
     private final RecommandRepository recommandRepository;
     private final UserService userService;
+    private final S3Service s3Service;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
     private final S3FileRespository s3FileRespository;
@@ -58,6 +64,47 @@ public class CommonBoardService {
         BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 게시글 정보가 없습니다");});
         if (boardEntity.getUserEntity().getUserEmail() != userEntity.getUserEmail()){
             throw new RuntimeException("게시글 수정 권한이 없습니다.");
+        }
+
+        //이미지 파일 첨부되어있는지 문자열 슬라이싱
+        String regex = "(https://henesys-bucket.s3.ap-northeast-2.amazonaws.com/.*?\\.jpg)";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(testDto.getText());
+
+        List<String> imagesUrl = new ArrayList<>();
+        while (matcher.find()){
+            imagesUrl.add(matcher.group(1));
+        }
+        //이미지가 없으면 연결되어 있던 사진entity들 non_use로 처리
+        if(imagesUrl.isEmpty() && boardEntity.isHasImage()){
+            List<S3File> fileList = s3FileRespository.findAllByTypeId(id);
+            fileList.stream().forEach(s3File -> s3File.setEntityData(S3EntityType.NON_USED,null));
+            boardEntity.setHasImage(false);
+        }
+        //이미지가 있으면 해당 이미지를 사용중인거로 업데이트
+        //1. 현재 게시판에 맵핑되어있는 엔티티들 긁어오고
+        //2. url로 매칭되는 엔티티 다 긁어오고
+        //3. id로 게시글에 맵핑된거 다 긁어오고
+        //4. 행동 수행
+        else if (imagesUrl != null){
+            boardEntity.setHasImage(true);
+            List<S3File> savedList = s3FileRespository.findAllByTypeId(id);
+            List<S3File> findList = new ArrayList<>();
+            for (int i = 0; i < imagesUrl.size();i++){
+                findList.add(s3FileRespository.findByFileUrl(imagesUrl.get(i)));
+            }
+            // 이런 비교를 위해서는 Set이 좋다
+            Set<S3File> savedSet = new HashSet<>(savedList);
+            Set<S3File> findSet = new HashSet<>(findList);
+            // 저장해야될것 리스트
+            Set<S3File> toBeAdded = new HashSet<>(findSet);
+            toBeAdded.removeAll(savedSet);
+            // 삭제해야될 리스트
+            Set<S3File> toBeRemoved = new HashSet<>(savedSet);
+            toBeRemoved.removeAll(findSet);
+            //행동 수행
+            toBeAdded.stream().forEach(s3File -> s3File.setEntityData(S3EntityType.BOARD,id));
+            toBeRemoved.stream().forEach(s3File -> s3File.setEntityData(S3EntityType.NON_USED,id));
         }
 
         boardEntity.Update(testDto);

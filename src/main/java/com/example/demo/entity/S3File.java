@@ -21,7 +21,7 @@ public class S3File extends BaseTimeEntity{
     @Column(name = "file_name")
     private String fileName;
 
-    @Column(name = "file_url")
+    @Column(unique = true, name = "file_url")
     private String fileUrl;
 
     @Enumerated(EnumType.STRING)
