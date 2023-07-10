@@ -57,7 +57,12 @@ public class UserInfoController {
     //////////node/////
     @PostMapping("/test")
     public String test(@RequestBody NodeConnection nodeConnection){
-
+        log.info(nodeConnection.getId()+"\n"+
+                        nodeConnection.getUserCharDto().getNickname()+"\n"+
+                nodeConnection.getUserCharDto().getExperience()+"\n"+
+                nodeConnection.getUserCharDto().getAvatar()+"\n"+
+                nodeConnection.getUserCharDto().getWorld()
+                );
         return "보내준 데이터의 nickname은: "+nodeConnection.getUserCharDto().getNickname();
     }
 
