@@ -49,11 +49,11 @@ public class UserInfoController {
         }
         return userService.userNicknameChange(request,response, userNickname);
     }
-    @Operation(summary = "유저의 캐릭터 이름 요청")
-    @PostMapping("/character-info")
-    public Flux<String> getCharacterName (@RequestBody UserMapleApi userMapleApi){
-        return userService.getCharacterName(userMapleApi);
-    }
+//    @Operation(summary = "유저의 캐릭터 이름 요청")
+//    @PostMapping("/character-info")
+//    public Flux<String> getCharacterName (@RequestBody UserMapleApi userMapleApi){
+//        return userService.getCharacterName(userMapleApi);
+//    }
     //////////node/////
     @PostMapping("/test")
     public String test(@RequestBody NodeConnection nodeConnection){

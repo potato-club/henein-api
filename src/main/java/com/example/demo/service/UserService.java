@@ -50,16 +50,16 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     private final WebClient webClient;
-    @Transactional
-    public Flux<String> getCharacterName(UserMapleApi userMapleApi){
-        //내 heneinbackapi에서 유저 이름 리스트 받아오고
-        Flux<String> charName = webClient.post()
-                .body(Mono.just(userMapleApi),UserMapleApi.class)
-                .retrieve()
-                .bodyToFlux(String.class);
-        //이걸 호빈이한테 보내고
-
-    }
+//    @Transactional
+//    public Flux<String> getCharacterName(UserMapleApi userMapleApi){
+//        //내 heneinbackapi에서 유저 이름 리스트 받아오고
+//        Flux<String> charName = webClient.post()
+//                .body(Mono.just(userMapleApi),UserMapleApi.class)
+//                .retrieve()
+//                .bodyToFlux(String.class);
+//        //이걸 호빈이한테 보내고
+//
+//    }
 
 
 //=================필터사용
