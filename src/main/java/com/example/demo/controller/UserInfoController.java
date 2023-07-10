@@ -55,7 +55,7 @@ public class UserInfoController {
         return userService.getCharacterName(userMapleApi);
     }
     //////////node/////
-    @GetMapping("/test")
+    @PostMapping("/test")
     public String test(@RequestBody NodeConnection nodeConnection){
 
         return "보내준 데이터의 nickname은: "+nodeConnection.getUserCharDto().getNickname();
