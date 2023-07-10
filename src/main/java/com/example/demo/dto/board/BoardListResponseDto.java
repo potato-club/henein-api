@@ -22,8 +22,6 @@ public class BoardListResponseDto {
     private int commentNum;
     @ApiModelProperty(value="게시글 작성자", example = "테스트 글쓴이", required = true)
     private String userName;
-    @ApiModelProperty(value = "작성자 추가정보", example = "50층")
-    private String userFloor;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime createTime;
     @ApiModelProperty(value="조회수", example = "정수값", required = true)
@@ -34,7 +32,6 @@ public class BoardListResponseDto {
         this.title = boardEntity.getTitle();
         this.commentNum = boardEntity.getCommentNum();
         this.userName = boardEntity.getUserEntity().getUserName();
-        this.userFloor = boardEntity.getUserEntity().getFloor();
         this.createTime = boardEntity.getCreatedDate();
         this.views = boardEntity.getViews();
     }
