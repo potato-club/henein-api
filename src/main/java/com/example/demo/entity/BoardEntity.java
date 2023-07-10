@@ -58,8 +58,8 @@ public class BoardEntity extends BaseTimeEntity{
         this.boardType = board;
     }
 
-    public void setHasImage() {
-        this.hasImage = true;
+    public void setHasImage(boolean value) {
+        this.hasImage = value;
     }
 
     public void Update(TestDto testDto){

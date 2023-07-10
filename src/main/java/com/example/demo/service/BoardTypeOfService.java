@@ -95,10 +95,10 @@ public class BoardTypeOfService {
         }
         //이미지가 있으면 해당 이미지를 사용중인거로 업데이트
         if (imagesUrl != null){
-            savedBoard.setHasImage();
+            savedBoard.setHasImage(true);
             s3Service.changeImageInfo(imagesUrl, S3EntityType.BOARD, savedBoard.getId());
         }
-        // 이제 파일 다운로드 완성해야함
+
         return "저장 완료";
     }
 
