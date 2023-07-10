@@ -3,7 +3,7 @@ package com.example.demo.dto.userchar;
 import lombok.Getter;
 
 @Getter
-public class CharConnection {
+public class UserCharDto {
     String id;
     Long experience;
     String avatar;

@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.userchar.CharConnection;
+import com.example.demo.dto.userchar.NodeConnection;
+import com.example.demo.dto.userchar.UserCharDto;
 import com.example.demo.dto.userchar.UserMapleApi;
 import com.example.demo.dto.user.UserInfoResponseDto;
 
@@ -53,7 +54,11 @@ public class UserInfoController {
     public Flux<String> getCharacterName (@RequestBody UserMapleApi userMapleApi){
         return userService.getCharacterName(userMapleApi);
     }
+    //////////node/////
     @GetMapping("/test")
-    public Mono<CharConnection> test()
+    public String test(@RequestBody NodeConnection nodeConnection){
+
+        return "보내준 데이터의 nickname은: "+nodeConnection.getUserCharDto().getNickname();
+    }
 
 }
