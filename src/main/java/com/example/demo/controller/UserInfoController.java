@@ -1,8 +1,6 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.userchar.NodeConnection;
-import com.example.demo.dto.userchar.UserCharDto;
-import com.example.demo.dto.userchar.UserMapleApi;
 import com.example.demo.dto.user.UserInfoResponseDto;
 
 import com.example.demo.dto.user.UserNicknameChange;
@@ -17,8 +15,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -58,12 +54,13 @@ public class UserInfoController {
     @PostMapping("/test")
     public String test(@RequestBody NodeConnection nodeConnection){
         log.info(nodeConnection.getId()+"\n"+
-                        nodeConnection.getUserCharDto().getNickname()+"\n"+
-                nodeConnection.getUserCharDto().getExperience()+"\n"+
-                nodeConnection.getUserCharDto().getAvatar()+"\n"+
-                nodeConnection.getUserCharDto().getWorld()
+                        nodeConnection.getCharacter().getNickname()+"\n"+
+                nodeConnection.getCharacter().getExperience()+"\n"+
+                nodeConnection.getCharacter().getAvatar()+"\n"+
+                nodeConnection.getCharacter().getWorld()
                 );
-        return "보내준 데이터의 nickname은: "+nodeConnection.getUserCharDto().getNickname();
+        return "보내준 데이터의 nickname은: "+nodeConnection.getCharacter().getNickname();
     }
+
 
 }

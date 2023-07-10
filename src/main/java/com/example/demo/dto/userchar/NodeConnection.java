@@ -5,5 +5,5 @@ import lombok.Getter;
 @Getter
 public class NodeConnection {
     String id;
-    UserCharDto userCharDto;
+    character character;
 }
