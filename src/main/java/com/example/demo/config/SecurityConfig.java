@@ -54,7 +54,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 // .antMatchers(HttpMethod.POST,"/board/recommend").hasAnyAuthority("USER","ADMIN")
                 .antMatchers(HttpMethod.OPTIONS,"/**").permitAll()//userinfo불러올때의 CORS를 해결하기 위해 OPTIONS에 대한 설정함
-                .anyRequest().permitAll()
+                .antMatchers("/userinfo/test").permitAll()
+                .antMatchers("/auth/login").permitAll()
+                .antMatchers("/auth/login/**").permitAll()
+                .antMatchers(HttpMethod.GET,"/board/**").permitAll() // /board/**에 대한 GET 요청을 허용합니다.
+                .antMatchers("/board/**").authenticated()
+                .anyRequest().authenticated()
 
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)

@@ -34,10 +34,6 @@ public class BoardController {
     private final BoardTypeOfService boardTypeOfService;
     private final S3Service s3Service;
 
-    @PostMapping("/test")
-    public String test(@RequestBody BoardIdRequestDTO boardIdRequestDTO){
-        return "들어왔네";
-    }
 
 
     @ApiImplicitParams({
