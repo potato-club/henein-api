@@ -1,6 +1,5 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.userchar.UserMapleApi;
 import com.example.demo.dto.login.BasicLoginRequestDto;
 import com.example.demo.dto.login.KakaoOAuth2User;
 
@@ -17,6 +16,7 @@ import com.example.demo.jwt.KakaoOAuth2AccessTokenResponse;
 import com.example.demo.jwt.KakaoOAuth2Client;
 import com.example.demo.repository.GuestCountRepository;
 import com.example.demo.repository.UserRepository;
+import com.example.demo.service.jwtservice.KakaoOAuth2UserDetailsServcie;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -27,8 +27,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

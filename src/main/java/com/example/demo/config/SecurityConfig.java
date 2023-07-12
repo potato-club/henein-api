@@ -1,51 +1,39 @@
 package com.example.demo.config;
 
 import com.example.demo.jwt.JwtAuthenticationFilter;
-import com.example.demo.jwt.JwtTokenProvider;
 import com.example.demo.jwt.KakaoOAuth2Client;
-import com.example.demo.service.KakaoOAuth2UserDetailsServcie;
-import com.example.demo.service.UserDetailsServiceImpl;
+import com.example.demo.service.jwtservice.KakaoOAuth2UserDetailsServcie;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.client.RestTemplate;
 
-import javax.servlet.http.HttpServletResponse;
-
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(securedEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    private final JwtTokenProvider jwtTokenProvider;
     private final KakaoOAuth2UserDetailsServcie kakaoOAuth2UserDetailsService;
-    private final UserDetailsServiceImpl userDetailsService;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @Bean
-    @Override
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
-    }
-
-
-    @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(userDetailsService, jwtTokenProvider);
-    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http
+        http.httpBasic().disable()
                 .csrf().disable()
+                .cors()
+                .and()
                 .formLogin().disable()
                 .logout()
                 .logoutSuccessUrl("/")
@@ -64,10 +52,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter, BasicAuthenticationFilter.class)
                 .exceptionHandling()
-                .authenticationEntryPoint((request, response, authException) ->
-                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized 바보야"));
+                .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
 
     }
 
