@@ -54,6 +54,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 // .antMatchers(HttpMethod.POST,"/board/recommend").hasAnyAuthority("USER","ADMIN")
                 .antMatchers(HttpMethod.OPTIONS,"/**").permitAll()//userinfo불러올때의 CORS를 해결하기 위해 OPTIONS에 대한 설정함
+                .antMatchers("/swagger-ui/**").permitAll()
                 .antMatchers("/userinfo/test").permitAll()
                 .antMatchers("/auth/login").permitAll()
                 .antMatchers("/auth/login/**").permitAll()
