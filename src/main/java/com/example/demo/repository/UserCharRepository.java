@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface UserCharRepository extends JpaRepository<UserCharEntity,Long> {
 
-    Optional<UserCharEntity> findByCharName(String charName);
-    boolean existsByCharName(String charName);
+    Optional<UserCharEntity> findByNickName(String nickName);
+    boolean existsByNickName(String nickName);
 
 }

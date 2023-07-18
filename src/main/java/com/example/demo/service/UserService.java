@@ -133,7 +133,7 @@ public class UserService {
     }
     @Transactional
     public String requestUpdateToNode(String userCharName){
-        UserCharEntity userCharEntity = userCharRepository.findByCharName(userCharName)
+        UserCharEntity userCharEntity = userCharRepository.findByNickName(userCharName)
                 .orElseThrow(()->{throw new NotFoundException(ErrorCode.NULL_VALUE,ErrorCode.NULL_VALUE.getMessage());});
         //요청 보내기전에 1시간 시간 제한 걸어야함 레디스 유효시간 1시간임
         if (null == redisService.checkRedis(userCharName))
@@ -155,10 +155,10 @@ public class UserService {
     }
     @Transactional
     public String responseToRedisAndUpdate(NodeConnection nodeConnection){
-        if (!userCharRepository.existsByCharName(nodeConnection.getCharacter().getNickname())){
+        if (!userCharRepository.existsByNickName(nodeConnection.getCharacter().getNickname())){
             throw new NotFoundException(ErrorCode.NULL_VALUE,ErrorCode.NULL_VALUE.getMessage());
         }
-        UserCharEntity userCharEntity = userCharRepository.findByCharName(nodeConnection.getCharacter().getNickname())
+        UserCharEntity userCharEntity = userCharRepository.findByNickName(nodeConnection.getCharacter().getNickname())
                 .orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND,ErrorCode.NOT_FOUND.getMessage());});
 
         userCharEntity.update(nodeConnection.getCharacter());
