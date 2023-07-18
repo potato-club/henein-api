@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.userchar.NodeConnection;
 import com.example.demo.dto.userchar.UserMapleApi;
 import com.example.demo.dto.login.BasicLoginRequestDto;
 import com.example.demo.dto.login.KakaoOAuth2User;
@@ -7,15 +8,18 @@ import com.example.demo.dto.login.KakaoOAuth2User;
 import com.example.demo.dto.user.UserInfoResponseDto;
 import com.example.demo.dto.user.UserNicknameChange;
 import com.example.demo.entity.GuestCountEntity;
+import com.example.demo.entity.UserCharEntity;
 import com.example.demo.entity.UserEntity;
 import com.example.demo.enumCustom.UserRole;
 import com.example.demo.error.ErrorCode;
 import com.example.demo.error.exception.AuthenticationException;
 import com.example.demo.error.exception.DuplicateException;
+import com.example.demo.error.exception.NotFoundException;
 import com.example.demo.jwt.JwtTokenProvider;
 import com.example.demo.jwt.KakaoOAuth2AccessTokenResponse;
 import com.example.demo.jwt.KakaoOAuth2Client;
 import com.example.demo.repository.GuestCountRepository;
+import com.example.demo.repository.UserCharRepository;
 import com.example.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +30,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -35,31 +40,26 @@ import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final UserCharRepository userCharRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final KakaoOAuth2UserDetailsServcie kakaoOAuth2UserDetailsServcie;
     private final KakaoOAuth2Client kakaoOAuth2Client;
     private final GuestCountRepository guestCountRepository;
     private final PasswordEncoder passwordEncoder;
-
-    private final WebClient webClient;
-//    @Transactional
-//    public Flux<String> getCharacterName(UserMapleApi userMapleApi){
-//        //내 heneinbackapi에서 유저 이름 리스트 받아오고
-//        Flux<String> charName = webClient.post()
-//                .body(Mono.just(userMapleApi),UserMapleApi.class)
-//                .retrieve()
-//                .bodyToFlux(String.class);
-//        //이걸 호빈이한테 보내고
-//
-//    }
+    private final WebClient infoWebClient;
+    private final WebClient cubeWebClient;
+    private final RedisService redisService;
 
 
 //=================필터사용
@@ -109,6 +109,61 @@ public class UserService {
         userEntity.Update(userNickname);
         userRepository.save(userEntity);
         return "유저 이름 설정 완료";
+    }
+
+
+    public Mono<List<String>> requestToNexon(HttpServletRequest request,UserMapleApi userMapleApi){
+        String accessToken = jwtTokenProvider.resolveAccessToken(request);
+        UserEntity userEntity = userRepository.findByUserEmail(jwtTokenProvider.getUserEmailFromAccessToken(accessToken))
+                .orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND,ErrorCode.NOT_FOUND.getMessage());
+        });
+        return this.cubeWebClient.post()
+                .body(BodyInserters.fromValue(userMapleApi))
+                .retrieve()
+                .bodyToFlux(String.class)
+                .collectList()
+                .flatMap(result -> {
+                    List<UserCharEntity> userCharEntityList = new ArrayList<>();
+                    for(String charName : result){
+                        userCharEntityList.add(new UserCharEntity(userEntity,charName));
+                    }
+                    userCharRepository.saveAll(userCharEntityList);
+                    return Mono.just(result);
+                });
+    }
+    @Transactional
+    public String requestUpdateToNode(String userCharName){
+        UserCharEntity userCharEntity = userCharRepository.findByCharName(userCharName)
+                .orElseThrow(()->{throw new NotFoundException(ErrorCode.NULL_VALUE,ErrorCode.NULL_VALUE.getMessage());});
+        //요청 보내기전에 1시간 시간 제한 걸어야함 레디스 유효시간 1시간임
+        if (null == redisService.checkRedis(userCharName))
+            throw new RuntimeException(); // 몇분 남았는지도 알려줘야함
+
+        // 요청 보내기
+        String callback = "https://henesysback.shop/userinfo/user-char";
+        String result = this.infoWebClient.put()
+                .uri(userCharName)
+                .body(BodyInserters.fromValue(callback))
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+        //거절시 null로 오나? 확인해야함
+        if (result == null){
+            throw new RuntimeException();
+        }
+        return redisService.setWorkStatus(userCharName);
+    }
+    @Transactional
+    public String responseToRedisAndUpdate(NodeConnection nodeConnection){
+        if (!userCharRepository.existsByCharName(nodeConnection.getCharacter().getNickname())){
+            throw new NotFoundException(ErrorCode.NULL_VALUE,ErrorCode.NULL_VALUE.getMessage());
+        }
+        UserCharEntity userCharEntity = userCharRepository.findByCharName(nodeConnection.getCharacter().getNickname())
+                .orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND,ErrorCode.NOT_FOUND.getMessage());});
+
+        userCharEntity.update(nodeConnection.getCharacter());
+
+        return redisService.updateWork(nodeConnection.getCharacter().getNickname());
     }
 
     //==================로그인 관련
