@@ -49,16 +49,16 @@ public class UserInfoController {
         return userService.userNicknameChange(request,response, userNickname);
     }
     @Operation(summary = "단일 캐릭터 정보갱신 요청")
-    @GetMapping("/user-char")
+    @GetMapping("/character/renew")
     public String requestUpdateChar(@RequestParam String Name){
         return userService.requestUpdateToNode(Name);
     }
     @Operation(summary = "유저가 가지고있는 캐릭터 불러오기" )
-    @PostMapping("/user-char/renew") Mono<List<String>> requestNexon(@RequestBody HttpServletRequest request, UserMapleApi userMapleApi){
+    @PostMapping("/character/all") Mono<List<String>> requestNexon(@RequestBody UserMapleApi userMapleApi,HttpServletRequest request){
         return userService.requestToNexon(request,userMapleApi);
     }
     @Operation(summary = "노드에서 spring으로 요청할 api")
-    @PostMapping("/char-info")
+    @PostMapping("/character/info")
     public String test(@RequestBody NodeConnection nodeConnection){
 
         return userService.responseToRedisAndUpdate(nodeConnection);
