@@ -23,6 +23,7 @@ import com.example.demo.repository.UserCharRepository;
 import com.example.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -120,12 +121,11 @@ public class UserService {
         return this.cubeWebClient.post()
                 .body(BodyInserters.fromValue(userMapleApi))
                 .retrieve()
-                .bodyToFlux(String.class)
-                .collectList()
+                .bodyToMono(new ParameterizedTypeReference<List<String>>() {})
                 .flatMap(result -> {
                     List<UserCharEntity> userCharEntityList = new ArrayList<>();
-                    for(String charName : result){
-                        userCharEntityList.add(new UserCharEntity(userEntity,charName));
+                    for(int i = 0; i < result.size(); i++){
+                        userCharEntityList.add(new UserCharEntity(userEntity,result.get(i)));
                     }
                     userCharRepository.saveAll(userCharEntityList);
                     return Mono.just(result);
@@ -136,11 +136,11 @@ public class UserService {
         UserCharEntity userCharEntity = userCharRepository.findByNickName(userCharName)
                 .orElseThrow(()->{throw new NotFoundException(ErrorCode.NULL_VALUE,ErrorCode.NULL_VALUE.getMessage());});
         //요청 보내기전에 1시간 시간 제한 걸어야함 레디스 유효시간 1시간임
-        if (null == redisService.checkRedis(userCharName))
+        if (null != redisService.checkRedis(userCharName))
             throw new RuntimeException(); // 몇분 남았는지도 알려줘야함
 
         // 요청 보내기
-        String callback = "https://henesysback.shop/userinfo/user-char";
+        String callback = "https://henesysback.shop/userinfo/character/info";
         String result = this.infoWebClient.put()
                 .uri(userCharName)
                 .body(BodyInserters.fromValue(callback))

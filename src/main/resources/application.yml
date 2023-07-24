@@ -11,12 +11,14 @@ spring:
     throw-exception-if-no-handler-found: true
     resources:
       add-mappings: false
+    async:
+      request-timeout: 50000 #50초
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
     url: ENC(y5VWweetnD3HUYNhspc/fmIAubWb5/vnuFvo8mJUNBer4/fgF+k3/59WKqtLbkOSEh3C+7MWeF4x0uG3reGKVwGs3TumGUDnKMqsDpPLDrHOKJAIbR3rR5hqsPnC4hJA2xXrL3GKRYU=)
     username: ENC(hDAIPDGZvre5weuKbukh/A==)
     password: ENC(Q7vyLWNw9RPKcvNOsVtveR5jNDgiRoJU)
-#  s3--
+  #  s3--
   servlet:
     multipart:
       max-file-size: 10MB

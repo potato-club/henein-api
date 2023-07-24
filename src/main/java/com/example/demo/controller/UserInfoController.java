@@ -50,8 +50,8 @@ public class UserInfoController {
     }
     @Operation(summary = "단일 캐릭터 정보갱신 요청")
     @GetMapping("/character/renew")
-    public String requestUpdateChar(@RequestParam String Name){
-        return userService.requestUpdateToNode(Name);
+    public String requestUpdateChar(@RequestParam String name){
+        return userService.requestUpdateToNode(name);
     }
     @Operation(summary = "유저가 가지고있는 캐릭터 불러오기" )
     @PostMapping("/character/all") Mono<List<String>> requestNexon(@RequestBody UserMapleApi userMapleApi,HttpServletRequest request){
