@@ -178,7 +178,7 @@ public class UserService {
 
         String accessToken = jwtTokenProvider.generateAccessToken(basicLoginRequestDto.getUserEmail());
         String refreshToken = jwtTokenProvider.generateRefreshToken(basicLoginRequestDto.getUserEmail());
-
+        userEntity.setRefreshToken(refreshToken);
         response.setHeader("Authorization","Bearer " + accessToken);
         response.setHeader("RefreshToken","Bearer "+ refreshToken);
         return ResponseEntity.ok("로그인 성공");
