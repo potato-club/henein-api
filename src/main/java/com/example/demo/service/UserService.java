@@ -96,7 +96,7 @@ public class UserService {
         response.setHeader("Authorization", "Bearer " + newAccessToken);
 
         // Optionally, return the new access token in the response body as well
-        return ResponseEntity.ok(newAccessToken);
+        return ResponseEntity.ok("good");
     }
     //===============마이페이지 관련
     @Transactional
