@@ -11,7 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface BoardRepository extends JpaRepository<BoardEntity, Long> {
-    public Page<BoardEntity> findByBoardType(BoardType boardType,Pageable pageable);
+    public Page<BoardEntity> findByBoardTypeOrderByIdDesc(BoardType boardType,Pageable pageable);
     @Query("SELECT b FROM BoardEntity b WHERE NOT b.boardType = com.example.demo.enumCustom.BoardType.Notice ORDER BY b.id DESC")
     public Page<BoardEntity> findAllNotNotice(Pageable pageable);
     //public List<BoardEntity> findAllNotNotice(@Param("boardType") BoardType boardType);

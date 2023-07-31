@@ -4,6 +4,7 @@ import com.example.demo.dto.userchar.NodeConnection;
 import com.example.demo.dto.user.UserInfoResponseDto;
 
 import com.example.demo.dto.user.UserNicknameChange;
+import com.example.demo.dto.userchar.UserMapleApi;
 import com.example.demo.error.ErrorCode;
 import com.example.demo.error.exception.NotFoundException;
 import com.example.demo.service.UserService;
@@ -15,10 +16,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 
 @RestController
@@ -28,13 +31,13 @@ import java.io.UnsupportedEncodingException;
 @Slf4j
 public class UserInfoController {
     private final UserService userService;
+
     @Operation(summary = "유저 정보에 대한 요청 API [보안]")
     @GetMapping
     public UserInfoResponseDto userInfo(HttpServletRequest request, HttpServletResponse response){
         log.info("유저컨트롤러진입----------------------------------------------");
         return userService.userInfo(request, response);
     }
-    //@Tag(name = "신규유저 이름변경처리", description = "username: 변경할 이름")
     @Operation(summary = "유저 이름 변경 API")
     @PutMapping("/set-name")
     public String userNicknameChange(@RequestBody UserNicknameChange userNickname, HttpServletRequest request , HttpServletResponse response) throws UnsupportedEncodingException {
@@ -45,22 +48,20 @@ public class UserInfoController {
         }
         return userService.userNicknameChange(request,response, userNickname);
     }
-//    @Operation(summary = "유저의 캐릭터 이름 요청")
-//    @PostMapping("/Character-info")
-//    public Flux<String> getCharacterName (@RequestBody UserMapleApi userMapleApi){
-//        return userService.getCharacterName(userMapleApi);
-//    }
-    //////////node/////
-    @PostMapping("/test")
-    public String test(@RequestBody NodeConnection nodeConnection){
-        log.info(nodeConnection.getId()+"\n"+
-                        nodeConnection.getCharacter().getNickname()+"\n"+
-                nodeConnection.getCharacter().getExperience()+"\n"+
-                nodeConnection.getCharacter().getAvatar()+"\n"+
-                nodeConnection.getCharacter().getWorld()
-                );
-        return "보내준 데이터의 nickname은: "+nodeConnection.getCharacter().getNickname();
+    @Operation(summary = "단일 캐릭터 정보갱신 요청")
+    @GetMapping("/character/renew")
+    public String requestUpdateChar(@RequestParam String name){
+        return userService.requestUpdateToNode(name);
     }
+    @Operation(summary = "유저가 가지고있는 캐릭터 불러오기" )
+    @PostMapping("/character/all") Mono<List<String>> requestNexon(@RequestBody UserMapleApi userMapleApi,HttpServletRequest request){
+        return userService.requestToNexon(request,userMapleApi);
+    }
+    @Operation(summary = "노드에서 spring으로 요청할 api")
+    @PostMapping("/character/info")
+    public String test(@RequestBody NodeConnection nodeConnection){
 
+        return userService.responseToRedisAndUpdate(nodeConnection);
+    }
 
 }

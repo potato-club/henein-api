@@ -1,0 +1,74 @@
+server:
+  port: 8080
+
+
+spring:
+  redis:
+    host: localhost
+    port: 6379
+    timeout: 6000
+  mvc:
+    throw-exception-if-no-handler-found: true
+    resources:
+      add-mappings: false
+    async:
+      request-timeout: 50000 #50초
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: ENC(y5VWweetnD3HUYNhspc/fmIAubWb5/vnuFvo8mJUNBer4/fgF+k3/59WKqtLbkOSEh3C+7MWeF4x0uG3reGKVwGs3TumGUDnKMqsDpPLDrHOKJAIbR3rR5hqsPnC4hJA2xXrL3GKRYU=)
+    username: ENC(hDAIPDGZvre5weuKbukh/A==)
+    password: ENC(Q7vyLWNw9RPKcvNOsVtveR5jNDgiRoJU)
+  #  s3--
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: update
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: ENC(CALcFsN0WlLg29qzPjQHBvAbVs0sNy3epQ/iWKZssz8upPfcBDwVR9eMBH38Wzc4)
+            redirect-uri: http://localhost:8080/auth/login/kakao
+            authorization-grant-type: authorization_code
+            client-authentication-method: POST
+            client_name: Kakao
+            scope:
+              - account_email
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+
+jwt:
+  secret:
+    ENC(gSd1QCnq05LyByOTvaIGKcp+XyHp6M4F3XhfK4xwlPz3BOyp85rUpRKK7GyD0jc0kvMS+1CCgwKsFZrBPN/kkJ6WCJlJRijzA18xOwN8rmFrMFxrLLhn0zKrr8MW5GF+N8UcvTUBF3PfxBnvay8B1WJFh1N4oeGc)
+  access-expriation : 1800000 #30분 1800000
+  refresh-expriation : 604800000 #1주 604800000
+#s3--
+cloud:
+  aws:
+    credentials:
+      access-key: ENC(GxdX1Ohy8xayK46aGUQuMpo6WEnokbnk1bAgRPYowxk=)
+      secret-key: ENC(BZLsQluNbA2bnGhQYOYkFrmhCXLn53HKuJ17BJ16iI4Au5DYGYziqywTc7vG4KdxmQkli25eRHE=)
+    region:
+      auto: false
+      static: ap-northeast-2 #버킷의 리전
+    s3:
+      bucket: ENC(krIrpzTvEeA+rBBK+m5m+NiDTTpouBnT) #버킷 이름
+    stack:
+      auto: true
+#      cloud:stack:auto:false는 AWS Elastic Beanstalk에서 환경 스택을 생성할 때 사용하는 옵션 중 하나입니다.
+#      기본적으로 Elastic Beanstalk은 AWS CloudFormation을 사용하여 환경 스택을 자동으로 생성합니다.
+#      이때 cloud:stack:auto:true 옵션이 기본값으로 사용되며,
+#      이 옵션을 사용하면 Elastic Beanstalk이 CloudFormation 스택을 자동으로 생성하고 관리합니다.
+jasypt:
+  encryptor:
+    bean: jasyptStringEncryptor

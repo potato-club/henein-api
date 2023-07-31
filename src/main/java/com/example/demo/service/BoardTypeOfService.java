@@ -53,7 +53,7 @@ public class BoardTypeOfService {
             case 65: board = BoardType.Advertise; break;
             case 66: board = BoardType.Boss; break;
             case 69: {Page<BoardEntity> boardEntityList = boardRepository.findAllNotNotice(pageRequest);
-                return new PageImpl<>(boardEntityList.stream().map(BoardListResponseDto::new).collect(Collectors.toList()));}
+                return new PageImpl<>(boardEntityList.getContent().stream().map(BoardListResponseDto::new).collect(Collectors.toList()), pageRequest, boardEntityList.getTotalElements());}
             case 70: board = BoardType.Free; break;
             case 72: board = BoardType.Humor; break;
             case 73: board = BoardType.Info; break;
@@ -61,8 +61,8 @@ public class BoardTypeOfService {
             default: throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION,ErrorCode.NOT_FOUND_EXCEPTION.getMessage());
         }
 
-        Page<BoardEntity> boardEntityList = boardRepository.findByBoardType(board,pageRequest);
-        return new PageImpl<>(boardEntityList.stream().map(BoardListResponseDto::new).collect(Collectors.toList()));
+        Page<BoardEntity> boardEntityList = boardRepository.findByBoardTypeOrderByIdDesc(board,pageRequest);
+        return new PageImpl<>(boardEntityList.getContent().stream().map(BoardListResponseDto::new).collect(Collectors.toList()), pageRequest, boardEntityList.getTotalElements());
     }
 
     //===================================================================================================
