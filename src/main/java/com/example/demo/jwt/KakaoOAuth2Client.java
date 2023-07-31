@@ -4,12 +4,15 @@ import com.example.demo.dto.login.KakaoOAuth2User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.io.IOException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-
+@Service
+@RequiredArgsConstructor
 public class KakaoOAuth2Client {
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
     private String kakaoClientId;
@@ -21,11 +24,6 @@ public class KakaoOAuth2Client {
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
-
-    public KakaoOAuth2Client() {
-        restTemplate = new RestTemplate();
-        objectMapper = new ObjectMapper();
-    }
 
     public KakaoOAuth2AccessTokenResponse getAccessToken(String code) {
         String accessTokenUrl = KAKAO_OAUTH_BASE_URL + "/oauth/token";

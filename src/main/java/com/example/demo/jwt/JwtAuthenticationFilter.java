@@ -7,6 +7,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -14,9 +15,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 @Slf4j
 @RequiredArgsConstructor
+@Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
@@ -34,7 +37,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 헤더에서 Token을 따옴
         String accessToken = jwtTokenProvider.resolveAccessToken(request);
 
-        log.info("jwt필터진입");
+        log.info("jwt필터진입"+ LocalDateTime.now().getMinute());
         if (accessToken != null && jwtTokenProvider.validateToken(response, accessToken)) {
             String email = jwtTokenProvider.getUserEmailFromAccessToken(accessToken);
             UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(email);
@@ -46,4 +49,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
+
 }

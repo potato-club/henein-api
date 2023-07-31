@@ -29,8 +29,6 @@ public class JwtTokenProvider {
     @Value("${jwt.refresh-expriation}")
     private long refreshTokenExpiration;
 
-    //토큰 생성 메서드 구현
-    //AT 구현
 
     public String generateAccessToken(String email) {
         Date now = new Date();
