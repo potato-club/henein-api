@@ -1,6 +1,7 @@
 package com.example.demo.jwt;
 
 import com.example.demo.error.ErrorCode;
+import com.example.demo.error.exception.JwtException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
@@ -72,6 +73,8 @@ public class JwtTokenProvider {
        try {
            String temp = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
            return temp;
+       } catch (ExpiredJwtException e) {
+           throw new JwtException("토큰이 만료되었습니다.",101);
        } catch (NullPointerException e) {
            return null;
        }
@@ -87,7 +90,7 @@ public class JwtTokenProvider {
             Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
             return true;
         } catch (ExpiredJwtException e) {
-            response.addHeader("exception", String.valueOf(ErrorCode.EXPIRED_TOKEN.getCode()));
+            throw new JwtException("토큰이 만료되었습니다.",101);
         } catch (SignatureException e) {
             response.addHeader("exception", String.valueOf(ErrorCode.INVALID_TOKEN.getCode()));
         } catch (UnsupportedJwtException e) {

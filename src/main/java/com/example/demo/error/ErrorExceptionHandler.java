@@ -1,19 +1,29 @@
 package com.example.demo.error;
 
-import com.example.demo.error.exception.AuthenticationException;
-import com.example.demo.error.exception.DuplicateException;
-import com.example.demo.error.exception.LoginFailedException;
-import com.example.demo.error.exception.NotValidException;
+import com.example.demo.error.exception.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
-@ControllerAdvice
+@RestControllerAdvice
 public class ErrorExceptionHandler {
+
+  @ExceptionHandler(RuntimeException.class)
+  public ResponseEntity<Map<String, Object>> handleJwtException(JwtException e) {
+    Map<String, Object> errorResponse = new HashMap<>();
+    errorResponse.put("errorCode", e.getErrorCode());
+    errorResponse.put("errorMessage", e.getMessage());
+
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+  }
 
   @ExceptionHandler(AuthenticationException.class)
   public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException ex) {
