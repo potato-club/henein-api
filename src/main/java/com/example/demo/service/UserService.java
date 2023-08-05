@@ -33,6 +33,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.util.UriUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -41,6 +44,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -139,8 +144,14 @@ public class UserService {
         if (null != redisService.checkRedis(userCharName))
             throw new RuntimeException(); // 몇분 남았는지도 알려줘야함
 
+        Map<String, String> callback = new HashMap<>();
+        callback.put("callback", "https://henesysback.shop/userinfo/character/info");
         // 요청 보내기
-        String callback = "https://henesysback.shop/userinfo/character/info";
+//        URI uri = URI.create(userCharName);
+//        String baseUri = "https://info.henein.kr/v1/character/";
+//        UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(baseUri)
+//                .pathSegment(userCharName)
+//                .build();
         String result = this.infoWebClient.put()
                 .uri(userCharName)
                 .body(BodyInserters.fromValue(callback))
@@ -213,6 +224,7 @@ public class UserService {
     }
     @Transactional
     public ResponseEntity<?> kakaoLogin(String code, HttpServletResponse response) throws IOException {
+        log.info("카카오 로그인 - userService1 code :" +code);
         KakaoOAuth2AccessTokenResponse tokenResponse = kakaoOAuth2Client.getAccessToken(code);
         // 카카오 사용자 정보를 가져옵니다.
         KakaoOAuth2User kakaoOAuth2User = kakaoOAuth2Client.getUserProfile(tokenResponse.getAccessToken());

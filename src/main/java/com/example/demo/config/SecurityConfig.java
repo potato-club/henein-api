@@ -56,7 +56,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/userinfo/test").permitAll()
                 .antMatchers("/auth/login").permitAll()
                 .antMatchers("/auth/login/**").permitAll()
-                .antMatchers("/auth/login/kakao").permitAll()
                 .antMatchers("/auth/refresh").permitAll()
                 .antMatchers(HttpMethod.GET,"/board/**").permitAll() // /board/**에 대한 GET 요청을 허용합니다.
                 .antMatchers("/board/**").authenticated()

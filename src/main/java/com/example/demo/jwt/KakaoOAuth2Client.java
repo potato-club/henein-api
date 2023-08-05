@@ -4,12 +4,13 @@ import com.example.demo.dto.login.KakaoOAuth2User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.io.IOException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-
+@Slf4j
 public class KakaoOAuth2Client {
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
     private String kakaoClientId;
@@ -29,7 +30,7 @@ public class KakaoOAuth2Client {
 
     public KakaoOAuth2AccessTokenResponse getAccessToken(String code) {
         String accessTokenUrl = KAKAO_OAUTH_BASE_URL + "/oauth/token";
-
+        log.info("카카오 클라이언트 getaccessToken");
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
 
@@ -49,7 +50,7 @@ public class KakaoOAuth2Client {
         } catch (IOException | JsonProcessingException e) {
             throw new RuntimeException("Error parsing Kakao OAuth2 Access Token Response", e);
         }
-
+        log.info("카카오 클라이언트 getaccessToken 탈출");
         return tokenResponse;
     }
 
