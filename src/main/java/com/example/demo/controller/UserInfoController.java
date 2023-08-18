@@ -4,6 +4,7 @@ import com.example.demo.dto.userchar.NodeConnection;
 import com.example.demo.dto.user.UserInfoResponseDto;
 
 import com.example.demo.dto.user.UserNicknameChange;
+import com.example.demo.dto.userchar.UserCharacter;
 import com.example.demo.dto.userchar.UserMapleApi;
 import com.example.demo.error.ErrorCode;
 import com.example.demo.error.exception.NotFoundException;
@@ -48,12 +49,17 @@ public class UserInfoController {
         }
         return userService.userNicknameChange(request,response, userNickname);
     }
+    //==============================================
+    @GetMapping("/character/my")
+    public List<UserCharacter> getAllUserCharacterInfo(HttpServletRequest request){
+        return userService.getAllUserCharacterInfo(request);
+    }
     @Operation(summary = "단일 캐릭터 정보갱신 요청")
     @GetMapping("/character/renew")
     public String requestUpdateChar(@RequestParam String name){
         return userService.requestUpdateToNode(name);
     }
-    @Operation(summary = "유저가 가지고있는 캐릭터 불러오기" )
+    @Operation(summary = "유저가 가지고있는 캐릭터 큐브 내역으로 불러오기" )
     @PostMapping("/character/all") Mono<List<String>> requestNexon(@RequestBody UserMapleApi userMapleApi,HttpServletRequest request){
         return userService.requestToNexon(request,userMapleApi);
     }

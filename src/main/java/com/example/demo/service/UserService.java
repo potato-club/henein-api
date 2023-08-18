@@ -1,6 +1,8 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.userchar.FirstResponseNodeDto;
 import com.example.demo.dto.userchar.NodeConnection;
+import com.example.demo.dto.userchar.UserCharacter;
 import com.example.demo.dto.userchar.UserMapleApi;
 import com.example.demo.dto.login.BasicLoginRequestDto;
 import com.example.demo.dto.login.KakaoOAuth2User;
@@ -13,6 +15,7 @@ import com.example.demo.entity.UserEntity;
 import com.example.demo.enumCustom.UserRole;
 import com.example.demo.error.ErrorCode;
 import com.example.demo.error.exception.AuthenticationException;
+import com.example.demo.error.exception.BadRequestException;
 import com.example.demo.error.exception.DuplicateException;
 import com.example.demo.error.exception.NotFoundException;
 import com.example.demo.jwt.JwtTokenProvider;
@@ -51,6 +54,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.example.demo.error.ErrorCode.ALREADY_EXISTS;
+import static com.example.demo.error.ErrorCode.BAD_REQUEST;
 
 @Service
 @Slf4j
@@ -116,7 +122,18 @@ public class UserService {
         userRepository.save(userEntity);
         return "유저 이름 설정 완료";
     }
+    //캐릭터 관련
+    @Transactional
+    public List<UserCharacter> getAllUserCharacterInfo(HttpServletRequest request) {
+        String accessToken = jwtTokenProvider.resolveAccessToken(request);
+        UserEntity userEntity = userRepository.findByUserEmail(jwtTokenProvider.getUserEmailFromAccessToken(accessToken))
+                .orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND,ErrorCode.NOT_FOUND.getMessage());
+                });
 
+        List<UserCharEntity> resultList = userCharRepository.findAllByUserEntity(userEntity);
+
+        return resultList.stream().map(UserCharacter::new).collect(Collectors.toList());
+    }
 
     public Mono<List<String>> requestToNexon(HttpServletRequest request,UserMapleApi userMapleApi){
         String accessToken = jwtTokenProvider.resolveAccessToken(request);
@@ -141,22 +158,17 @@ public class UserService {
         UserCharEntity userCharEntity = userCharRepository.findByNickName(userCharName)
                 .orElseThrow(()->{throw new NotFoundException(ErrorCode.NULL_VALUE,ErrorCode.NULL_VALUE.getMessage());});
         //요청 보내기전에 1시간 시간 제한 걸어야함 레디스 유효시간 1시간임
-        if (null != redisService.checkRedis(userCharName))
-            throw new RuntimeException(); // 몇분 남았는지도 알려줘야함
-
+        if (redisService.checkRedis(userCharName)) {
+            throw new BadRequestException(ErrorCode.ALREADY_EXISTS, ALREADY_EXISTS.getMessage()); // 몇분 남았는지도 알려줘야함
+        }
         Map<String, String> callback = new HashMap<>();
         callback.put("callback", "https://henesysback.shop/userinfo/character/info");
-        // 요청 보내기
-//        URI uri = URI.create(userCharName);
-//        String baseUri = "https://info.henein.kr/v1/character/";
-//        UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(baseUri)
-//                .pathSegment(userCharName)
-//                .build();
-        String result = this.infoWebClient.put()
+        //노드로 요청
+         FirstResponseNodeDto result = this.infoWebClient.put()
                 .uri(userCharName)
                 .body(BodyInserters.fromValue(callback))
                 .retrieve()
-                .bodyToMono(String.class)
+                .bodyToMono(FirstResponseNodeDto.class)
                 .block();
         //거절시 null로 오나? 확인해야함
         if (result == null){
@@ -166,15 +178,15 @@ public class UserService {
     }
     @Transactional
     public String responseToRedisAndUpdate(NodeConnection nodeConnection){
-        if (!userCharRepository.existsByNickName(nodeConnection.getCharacter().getNickname())){
+        if (!userCharRepository.existsByNickName(nodeConnection.getDetailCharacter().getNickname())){
             throw new NotFoundException(ErrorCode.NULL_VALUE,ErrorCode.NULL_VALUE.getMessage());
         }
-        UserCharEntity userCharEntity = userCharRepository.findByNickName(nodeConnection.getCharacter().getNickname())
+        UserCharEntity userCharEntity = userCharRepository.findByNickName(nodeConnection.getDetailCharacter().getNickname())
                 .orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND,ErrorCode.NOT_FOUND.getMessage());});
 
-        userCharEntity.update(nodeConnection.getCharacter());
+        userCharEntity.update(nodeConnection.getDetailCharacter());
 
-        return redisService.updateWork(nodeConnection.getCharacter().getNickname());
+        return redisService.updateWork(nodeConnection.getDetailCharacter().getNickname());
     }
 
     //==================로그인 관련

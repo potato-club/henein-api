@@ -2,10 +2,8 @@ package com.example.demo.dto.userchar;
 
 import lombok.Getter;
 
-import java.io.Serializable;
-
 @Getter
-public class Character {
+public class DetailCharacter {
     String id;
     Long experience;
     String avatar;

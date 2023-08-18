@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.enumCustom.RedisWork;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -13,19 +14,28 @@ import java.util.concurrent.TimeUnit;
 @Transactional
 @RequiredArgsConstructor
 public class RedisService {
-    private final StringRedisTemplate redisTemplate;
+    private final RedisCacheManager cacheManager;
+    @Value("${cacheName.getFCM}")
+    private String redisName;
 
     public String setWorkStatus(String userCharacter) {
-        redisTemplate.opsForValue().set(userCharacter, RedisWork.WORK.getTitle(),1, TimeUnit.HOURS);
+        cacheManager.getCache(redisName).put(userCharacter,RedisWork.WORK.getTitle());
         return "good, wait few second for update ";
     }
 
     public String updateWork(String userCharacter) {
-        redisTemplate.opsForValue().getAndSet(userCharacter,RedisWork.DONE.getTitle());
-        return "good";
+        if (cacheManager.getCache(redisName).get(userCharacter,String.class) != null) {
+            cacheManager.getCache(redisName).put(userCharacter,RedisWork.DONE.getTitle());
+        } else {
+            throw new RuntimeException();
+        }
+        return "200ok";
     }
-    public String checkRedis(String userCharacter){
-        return redisTemplate.opsForValue().get(userCharacter);
+    public boolean checkRedis(String userCharacter){
+        if(null==cacheManager.getCache(redisName).get(userCharacter,String.class)){
+            return false;
+        }
+        return true;
     }
 
 }
