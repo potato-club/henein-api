@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class RedisService {
     private final RedisCacheManager cacheManager;
-    @Value("${cacheName.getFCM}")
+    @Value("${cacheName.getCache}")
     private String redisName;
 
     public String setWorkStatus(String userCharacter) {
