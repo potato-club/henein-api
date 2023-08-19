@@ -50,9 +50,16 @@ public class UserInfoController {
         return userService.userNicknameChange(request,response, userNickname);
     }
     //==============================================
-    @GetMapping("/character/my")
+    @Operation(summary = "현재 인증된 모든 캐릭터 가져오기")
+    @GetMapping("/character/all")
     public List<UserCharacter> getAllUserCharacterInfo(HttpServletRequest request){
         return userService.getAllUserCharacterInfo(request);
+    }
+
+    @Operation(summary = "대표 캐릭터 설정")
+    @PostMapping("/character/pick")
+    public void pickCharacter(@RequestParam Long id, HttpServletRequest request, HttpServletResponse response){
+        userService.pickCharacter(id,request,response);
     }
     @Operation(summary = "단일 캐릭터 정보갱신 요청")
     @GetMapping("/character/renew")
@@ -60,7 +67,7 @@ public class UserInfoController {
         return userService.requestUpdateToNode(name);
     }
     @Operation(summary = "유저가 가지고있는 캐릭터 큐브 내역으로 불러오기" )
-    @PostMapping("/character/all") Mono<List<String>> requestNexon(@RequestBody UserMapleApi userMapleApi,HttpServletRequest request){
+    @PostMapping("/character/auth") Mono<List<String>> requestNexon(@RequestBody UserMapleApi userMapleApi,HttpServletRequest request){
         return userService.requestToNexon(request,userMapleApi);
     }
     @Operation(summary = "노드에서 spring으로 요청할 api")

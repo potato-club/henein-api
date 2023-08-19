@@ -1,9 +1,6 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.userchar.FirstResponseNodeDto;
-import com.example.demo.dto.userchar.NodeConnection;
-import com.example.demo.dto.userchar.UserCharacter;
-import com.example.demo.dto.userchar.UserMapleApi;
+import com.example.demo.dto.userchar.*;
 import com.example.demo.dto.login.BasicLoginRequestDto;
 import com.example.demo.dto.login.KakaoOAuth2User;
 
@@ -121,6 +118,23 @@ public class UserService {
         userEntity.Update(userNickname);
         userRepository.save(userEntity);
         return "유저 이름 설정 완료";
+    }
+    @Transactional
+    public void pickCharacter(Long id, HttpServletRequest request, HttpServletResponse response) {
+        UserEntity userEntity = fetchUserEntityByHttpRequest(request,response);
+        UserCharEntity oldCharEntity = userCharRepository.findByUserEntityAndPickByUser(userEntity, true);
+
+        if (oldCharEntity == null){
+            UserCharEntity newCharEntity = userCharRepository.findByUserEntityAndId(userEntity, id);
+            newCharEntity.pickThisCharacter();
+            return;
+        }
+
+        oldCharEntity.unPickThisCharacter();
+
+        UserCharEntity newCharEntity = userCharRepository.findByUserEntityAndId(userEntity, id);
+        newCharEntity.pickThisCharacter();
+
     }
     //캐릭터 관련
     @Transactional

@@ -52,4 +52,10 @@ public class UserCharEntity extends BaseTimeEntity{
        this.guildId = detailCharacter.getGuildId();
        this.popularity = detailCharacter.getPopularity();
     }
+    public void pickThisCharacter(){
+        this.pickByUser = true;
+    }
+    public void unPickThisCharacter(){
+        this.pickByUser = false;
+    }
 }
