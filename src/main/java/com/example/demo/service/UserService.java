@@ -1,14 +1,13 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.board.BoardListResponseDto;
 import com.example.demo.dto.userchar.*;
 import com.example.demo.dto.login.BasicLoginRequestDto;
 import com.example.demo.dto.login.KakaoOAuth2User;
 
 import com.example.demo.dto.user.UserInfoResponseDto;
 import com.example.demo.dto.user.UserNicknameChange;
-import com.example.demo.entity.GuestCountEntity;
-import com.example.demo.entity.UserCharEntity;
-import com.example.demo.entity.UserEntity;
+import com.example.demo.entity.*;
 import com.example.demo.enumCustom.UserRole;
 import com.example.demo.error.ErrorCode;
 import com.example.demo.error.exception.AuthenticationException;
@@ -21,9 +20,14 @@ import com.example.demo.jwt.KakaoOAuth2Client;
 import com.example.demo.repository.GuestCountRepository;
 import com.example.demo.repository.UserCharRepository;
 import com.example.demo.repository.UserRepository;
+import com.querydsl.core.QueryResults;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -69,6 +73,7 @@ public class UserService {
     private final WebClient infoWebClient;
     private final WebClient cubeWebClient;
     private final RedisService redisService;
+    private final JPAQueryFactory jpaQueryFactory;
 
 
 //=================필터사용
@@ -138,11 +143,8 @@ public class UserService {
     }
     //캐릭터 관련
     @Transactional
-    public List<UserCharacter> getAllUserCharacterInfo(HttpServletRequest request) {
-        String accessToken = jwtTokenProvider.resolveAccessToken(request);
-        UserEntity userEntity = userRepository.findByUserEmail(jwtTokenProvider.getUserEmailFromAccessToken(accessToken))
-                .orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND,ErrorCode.NOT_FOUND.getMessage());
-                });
+    public List<UserCharacter> getAllUserCharacterInfo(HttpServletRequest request, HttpServletResponse response) {
+        UserEntity userEntity = fetchUserEntityByHttpRequest(request,response);
 
         List<UserCharEntity> resultList = userCharRepository.findAllByUserEntity(userEntity);
 
@@ -150,11 +152,9 @@ public class UserService {
     }
     private static final int character_limit = 100;
     //인증 받아오기
-    public String requestToNexon(HttpServletRequest request,UserMapleApi userMapleApi){
-        String accessToken = jwtTokenProvider.resolveAccessToken(request);
-        UserEntity userEntity = userRepository.findByUserEmail(jwtTokenProvider.getUserEmailFromAccessToken(accessToken))
-                .orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND,ErrorCode.NOT_FOUND.getMessage());
-        });
+    public String requestToNexon(HttpServletRequest request,HttpServletResponse response,UserMapleApi userMapleApi){
+        UserEntity userEntity = fetchUserEntityByHttpRequest(request,response);
+
          this.cubeWebClient.post()
                 .body(BodyInserters.fromValue(userMapleApi))
                 .retrieve()
@@ -206,6 +206,52 @@ public class UserService {
 
         return redisService.updateWork(nodeConnection.getDetailCharacter().getNickname());
     }
+
+    //============내 활동관련 =======================//
+
+    @Transactional
+    public Page<BoardListResponseDto> getMyBoardList(int page,HttpServletRequest request, HttpServletResponse response) {
+        UserEntity userEntity = fetchUserEntityByHttpRequest(request,response);
+
+        PageRequest pageRequest = PageRequest.of(page-1, 10);
+
+        QBoardEntity qBoardEntity= QBoardEntity.boardEntity;
+
+        QueryResults<BoardEntity> boardEntityList = jpaQueryFactory
+                .selectFrom(qBoardEntity)
+                .where(qBoardEntity.userEntity.eq(userEntity))
+                .orderBy(qBoardEntity.id.desc())
+                .offset(pageRequest.getOffset())
+                .limit(pageRequest.getPageSize())
+                .fetchResults();
+
+        return new PageImpl<>(boardEntityList.getResults().stream()
+                .map(BoardListResponseDto::new)
+                .collect(Collectors.toList()),pageRequest, boardEntityList.getTotal());
+    }
+
+    @Transactional
+    public Page<BoardListResponseDto> getMyBoardsWithCommentList(int page, HttpServletRequest request, HttpServletResponse response) {
+        UserEntity userEntity = fetchUserEntityByHttpRequest(request,response);
+
+        PageRequest pageRequest = PageRequest.of(page-1, 10);
+
+        QCommentEntity qCommentEntity = QCommentEntity.commentEntity;
+
+        QueryResults<BoardEntity> boardEntityList = jpaQueryFactory
+                .select(qCommentEntity.boardEntity)
+                .from(qCommentEntity)
+                .where(qCommentEntity.userEmail.eq(userEntity.getUserEmail()))
+                .orderBy(qCommentEntity.boardEntity.id.desc())
+                .offset(pageRequest.getOffset())
+                .limit(pageRequest.getPageSize())
+                .fetchResults();
+
+        return new PageImpl<>(boardEntityList.getResults().stream()
+                .map(BoardListResponseDto::new)
+                .collect(Collectors.toList()),pageRequest, boardEntityList.getTotal());
+    }
+
 
     //==================로그인 관련
     @Transactional

@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.board.BoardListResponseDto;
 import com.example.demo.dto.userchar.NodeConnection;
 import com.example.demo.dto.user.UserInfoResponseDto;
 
@@ -16,6 +17,7 @@ import io.swagger.v3.oas.annotations.Operation;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -49,11 +51,11 @@ public class UserInfoController {
         }
         return userService.userNicknameChange(request,response, userNickname);
     }
-    //==============================================
+    //=====================메이플 캐릭터 관련=========================//
     @Operation(summary = "현재 인증된 모든 캐릭터 가져오기")
     @GetMapping("/character/all")
-    public List<UserCharacter> getAllUserCharacterInfo(HttpServletRequest request){
-        return userService.getAllUserCharacterInfo(request);
+    public List<UserCharacter> getAllUserCharacterInfo(HttpServletRequest request,HttpServletResponse response){
+        return userService.getAllUserCharacterInfo(request,response);
     }
 
     @Operation(summary = "대표 캐릭터 설정")
@@ -67,14 +69,26 @@ public class UserInfoController {
         return userService.requestUpdateToNode(name);
     }
     @Operation(summary = "유저가 가지고있는 캐릭터 큐브 내역으로 불러오기" )
-    @PostMapping("/character/auth") String requestNexon(@RequestBody UserMapleApi userMapleApi,HttpServletRequest request){
-        return userService.requestToNexon(request,userMapleApi);
+    @PostMapping("/character/auth") String requestNexon(@RequestBody UserMapleApi userMapleApi,HttpServletResponse response,HttpServletRequest request){
+        return userService.requestToNexon(request,response,userMapleApi);
     }
     @Operation(summary = "노드에서 spring으로 요청할 api")
     @PostMapping("/character/info")
     public String test(@RequestBody NodeConnection nodeConnection){
 
         return userService.responseToRedisAndUpdate(nodeConnection);
+    }
+
+    //================내 활동 관련 =====================//
+    @Operation(summary = "내가 쓴 게시글 보기")
+    @GetMapping("/myboards")
+    public Page<BoardListResponseDto> getMyBoardList (@RequestParam("page")int page, HttpServletRequest request, HttpServletResponse response) {
+        return userService.getMyBoardList(page, request, response);
+    }
+    @Operation(summary = "댓글 작성한 게시글 보기")
+    @GetMapping("/mycomment-boards")
+    public Page<BoardListResponseDto> getMyBoardsWithCommentList (@RequestParam("page")int page,HttpServletRequest request, HttpServletResponse response) {
+        return userService.getMyBoardsWithCommentList(page, request, response);
     }
 
 }
