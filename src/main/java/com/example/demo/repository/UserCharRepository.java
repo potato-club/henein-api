@@ -14,5 +14,6 @@ public interface UserCharRepository extends JpaRepository<UserCharEntity,Long> {
     UserCharEntity findByUserEntityAndPickByUser(UserEntity userEntity, boolean pickByUser);
     boolean existsByNickName(String nickName);
     List<UserCharEntity> findAllByUserEntity(UserEntity userEntity);
+    int countByUserEntity(UserEntity userEntity);
 
 }

@@ -10,7 +10,7 @@ import javax.persistence.*;
 @Setter
 public class UserCharacter {
     private Long id;
-    private boolean pickByUser = false;
+    private boolean pickByUser;
     private String avatar;
     private String nickName;
     private String world;

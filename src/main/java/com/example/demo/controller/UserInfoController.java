@@ -67,7 +67,7 @@ public class UserInfoController {
         return userService.requestUpdateToNode(name);
     }
     @Operation(summary = "유저가 가지고있는 캐릭터 큐브 내역으로 불러오기" )
-    @PostMapping("/character/auth") Mono<List<String>> requestNexon(@RequestBody UserMapleApi userMapleApi,HttpServletRequest request){
+    @PostMapping("/character/auth") String requestNexon(@RequestBody UserMapleApi userMapleApi,HttpServletRequest request){
         return userService.requestToNexon(request,userMapleApi);
     }
     @Operation(summary = "노드에서 spring으로 요청할 api")

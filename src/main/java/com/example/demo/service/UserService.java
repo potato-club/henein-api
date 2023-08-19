@@ -148,24 +148,28 @@ public class UserService {
 
         return resultList.stream().map(UserCharacter::new).collect(Collectors.toList());
     }
-
-    public Mono<List<String>> requestToNexon(HttpServletRequest request,UserMapleApi userMapleApi){
+    private static final int character_limit = 100;
+    //인증 받아오기
+    public String requestToNexon(HttpServletRequest request,UserMapleApi userMapleApi){
         String accessToken = jwtTokenProvider.resolveAccessToken(request);
         UserEntity userEntity = userRepository.findByUserEmail(jwtTokenProvider.getUserEmailFromAccessToken(accessToken))
                 .orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND,ErrorCode.NOT_FOUND.getMessage());
         });
-        return this.cubeWebClient.post()
+         this.cubeWebClient.post()
                 .body(BodyInserters.fromValue(userMapleApi))
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<List<String>>() {})
                 .flatMap(result -> {
-                    List<UserCharEntity> userCharEntityList = new ArrayList<>();
-                    for(int i = 0; i < result.size(); i++){
-                        userCharEntityList.add(new UserCharEntity(userEntity,result.get(i)));
-                    }
-                    userCharRepository.saveAll(userCharEntityList);
+                    if (100 > userCharRepository.countByUserEntity(userEntity)) {
+                        List<UserCharEntity> userCharEntityList = new ArrayList<>();
+                        for (int i = 0; i < result.size(); i++) {
+                            userCharEntityList.add(new UserCharEntity(userEntity, result.get(i)));
+                        }
+                        userCharRepository.saveAll(userCharEntityList);
+                    } else return Mono.error(()->new RuntimeException("over of max character"));
                     return Mono.just(result);
                 });
+         return "update finish";
     }
     @Transactional
     public String requestUpdateToNode(String userCharName){
