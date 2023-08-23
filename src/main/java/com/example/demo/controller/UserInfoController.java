@@ -82,13 +82,13 @@ public class UserInfoController {
     //================내 활동 관련 =====================//
     @Operation(summary = "내가 쓴 게시글 보기")
     @GetMapping("/myboards")
-    public Page<BoardListResponseDto> getMyBoardList (@RequestParam("page")int page, HttpServletRequest request, HttpServletResponse response) {
-        return userService.getMyBoardList(page, request, response);
+    public List<BoardListResponseDto> getMyBoardList (HttpServletRequest request, HttpServletResponse response) {
+        return userService.getMyBoardList(request, response);
     }
     @Operation(summary = "댓글 작성한 게시글 보기")
     @GetMapping("/mycomment-boards")
-    public Page<BoardListResponseDto> getMyBoardsWithCommentList (@RequestParam("page")int page,HttpServletRequest request, HttpServletResponse response) {
-        return userService.getMyBoardsWithCommentList(page, request, response);
+    public List<BoardListResponseDto> getMyBoardsWithCommentList (HttpServletRequest request, HttpServletResponse response) {
+        return userService.getMyBoardsWithCommentList(request, response);
     }
 
 }

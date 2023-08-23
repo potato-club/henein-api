@@ -210,46 +210,34 @@ public class UserService {
     //============내 활동관련 =======================//
 
     @Transactional
-    public Page<BoardListResponseDto> getMyBoardList(int page,HttpServletRequest request, HttpServletResponse response) {
+    public List<BoardListResponseDto> getMyBoardList(HttpServletRequest request, HttpServletResponse response) {
         UserEntity userEntity = fetchUserEntityByHttpRequest(request,response);
-
-        PageRequest pageRequest = PageRequest.of(page-1, 10);
 
         QBoardEntity qBoardEntity= QBoardEntity.boardEntity;
 
-        QueryResults<BoardEntity> boardEntityList = jpaQueryFactory
+        List<BoardEntity> boardEntityList = jpaQueryFactory
                 .selectFrom(qBoardEntity)
                 .where(qBoardEntity.userEntity.eq(userEntity))
                 .orderBy(qBoardEntity.id.desc())
-                .offset(pageRequest.getOffset())
-                .limit(pageRequest.getPageSize())
-                .fetchResults();
+                .fetch();
 
-        return new PageImpl<>(boardEntityList.getResults().stream()
-                .map(BoardListResponseDto::new)
-                .collect(Collectors.toList()),pageRequest, boardEntityList.getTotal());
+        return boardEntityList.stream().map(BoardListResponseDto::new).collect(Collectors.toList());
     }
 
     @Transactional
-    public Page<BoardListResponseDto> getMyBoardsWithCommentList(int page, HttpServletRequest request, HttpServletResponse response) {
+    public List<BoardListResponseDto> getMyBoardsWithCommentList(HttpServletRequest request, HttpServletResponse response) {
         UserEntity userEntity = fetchUserEntityByHttpRequest(request,response);
-
-        PageRequest pageRequest = PageRequest.of(page-1, 10);
 
         QCommentEntity qCommentEntity = QCommentEntity.commentEntity;
 
-        QueryResults<BoardEntity> boardEntityList = jpaQueryFactory
+        List<BoardEntity> boardEntityList = jpaQueryFactory
                 .select(qCommentEntity.boardEntity)
                 .from(qCommentEntity)
                 .where(qCommentEntity.userEmail.eq(userEntity.getUserEmail()))
                 .orderBy(qCommentEntity.boardEntity.id.desc())
-                .offset(pageRequest.getOffset())
-                .limit(pageRequest.getPageSize())
-                .fetchResults();
+                .fetch();
 
-        return new PageImpl<>(boardEntityList.getResults().stream()
-                .map(BoardListResponseDto::new)
-                .collect(Collectors.toList()),pageRequest, boardEntityList.getTotal());
+        return boardEntityList.stream().map(BoardListResponseDto::new).collect(Collectors.toList());
     }
 
 
