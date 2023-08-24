@@ -13,6 +13,7 @@ import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Builder
@@ -21,8 +22,7 @@ import java.time.LocalDateTime;
 @Entity
 public class UserEntity extends BaseTimeEntity{
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String uid;
     @Column(nullable = false)
     private UserRole userRole;
     @Column(unique = true,nullable = false)
@@ -36,10 +36,11 @@ public class UserEntity extends BaseTimeEntity{
     private String refreshToken;
 
 
-    public UserEntity(String email, int guestCount) {
+    public UserEntity(String email) {
         this.userEmail = email;
-        this.userName = "guest"+guestCount;
+        this.userName = "ㅇㅇ";
         this.userRole = UserRole.USER;
+        this.uid = String.valueOf(UUID.randomUUID());
     }
     public void Update(UserNicknameChange userNicknameChange) {
         this.userName = userNicknameChange.getUserName();

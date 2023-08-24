@@ -47,7 +47,7 @@ public class UserInfoController {
         log.info("유저 이름 컨트롤러진입----------------------------------------------");
         String userName = userNickname.getUserName();
         if (userName == null || userName.length() < 2 || userName.length() >= 15) {
-            throw new NotFoundException(ErrorCode.INVALID_USER,"유저이름이 너무 짧거나 깁니다");
+            throw new NotFoundException("유저이름이 너무 짧거나 깁니다",ErrorCode.INVALID_ACCESS);
         }
         return userService.userNicknameChange(request,response, userNickname);
     }

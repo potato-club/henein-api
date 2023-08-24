@@ -2,12 +2,9 @@ package com.example.demo.error.exception;
 
 import com.example.demo.error.ErrorCode;
 
-public class BadRequestException extends RuntimeException{
-    private final ErrorCode errorCode;
-    private final String message;
+public class BadRequestException extends BusinessException{
 
-    public BadRequestException(ErrorCode errorCode,String message) {
-        this.errorCode = errorCode;
-        this.message = message;
+    public BadRequestException(String message, ErrorCode errorCode) {
+        super(message,errorCode);
     }
 }

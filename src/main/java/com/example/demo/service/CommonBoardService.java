@@ -41,21 +41,21 @@ public class CommonBoardService {
     @Transactional
     public BoardResponseDto getOneService(Long id, String authentication){
         BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 게시글 정보가 없습니다");});
+
         if (authentication != null){ //사용자가 이 게시판에 대해서 추천했는지에 대한 t f 적용
             authentication = authentication.substring(7);
             String userEmail = jwtTokenProvider.getUserEmailFromAccessToken(authentication); // 정보 가져옴
             UserEntity userEntity = userRepository.findByUserEmail(userEmail).orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + userEmail));
 
-            boolean value = false;
             RecommendEntity recommend = recommandRepository.findByBoardEntityAndUserEntity(boardEntity,userEntity);
             if ( recommend == null){
-                BoardResponseDto boardResponseDto = new BoardResponseDto(boardEntity,value);
+                BoardResponseDto boardResponseDto = new BoardResponseDto(boardEntity,false);
                 return boardResponseDto;
             }
             BoardResponseDto boardResponseDto = new BoardResponseDto(boardEntity,recommend.isValue());
             return boardResponseDto;
         }
-        BoardResponseDto boardResponseDto = new BoardResponseDto(boardEntity);
+        BoardResponseDto boardResponseDto = new BoardResponseDto(boardEntity,false);
         return boardResponseDto;
     }
     @Transactional
@@ -127,7 +127,7 @@ public class CommonBoardService {
     @Transactional
     public String updateView(Long id){
         BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 게시글 정보가 없습니다");});
-        BoardResponseDto boardResponseDto = new BoardResponseDto(boardEntity);
+
         //조회수 증가부분
         ViewIncreaseDto viewIncreaseDto = new ViewIncreaseDto();
         viewIncreaseDto.setViews(boardEntity.getViews()+1);

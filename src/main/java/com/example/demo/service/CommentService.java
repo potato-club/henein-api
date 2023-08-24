@@ -38,7 +38,7 @@ public class CommentService {
     @Transactional
     public List<CommentResponseDto> getCommentOfBoard(Long boardId) {
         if (!boardRepository.existsById(boardId)) {
-            throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION,ErrorCode.NOT_FOUND_EXCEPTION.getMessage());
+            throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);
         }
         QCommentEntity qCommentEntity = QCommentEntity.commentEntity;
 
@@ -76,7 +76,7 @@ public class CommentService {
     @Transactional
     public String addCommentOfParent(Long id,CommentRequsetDto commentRequsetDto, HttpServletRequest request, HttpServletResponse response){
         UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request,response);
-        BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION,ErrorCode.NOT_FOUND_EXCEPTION.getMessage());});
+        BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);});
         CommentEntity commentEntity = CommentEntity.builder()
                 .comment(commentRequsetDto.getComment())
                 .userName(userEntity.getUserName())
@@ -98,8 +98,8 @@ public class CommentService {
     @Transactional
     public String addCommentOfChild(Long id,Long coId, ReplyRequestDto replyRequestDto, HttpServletRequest request, HttpServletResponse response){
         UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request,response);
-        BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION,ErrorCode.NOT_FOUND_EXCEPTION.getMessage());});
-        CommentEntity parentComment = commentRepository.findById(coId).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION,ErrorCode.NOT_FOUND_EXCEPTION.getMessage());});
+        BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);});
+        CommentEntity parentComment = commentRepository.findById(coId).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);});
 
         ReplyEntity replyEntity = ReplyEntity.builder()
                 .tag(replyRequestDto.getTag())
@@ -125,7 +125,7 @@ public class CommentService {
     public String updateCommentOfParent(Long id,Long coId,CommentRequsetDto commentRequsetDto, HttpServletRequest request, HttpServletResponse response){
         UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request,response);
         if (!boardRepository.existsById(id)) {
-            throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION,ErrorCode.NOT_FOUND_EXCEPTION.getMessage());
+            throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);
         }
         CommentEntity commentEntity = commentRepository.findById(coId).orElseThrow(()->{throw new RuntimeException("해당 댓글이 없습니다");});
         if (!commentEntity.getUserEmail().equals(userEntity.getUserEmail())) {
@@ -138,7 +138,7 @@ public class CommentService {
     public String updateCommentOfChild(Long id,Long reId,ReplyRequestDto replyRequestDto, HttpServletRequest request, HttpServletResponse response){
         UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request,response);
         if (!boardRepository.existsById(id)) {
-            throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION,ErrorCode.NOT_FOUND_EXCEPTION.getMessage());
+            throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);
         }
         ReplyEntity replyEntity = replyRepository.findById(reId).orElseThrow(()->{throw new RuntimeException("해당 댓글이 없습니다");});
         if (!replyEntity.getUserEmail().equals(userEntity.getUserEmail())){

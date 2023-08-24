@@ -10,54 +10,38 @@ import com.example.demo.dto.user.UserNicknameChange;
 import com.example.demo.entity.*;
 import com.example.demo.enumCustom.UserRole;
 import com.example.demo.error.ErrorCode;
-import com.example.demo.error.exception.AuthenticationException;
 import com.example.demo.error.exception.BadRequestException;
 import com.example.demo.error.exception.DuplicateException;
+import com.example.demo.error.exception.UnAuthorizedException;
 import com.example.demo.error.exception.NotFoundException;
 import com.example.demo.jwt.JwtTokenProvider;
 import com.example.demo.jwt.KakaoOAuth2AccessTokenResponse;
 import com.example.demo.jwt.KakaoOAuth2Client;
-import com.example.demo.repository.GuestCountRepository;
 import com.example.demo.repository.UserCharRepository;
 import com.example.demo.repository.UserRepository;
-import com.querydsl.core.QueryResults;
+import com.example.demo.service.jwtservice.KakaoOAuth2UserDetailsServcie;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.UriComponents;
-import org.springframework.web.util.UriComponentsBuilder;
-import org.springframework.web.util.UriUtils;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.example.demo.error.ErrorCode.ALREADY_EXISTS;
-import static com.example.demo.error.ErrorCode.BAD_REQUEST;
+
 
 @Service
 @Slf4j
@@ -68,7 +52,6 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final KakaoOAuth2UserDetailsServcie kakaoOAuth2UserDetailsServcie;
     private final KakaoOAuth2Client kakaoOAuth2Client;
-    private final GuestCountRepository guestCountRepository;
     private final PasswordEncoder passwordEncoder;
     private final WebClient infoWebClient;
     private final WebClient cubeWebClient;
@@ -83,15 +66,15 @@ public class UserService {
             String AT = jwtTokenProvider.resolveAccessToken(request);
 
             String userEmail = jwtTokenProvider.getUserEmailFromAccessToken(AT); // 정보 가져옴
-            UserEntity userEntity = userRepository.findByUserEmail(userEmail).
-                    orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + userEmail));
-            return userEntity;
+
+            return userRepository.findByUserEmail(userEmail).
+                    orElseThrow(() -> new UnAuthorizedException(ErrorCode.INVALID_ACCESS.getMessage(),ErrorCode.INVALID_ACCESS));
         }catch (NullPointerException e){
             throw new NullPointerException(e.getMessage());
         }
     }
     @Transactional
-    public ResponseEntity<?> refreshAT(HttpServletRequest request,HttpServletResponse response) throws UnsupportedEncodingException {
+    public ResponseEntity<?> refreshAT(HttpServletRequest request,HttpServletResponse response) {
         //bearer 지우기
         String RTHeader = jwtTokenProvider.resolveRefreshToken(request);
 
@@ -100,8 +83,7 @@ public class UserService {
         UserEntity userEntity = userRepository.findByUserEmail(userEmail).orElseThrow(()->{throw new RuntimeException();});
         //db에 있는 토큰값과 넘어온 토큰이 같은지
         if (!userEntity.getRefreshToken().equals(RTHeader)){
-            response.addHeader("exception", String.valueOf(ErrorCode.INVALID_TOKEN.getCode()));
-            throw new AuthenticationException(ErrorCode.INVALID_TOKEN);
+            throw new UnAuthorizedException(ErrorCode.MISMATCH_REFRESH_TOKEN.getMessage(),ErrorCode.MISMATCH_REFRESH_TOKEN);
         }
         String newAccessToken = jwtTokenProvider.generateAccessToken(userEmail);
 
@@ -174,10 +156,10 @@ public class UserService {
     @Transactional
     public String requestUpdateToNode(String userCharName){
         UserCharEntity userCharEntity = userCharRepository.findByNickName(userCharName)
-                .orElseThrow(()->{throw new NotFoundException(ErrorCode.NULL_VALUE,ErrorCode.NULL_VALUE.getMessage());});
+                .orElseThrow(()->{throw new NotFoundException(ErrorCode.NULL_VALUE.getMessage(),ErrorCode.NULL_VALUE);});
         //요청 보내기전에 1시간 시간 제한 걸어야함 레디스 유효시간 1시간임
         if (redisService.checkRedis(userCharName)) {
-            throw new BadRequestException(ErrorCode.ALREADY_EXISTS, ALREADY_EXISTS.getMessage()); // 몇분 남았는지도 알려줘야함
+            throw new BadRequestException(ErrorCode.NULL_VALUE.getMessage(),ErrorCode.NULL_VALUE); // 몇분 남았는지도 알려줘야함
         }
         Map<String, String> callback = new HashMap<>();
         callback.put("callback", "https://henesysback.shop/userinfo/character/info");
@@ -197,10 +179,10 @@ public class UserService {
     @Transactional
     public String responseToRedisAndUpdate(NodeConnection nodeConnection){
         if (!userCharRepository.existsByNickName(nodeConnection.getDetailCharacter().getNickname())){
-            throw new NotFoundException(ErrorCode.NULL_VALUE,ErrorCode.NULL_VALUE.getMessage());
+            throw new NotFoundException(ErrorCode.NULL_VALUE.getMessage(),ErrorCode.NULL_VALUE);
         }
         UserCharEntity userCharEntity = userCharRepository.findByNickName(nodeConnection.getDetailCharacter().getNickname())
-                .orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND,ErrorCode.NOT_FOUND.getMessage());});
+                .orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND.getMessage(),ErrorCode.NOT_FOUND);});
 
         userCharEntity.update(nodeConnection.getDetailCharacter());
 
@@ -245,10 +227,10 @@ public class UserService {
     @Transactional
     public ResponseEntity<String> basicLogin(BasicLoginRequestDto basicLoginRequestDto, HttpServletResponse response){
         UserEntity userEntity = userRepository.findByUserEmail(basicLoginRequestDto.getUserEmail()).orElseThrow(()->{
-            throw new AuthenticationException(ErrorCode.INVALID_USER,ErrorCode.INVALID_USER.getMessage());});
+            throw new UnAuthorizedException(ErrorCode.INVALID_ACCESS.getMessage(),ErrorCode.INVALID_ACCESS);});
 
-        if ( !passwordEncoder.matches(basicLoginRequestDto.getPassword(),userEntity.getPassword()) ){
-            throw new AuthenticationException(ErrorCode.INVALID_USER,ErrorCode.INVALID_USER.getMessage());
+        if ( !passwordEncoder.matches(basicLoginRequestDto.getPassword(),userEntity.getPassword()) ) {
+            throw new UnAuthorizedException(ErrorCode.INVALID_ACCESS.getMessage(),ErrorCode.INVALID_ACCESS);
         }
 
         String accessToken = jwtTokenProvider.generateAccessToken(basicLoginRequestDto.getUserEmail());
@@ -263,7 +245,7 @@ public class UserService {
     public ResponseEntity<String> basicSignUp(BasicLoginRequestDto basicLoginRequestDto, HttpServletResponse response){
         //이미 있는 이메일인지 확인
         if (userRepository.existsByUserEmail(basicLoginRequestDto.getUserEmail())){
-            throw new DuplicateException(ErrorCode.DUPLICATE_EMAIL,ErrorCode.DUPLICATE_EMAIL.getMessage());
+            throw new DuplicateException(ErrorCode.DUPLICATE_EMAIL.getMessage(),ErrorCode.DUPLICATE_EMAIL);
         }
 
         //토큰 발급
@@ -271,11 +253,10 @@ public class UserService {
         String refreshToken = jwtTokenProvider.generateRefreshToken(basicLoginRequestDto.getUserEmail());
 
         //디비 저장
-        GuestCountEntity guestCount = guestCountRepository.getById(new Long(1));
-        guestCount.addCount();
         UserEntity userEntity = new UserEntity().builder()
                 .userRole(UserRole.USER)
-                .userName("guest"+guestCount.getGuestCount())
+                .uid(String.valueOf(UUID.randomUUID()))
+                .userName("ㅇㅇ")
                 .userEmail(basicLoginRequestDto.getUserEmail())
                 .password(passwordEncoder.encode(basicLoginRequestDto.getPassword()))
                 .refreshToken(refreshToken)
@@ -287,12 +268,11 @@ public class UserService {
         return ResponseEntity.ok("회원가입 성공");
     }
     @Transactional
-    public ResponseEntity<?> kakaoLogin(String code, HttpServletResponse response) throws IOException {
-        log.info("카카오 로그인 - userService1 code :" +code);
+    public ResponseEntity<?> kakaoLogin(String code, HttpServletResponse response) {
+
         KakaoOAuth2AccessTokenResponse tokenResponse = kakaoOAuth2Client.getAccessToken(code);
         // 카카오 사용자 정보를 가져옵니다.
         KakaoOAuth2User kakaoOAuth2User = kakaoOAuth2Client.getUserProfile(tokenResponse.getAccessToken());
-        log.info("카카오 사용자 정보를 가져옵니다 kakaoOAuth2User:"+kakaoOAuth2User.getKakao_account().getEmail());
 
         // 사용자 정보를 기반으로 우리 시스템에 인증을 수행합니다.
         Authentication authentication = new UsernamePasswordAuthenticationToken(kakaoOAuth2User, null);
@@ -303,10 +283,9 @@ public class UserService {
         log.info("JWT 토큰을 발급합니다 Controller: "+email);
         String accessToken = jwtTokenProvider.generateAccessToken(email);
         String refreshToken = jwtTokenProvider.generateRefreshToken(email);
-        String existsUser ="신규 유저입니다.";
         Map<String, String> tokens =new HashMap<>();
         if (!userRepository.existsByUserEmail(email)){
-            tokens.put("status",existsUser);
+            tokens.put("status","신규 유저입니다.");
         }
         // 로그인한 사용자의 정보를 저장합니다.
         kakaoOAuth2UserDetailsServcie.loadUserByKakaoOAuth2User(email, refreshToken);

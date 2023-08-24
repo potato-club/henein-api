@@ -30,7 +30,7 @@ public class CommentEntity extends BaseTimeEntity {
     private BoardEntity boardEntity;
 
     @OneToMany(mappedBy = "parent")
-    private List<ReplyEntity> replies = new ArrayList<>();
+    private List<ReplyEntity> replies;
     @Column(nullable = false)
     private Boolean deleted = false;
     @Column(nullable = false)

@@ -3,7 +3,6 @@ package com.example.demo.jwt;
 import com.example.demo.error.ErrorCode;
 import com.example.demo.error.exception.JwtException;
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -70,14 +69,8 @@ public class JwtTokenProvider {
     }
 
    public String getUserEmailFromAccessToken(String token) {
-       try {
-           String temp = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
-           return temp;
-       } catch (ExpiredJwtException e) {
-           throw new JwtException("토큰이 만료되었습니다.",101);
-       } catch (NullPointerException e) {
-           return null;
-       }
+       String temp = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
+       return temp;
    }
 
     public String getUsernameFromRefreshToken(String token) {
@@ -87,42 +80,41 @@ public class JwtTokenProvider {
 
     public boolean validateToken(HttpServletResponse response, String token){
         try {
-            log.info("토큰 인증으로 들어옴");
-            log.info(token);
             Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
             return true;
+        } catch (MalformedJwtException e) {
+            throw new MalformedJwtException("Invalid JWT token");
         } catch (ExpiredJwtException e) {
-            throw new JwtException("토큰이 만료되었습니다.",101);
-        } catch (SignatureException e) {
-            response.addHeader("exception", String.valueOf(ErrorCode.INVALID_TOKEN.getCode()));
+            throw new ExpiredJwtException(null, null, "Token has expired");
         } catch (UnsupportedJwtException e) {
-            response.addHeader("exception", String.valueOf(ErrorCode.INVALID_TOKEN.getCode()));
+            throw new UnsupportedJwtException("JWT token is unsupported");
         } catch (IllegalArgumentException e) {
-            response.addHeader("exception", String.valueOf(ErrorCode.NON_LOGIN.getCode()));
+            throw new IllegalArgumentException("JWT claims string is empty");
+        } catch (io.jsonwebtoken.SignatureException e) {
+            throw new io.jsonwebtoken.SignatureException("JWT signature does not match");
         }
-        return false;
     }
     public boolean validateRefreshToken(HttpServletResponse response, String token){
         try {
             Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
             return true;
+        } catch (MalformedJwtException e) {
+            throw new MalformedJwtException("Invalid JWT token");
         } catch (ExpiredJwtException e) {
-            response.addHeader("exception", String.valueOf(ErrorCode.RE_LOGIN.getCode()));
-        } catch (SignatureException e) {
-            response.addHeader("exception", String.valueOf(ErrorCode.INVALID_TOKEN.getCode()));
+            throw new ExpiredJwtException(null, null, "Token has expired");
         } catch (UnsupportedJwtException e) {
-            response.addHeader("exception", String.valueOf(ErrorCode.INVALID_TOKEN.getCode()));
+            throw new UnsupportedJwtException("JWT token is unsupported");
         } catch (IllegalArgumentException e) {
-            response.addHeader("exception", String.valueOf(ErrorCode.NON_LOGIN.getCode()));
+            throw new IllegalArgumentException("JWT claims string is empty");
+        } catch (io.jsonwebtoken.SignatureException e) {
+            throw new SignatureException("JWT signature does not match");
         }
-        return false;
     }
 
-    public String refreshAccessToken(String token, HttpServletResponse response) throws UnsupportedEncodingException {
+    public String refreshAccessToken(String token, HttpServletResponse response) {
 
-        if (!validateRefreshToken(response, token)) {
-            throw new RuntimeException("Invalid refresh token");
-        }
+        validateRefreshToken(response, token);
+
         String userEmail = getUsernameFromRefreshToken(token);
         return userEmail;
     }

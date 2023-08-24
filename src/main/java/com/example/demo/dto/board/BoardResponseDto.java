@@ -36,20 +36,8 @@ public class BoardResponseDto {
     @ApiModelProperty(value="사진 첨부 여부",example = "T or F",required = true)
     private boolean hasImage;
     @ApiModelProperty(value = "추천했는지", example = "T or F")
-    private boolean recommended = false;
+    private boolean recommended;
 
-    public BoardResponseDto (BoardEntity boardEntity){
-        this.id = boardEntity.getId();
-        this.boardType =boardEntity.getBoardType();
-        this.title = boardEntity.getTitle();
-        this.commentNum = boardEntity.getCommentNum();
-        this.userInfoResponseDto = new UserInfoResponseDto(boardEntity.getUserEntity());
-        this.createTime = boardEntity.getCreatedDate();
-        this.views = boardEntity.getViews();
-        this.hasImage = boardEntity.isHasImage();
-        this.recommend = boardEntity.getRecommend();
-        this.text = boardEntity.getText();
-    }
     public BoardResponseDto (BoardEntity boardEntity, boolean recommended){
         this.id = boardEntity.getId();
         this.boardType =boardEntity.getBoardType();

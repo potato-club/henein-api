@@ -3,13 +3,9 @@ package com.example.demo.error.exception;
 import com.example.demo.error.ErrorCode;
 import lombok.Getter;
 
-@Getter
-public class DuplicateException extends RuntimeException {
-  private final ErrorCode errorCode;
-  private final String message;
+public class DuplicateException extends BusinessException {
 
-  public DuplicateException(ErrorCode errorCode, String message) {
-    this.errorCode = errorCode;
-    this.message = message;
+  public DuplicateException(String message, ErrorCode errorCode) {
+    super(message, errorCode);
   }
 }

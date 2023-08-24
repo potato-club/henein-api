@@ -58,7 +58,7 @@ public class BoardTypeOfService {
             case 72: board = BoardType.Humor; break;
             case 73: board = BoardType.Info; break;
             case 78: board = BoardType.Notice; break;
-            default: throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION,ErrorCode.NOT_FOUND_EXCEPTION.getMessage());
+            default: throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);
         }
 
         Page<BoardEntity> boardEntityList = boardRepository.findByBoardTypeOrderByIdDesc(board,pageRequest);
@@ -78,7 +78,7 @@ public class BoardTypeOfService {
             case "I": board = BoardType.Info; break;
             case "H": board = BoardType.Humor; break;
             case "N": board = BoardType.Notice; break;
-            default: throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION,ErrorCode.NOT_FOUND_EXCEPTION.getMessage());
+            default: throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);
         }
 
         BoardEntity boardEntity = new BoardEntity(boardRequestDto,board, userEntity);

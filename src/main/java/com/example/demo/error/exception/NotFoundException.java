@@ -4,12 +4,9 @@ import com.example.demo.error.ErrorCode;
 import lombok.Getter;
 
 @Getter
-public class NotFoundException extends RuntimeException{
-    private final ErrorCode errorCode;
-    private final String message;
+public class NotFoundException extends BusinessException{
 
-    public NotFoundException(ErrorCode errorCode,String message) {
-        this.errorCode = errorCode;
-        this.message = message;
+    public NotFoundException(String message, ErrorCode errorCode) {
+        super(message, errorCode);
     }
 }

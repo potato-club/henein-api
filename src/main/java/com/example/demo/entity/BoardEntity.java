@@ -46,7 +46,7 @@ public class BoardEntity extends BaseTimeEntity{
     @Column(nullable = false)
     private String text;
     @OneToMany(mappedBy = "boardEntity", orphanRemoval = true)
-    private List<CommentEntity> commentEntityList = new ArrayList<>();
+    private List<CommentEntity> commentEntityList;
     @Column
     private boolean hasImage;
 
