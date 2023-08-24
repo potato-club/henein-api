@@ -1,6 +1,6 @@
 package com.example.demo.entity;
 
-import com.example.demo.dto.userchar.Character;
+import com.example.demo.dto.userchar.DetailCharacter;
 import com.example.demo.dto.userchar.NodeConnection;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -43,13 +43,19 @@ public class UserCharEntity extends BaseTimeEntity{
         this.userEntity = userEntity;
         this.nickName = charName;
     }
-    public void update(Character character){
-       this.experience = character.getExperience();
-       this.avatar = character.getAvatar();
-       this.world = character.getWorld();
-       this.level = character.getLevel();
-       this.job = character.getJob();
-       this.guildId = character.getGuildId();
-       this.popularity = character.getPopularity();
+    public void update(DetailCharacter detailCharacter){
+       this.experience = detailCharacter.getExperience();
+       this.avatar = detailCharacter.getAvatar();
+       this.world = detailCharacter.getWorld();
+       this.level = detailCharacter.getLevel();
+       this.job = detailCharacter.getJob();
+       this.guildId = detailCharacter.getGuildId();
+       this.popularity = detailCharacter.getPopularity();
+    }
+    public void pickThisCharacter(){
+        this.pickByUser = true;
+    }
+    public void unPickThisCharacter(){
+        this.pickByUser = false;
     }
 }

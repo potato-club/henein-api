@@ -1,9 +1,11 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.board.BoardListResponseDto;
 import com.example.demo.dto.userchar.NodeConnection;
 import com.example.demo.dto.user.UserInfoResponseDto;
 
 import com.example.demo.dto.user.UserNicknameChange;
+import com.example.demo.dto.userchar.UserCharacter;
 import com.example.demo.dto.userchar.UserMapleApi;
 import com.example.demo.error.ErrorCode;
 import com.example.demo.error.exception.NotFoundException;
@@ -15,6 +17,7 @@ import io.swagger.v3.oas.annotations.Operation;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -48,20 +51,44 @@ public class UserInfoController {
         }
         return userService.userNicknameChange(request,response, userNickname);
     }
+    //=====================메이플 캐릭터 관련=========================//
+    @Operation(summary = "현재 인증된 모든 캐릭터 가져오기")
+    @GetMapping("/character/all")
+    public List<UserCharacter> getAllUserCharacterInfo(HttpServletRequest request,HttpServletResponse response){
+        return userService.getAllUserCharacterInfo(request,response);
+    }
+
+    @Operation(summary = "대표 캐릭터 설정")
+    @PostMapping("/character/pick")
+    public void pickCharacter(@RequestParam Long id, HttpServletRequest request, HttpServletResponse response){
+        userService.pickCharacter(id,request,response);
+    }
     @Operation(summary = "단일 캐릭터 정보갱신 요청")
     @GetMapping("/character/renew")
     public String requestUpdateChar(@RequestParam String name){
         return userService.requestUpdateToNode(name);
     }
-    @Operation(summary = "유저가 가지고있는 캐릭터 불러오기" )
-    @PostMapping("/character/all") Mono<List<String>> requestNexon(@RequestBody UserMapleApi userMapleApi,HttpServletRequest request){
-        return userService.requestToNexon(request,userMapleApi);
+    @Operation(summary = "유저가 가지고있는 캐릭터 큐브 내역으로 불러오기" )
+    @PostMapping("/character/auth") String requestNexon(@RequestBody UserMapleApi userMapleApi,HttpServletResponse response,HttpServletRequest request){
+        return userService.requestToNexon(request,response,userMapleApi);
     }
     @Operation(summary = "노드에서 spring으로 요청할 api")
     @PostMapping("/character/info")
     public String test(@RequestBody NodeConnection nodeConnection){
 
         return userService.responseToRedisAndUpdate(nodeConnection);
+    }
+
+    //================내 활동 관련 =====================//
+    @Operation(summary = "내가 쓴 게시글 보기")
+    @GetMapping("/myboards")
+    public List<BoardListResponseDto> getMyBoardList (HttpServletRequest request, HttpServletResponse response) {
+        return userService.getMyBoardList(request, response);
+    }
+    @Operation(summary = "댓글 작성한 게시글 보기")
+    @GetMapping("/mycomment-boards")
+    public List<BoardListResponseDto> getMyBoardsWithCommentList (HttpServletRequest request, HttpServletResponse response) {
+        return userService.getMyBoardsWithCommentList(request, response);
     }
 
 }

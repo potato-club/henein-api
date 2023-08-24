@@ -87,6 +87,8 @@ public class JwtTokenProvider {
 
     public boolean validateToken(HttpServletResponse response, String token){
         try {
+            log.info("토큰 인증으로 들어옴");
+            log.info(token);
             Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
             return true;
         } catch (ExpiredJwtException e) {

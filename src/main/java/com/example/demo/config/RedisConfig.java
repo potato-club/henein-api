@@ -42,7 +42,7 @@ public class RedisConfig extends CachingConfigurerSupport {
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
         RedisCacheConfiguration configuration = RedisCacheConfiguration.defaultCacheConfig()
                 .disableCachingNullValues() // null value 캐시안함
-                .entryTtl(Duration.ofSeconds(timeout)) // 캐시의 기본 유효시간 설정
+                .entryTtl(Duration.ofMinutes(timeout)) // 캐시의 기본 유효시간 설정
                 .computePrefixWith(CacheKeyPrefix.simple())
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()));
 
