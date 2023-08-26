@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 @ToString
 public enum ErrorCode {
+  EXPIRED_RT(HttpStatus.UNAUTHORIZED,102, "refresh token has expired. Please Retry login"),
   NULL_VALUE(HttpStatus.BAD_REQUEST,403,"데이터가 없습니다."),
   BAD_REQUEST(HttpStatus.BAD_REQUEST,400, "잘못된 요청입니다."),
 
@@ -16,7 +17,6 @@ public enum ErrorCode {
   DUPLICATE_EMAIL(HttpStatus.UNAUTHORIZED,401,"이미 존재하는 이메일입니다."),
   DUPLICATE_NICKNAME(HttpStatus.UNAUTHORIZED,401,"이미 존재하는 닉네임입니다."),
   NON_LOGIN(HttpStatus.UNAUTHORIZED,401, "로그인 후 이용 가능합니다"),
-  MISMATCH_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED,401,"잘못된 RT입니다."),
   FORBIDDEN_EXCEPTION(HttpStatus.FORBIDDEN, 403, "해당 요청에 대한 권한이 없습니다."),
   DUPLICATE_KEY(HttpStatus.FORBIDDEN, 403,  "중복된 key 값입니다."),
   NOT_EXIST(HttpStatus.NOT_FOUND,404, "존재하지 않는 유저입니다."),

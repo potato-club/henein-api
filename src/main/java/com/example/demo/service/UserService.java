@@ -83,7 +83,7 @@ public class UserService {
         UserEntity userEntity = userRepository.findByUserEmail(userEmail).orElseThrow(()->{throw new RuntimeException();});
         //db에 있는 토큰값과 넘어온 토큰이 같은지
         if (!userEntity.getRefreshToken().equals(RTHeader)){
-            throw new UnAuthorizedException(ErrorCode.MISMATCH_REFRESH_TOKEN.getMessage(),ErrorCode.MISMATCH_REFRESH_TOKEN);
+            throw new UnAuthorizedException(ErrorCode.EXPIRED_RT.getMessage(),ErrorCode.EXPIRED_RT);
         }
         String newAccessToken = jwtTokenProvider.generateAccessToken(userEmail);
 

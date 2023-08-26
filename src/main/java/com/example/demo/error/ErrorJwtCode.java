@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ErrorJwtCode {
     EXPIRED_AT(101, "access token has expired. Please try with token refresh"),
-    EXPIRED_RT(102, "refresh token has expired. Please try with token refresh"),
     INVALID_TOKEN(103, "Invalid JWT token."),
     EMPTY_TOKEN(104, "Token cannot has been null"),
     UNSUPPORTED_TOKEN(105,"Token has not supported"),
