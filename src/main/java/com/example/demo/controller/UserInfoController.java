@@ -37,31 +37,31 @@ public class UserInfoController {
 
     @Operation(summary = "유저 정보에 대한 요청 API [보안]")
     @GetMapping
-    public UserInfoResponseDto userInfo(HttpServletRequest request, HttpServletResponse response){
+    public UserInfoResponseDto userInfo(HttpServletRequest request){
         log.info("유저컨트롤러진입----------------------------------------------");
-        return userService.userInfo(request, response);
+        return userService.userInfo(request);
     }
     @Operation(summary = "유저 이름 변경 API")
     @PutMapping("/set-name")
-    public String userNicknameChange(@RequestBody UserNicknameChange userNickname, HttpServletRequest request , HttpServletResponse response) throws UnsupportedEncodingException {
+    public String userNicknameChange(@RequestBody UserNicknameChange userNickname, HttpServletRequest request) throws UnsupportedEncodingException {
         log.info("유저 이름 컨트롤러진입----------------------------------------------");
         String userName = userNickname.getUserName();
         if (userName == null || userName.length() < 2 || userName.length() >= 15) {
             throw new NotFoundException("유저이름이 너무 짧거나 깁니다",ErrorCode.INVALID_ACCESS);
         }
-        return userService.userNicknameChange(request,response, userNickname);
+        return userService.userNicknameChange(request, userNickname);
     }
     //=====================메이플 캐릭터 관련=========================//
     @Operation(summary = "현재 인증된 모든 캐릭터 가져오기")
     @GetMapping("/character/all")
-    public List<UserCharacter> getAllUserCharacterInfo(HttpServletRequest request,HttpServletResponse response){
-        return userService.getAllUserCharacterInfo(request,response);
+    public List<UserCharacter> getAllUserCharacterInfo(HttpServletRequest request){
+        return userService.getAllUserCharacterInfo(request);
     }
 
     @Operation(summary = "대표 캐릭터 설정")
     @PostMapping("/character/pick")
-    public void pickCharacter(@RequestParam Long id, HttpServletRequest request, HttpServletResponse response){
-        userService.pickCharacter(id,request,response);
+    public void pickCharacter(@RequestParam Long id, HttpServletRequest request){
+        userService.pickCharacter(id,request);
     }
     @Operation(summary = "단일 캐릭터 정보갱신 요청")
     @GetMapping("/character/renew")
@@ -69,8 +69,8 @@ public class UserInfoController {
         return userService.requestUpdateToNode(name);
     }
     @Operation(summary = "유저가 가지고있는 캐릭터 큐브 내역으로 불러오기" )
-    @PostMapping("/character/auth") String requestNexon(@RequestBody UserMapleApi userMapleApi,HttpServletResponse response,HttpServletRequest request){
-        return userService.requestToNexon(request,response,userMapleApi);
+    @PostMapping("/character/auth") String requestNexon(@RequestBody UserMapleApi userMapleApi,HttpServletRequest request){
+        return userService.requestToNexon(request,userMapleApi);
     }
     @Operation(summary = "노드에서 spring으로 요청할 api")
     @PostMapping("/character/info")
@@ -82,13 +82,13 @@ public class UserInfoController {
     //================내 활동 관련 =====================//
     @Operation(summary = "내가 쓴 게시글 보기")
     @GetMapping("/myboards")
-    public List<BoardListResponseDto> getMyBoardList (HttpServletRequest request, HttpServletResponse response) {
-        return userService.getMyBoardList(request, response);
+    public List<BoardListResponseDto> getMyBoardList (HttpServletRequest request) {
+        return userService.getMyBoardList(request);
     }
     @Operation(summary = "댓글 작성한 게시글 보기")
     @GetMapping("/mycomment-boards")
-    public List<BoardListResponseDto> getMyBoardsWithCommentList (HttpServletRequest request, HttpServletResponse response) {
-        return userService.getMyBoardsWithCommentList(request, response);
+    public List<BoardListResponseDto> getMyBoardsWithCommentList (HttpServletRequest request) {
+        return userService.getMyBoardsWithCommentList(request);
     }
 
 }

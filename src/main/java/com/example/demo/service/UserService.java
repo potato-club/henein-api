@@ -61,7 +61,7 @@ public class UserService {
 
 //=================필터사용
     @Transactional
-    public UserEntity fetchUserEntityByHttpRequest(HttpServletRequest request, HttpServletResponse response){
+    public UserEntity fetchUserEntityByHttpRequest(HttpServletRequest request){
         try {
             String AT = jwtTokenProvider.resolveAccessToken(request);
 
@@ -95,20 +95,20 @@ public class UserService {
     }
     //===============마이페이지 관련
     @Transactional
-    public UserInfoResponseDto userInfo(HttpServletRequest request, HttpServletResponse response){
-        UserEntity userEntity = fetchUserEntityByHttpRequest(request,response);
+    public UserInfoResponseDto userInfo(HttpServletRequest request){
+        UserEntity userEntity = fetchUserEntityByHttpRequest(request);
         return new UserInfoResponseDto(userEntity);
     }
     @Transactional
-    public String userNicknameChange(HttpServletRequest request, HttpServletResponse response, UserNicknameChange userNickname) throws UnsupportedEncodingException {
-        UserEntity userEntity = fetchUserEntityByHttpRequest(request, response);
+    public String userNicknameChange(HttpServletRequest request, UserNicknameChange userNickname) throws UnsupportedEncodingException {
+        UserEntity userEntity = fetchUserEntityByHttpRequest(request);
         userEntity.Update(userNickname);
         userRepository.save(userEntity);
         return "유저 이름 설정 완료";
     }
     @Transactional
-    public void pickCharacter(Long id, HttpServletRequest request, HttpServletResponse response) {
-        UserEntity userEntity = fetchUserEntityByHttpRequest(request,response);
+    public void pickCharacter(Long id, HttpServletRequest request) {
+        UserEntity userEntity = fetchUserEntityByHttpRequest(request);
         UserCharEntity oldCharEntity = userCharRepository.findByUserEntityAndPickByUser(userEntity, true);
 
         if (oldCharEntity == null){
@@ -125,8 +125,8 @@ public class UserService {
     }
     //캐릭터 관련
     @Transactional
-    public List<UserCharacter> getAllUserCharacterInfo(HttpServletRequest request, HttpServletResponse response) {
-        UserEntity userEntity = fetchUserEntityByHttpRequest(request,response);
+    public List<UserCharacter> getAllUserCharacterInfo(HttpServletRequest request) {
+        UserEntity userEntity = fetchUserEntityByHttpRequest(request);
 
         List<UserCharEntity> resultList = userCharRepository.findAllByUserEntity(userEntity);
 
@@ -134,8 +134,8 @@ public class UserService {
     }
     private static final int character_limit = 100;
     //인증 받아오기
-    public String requestToNexon(HttpServletRequest request,HttpServletResponse response,UserMapleApi userMapleApi){
-        UserEntity userEntity = fetchUserEntityByHttpRequest(request,response);
+    public String requestToNexon(HttpServletRequest request,UserMapleApi userMapleApi){
+        UserEntity userEntity = fetchUserEntityByHttpRequest(request);
 
          this.cubeWebClient.post()
                 .body(BodyInserters.fromValue(userMapleApi))
@@ -192,8 +192,8 @@ public class UserService {
     //============내 활동관련 =======================//
 
     @Transactional
-    public List<BoardListResponseDto> getMyBoardList(HttpServletRequest request, HttpServletResponse response) {
-        UserEntity userEntity = fetchUserEntityByHttpRequest(request,response);
+    public List<BoardListResponseDto> getMyBoardList(HttpServletRequest request) {
+        UserEntity userEntity = fetchUserEntityByHttpRequest(request);
 
         QBoardEntity qBoardEntity= QBoardEntity.boardEntity;
 
@@ -207,8 +207,8 @@ public class UserService {
     }
 
     @Transactional
-    public List<BoardListResponseDto> getMyBoardsWithCommentList(HttpServletRequest request, HttpServletResponse response) {
-        UserEntity userEntity = fetchUserEntityByHttpRequest(request,response);
+    public List<BoardListResponseDto> getMyBoardsWithCommentList(HttpServletRequest request) {
+        UserEntity userEntity = fetchUserEntityByHttpRequest(request);
 
         QCommentEntity qCommentEntity = QCommentEntity.commentEntity;
 

@@ -40,6 +40,7 @@ public class CommonBoardService {
 
     @Transactional
     public BoardResponseDto getOneService(Long id, String authentication){
+
         BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 게시글 정보가 없습니다");});
 
         if (authentication != null){ //사용자가 이 게시판에 대해서 추천했는지에 대한 t f 적용
@@ -47,20 +48,20 @@ public class CommonBoardService {
             String userEmail = jwtTokenProvider.getUserEmailFromAccessToken(authentication); // 정보 가져옴
             UserEntity userEntity = userRepository.findByUserEmail(userEmail).orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + userEmail));
 
-            RecommendEntity recommend = recommandRepository.findByBoardEntityAndUserEntity(boardEntity,userEntity);
+            RecommendEntity recommend = recommandRepository.findByBoardEntityAndUserEntity(boardEntity, userEntity);
             if ( recommend == null){
-                BoardResponseDto boardResponseDto = new BoardResponseDto(boardEntity,false);
+                BoardResponseDto boardResponseDto = new BoardResponseDto(boardEntity,false, userEntity.getUid());
                 return boardResponseDto;
             }
-            BoardResponseDto boardResponseDto = new BoardResponseDto(boardEntity,recommend.isValue());
+            BoardResponseDto boardResponseDto = new BoardResponseDto(boardEntity,recommend.isValue(), userEntity.getUid());
             return boardResponseDto;
         }
-        BoardResponseDto boardResponseDto = new BoardResponseDto(boardEntity,false);
+        BoardResponseDto boardResponseDto = new BoardResponseDto(boardEntity,false,null);
         return boardResponseDto;
     }
     @Transactional
-    public String updateService(Long id, TestDto testDto, HttpServletRequest request, HttpServletResponse response){
-        UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request,response);
+    public String updateService(Long id, TestDto testDto, HttpServletRequest request){
+        UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request);
         BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 게시글 정보가 없습니다");});
         if (boardEntity.getUserEntity().getUserEmail() != userEntity.getUserEmail()){
             throw new RuntimeException("게시글 수정 권한이 없습니다.");
@@ -111,8 +112,8 @@ public class CommonBoardService {
         return "수정완료";
     }
     @Transactional
-    public String deleteService(Long id, HttpServletRequest request, HttpServletResponse response){
-        UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request, response);
+    public String deleteService(Long id, HttpServletRequest request ){
+        UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request);
         BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 게시글 정보가 없습니다");});
         if (boardEntity.getUserEntity().getUserEmail() != userEntity.getUserEmail()){
             throw new RuntimeException("게시글 삭제 권한이 없습니다.");
@@ -136,9 +137,9 @@ public class CommonBoardService {
         return "조회수 증가완료";
     }
     @Transactional
-    public String recommendThisBoard(Long id, HttpServletRequest request, HttpServletResponse response){
+    public String recommendThisBoard(Long id, HttpServletRequest request ){
         BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 게시글 정보가 없습니다");});
-        UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request, response);
+        UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request);
 
         RecommendEntity recommendEntity = recommandRepository.findByBoardEntityAndUserEntity(boardEntity,userEntity);
         //추천 DB에 없는 인원일때 ( 해당 게시글에 처음 추천을 누른 유저일시 )

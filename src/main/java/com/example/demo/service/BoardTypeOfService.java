@@ -67,8 +67,8 @@ public class BoardTypeOfService {
 
     //===================================================================================================
     @Transactional
-    public String addTypeOfBoard(BoardRequestDto boardRequestDto, HttpServletRequest request, HttpServletResponse response){
-        UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request, response); // jwt 로직 추가
+    public String addTypeOfBoard(BoardRequestDto boardRequestDto, HttpServletRequest request){
+        UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request); // jwt 로직 추가
 
         BoardType board;
         switch (boardRequestDto.getBoardType()){

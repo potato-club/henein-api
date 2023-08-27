@@ -14,17 +14,21 @@ public class ReplyResponseDto {
 
     private Long replyId;
     private String userName;
+    private String uid;
     private String tag;
     private String comment;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime modifiedDate;
     private Boolean updated;
-    public ReplyResponseDto(ReplyEntity reply){
+    public ReplyResponseDto(ReplyEntity reply, String uid){
         replyId = reply.getId();
         userName =reply.getUserName();
         tag = reply.getTag();
         comment = reply.getComment();
         modifiedDate = reply.getCreatedDate();
         updated = reply.getUpdated();
+        if (uid.equals(reply.getUid())) {
+            this.uid = reply.getUid();
+        }
     }
 }

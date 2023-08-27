@@ -38,12 +38,12 @@ public class BoardResponseDto {
     @ApiModelProperty(value = "추천했는지", example = "T or F")
     private boolean recommended;
 
-    public BoardResponseDto (BoardEntity boardEntity, boolean recommended){
+    public BoardResponseDto (BoardEntity boardEntity, boolean recommended,String uid){
         this.id = boardEntity.getId();
         this.boardType =boardEntity.getBoardType();
         this.title = boardEntity.getTitle();
         this.commentNum = boardEntity.getCommentNum();
-        this.userInfoResponseDto = new UserInfoResponseDto(boardEntity.getUserEntity());
+        this.userInfoResponseDto = new UserInfoResponseDto(boardEntity.getUserEntity(), uid);
         this.createTime = boardEntity.getCreatedDate();
         this.views = boardEntity.getViews();
         this.hasImage = boardEntity.isHasImage();

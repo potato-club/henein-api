@@ -21,7 +21,10 @@ public class ReplyEntity extends BaseTimeEntity{
     private String comment;
     @Column(nullable = false)
     private String userEmail;
+    @Column(nullable = false)
     private String userName;
+    @Column(nullable = false)
+    private String uid;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "parent_id",nullable = false)
     private CommentEntity parent;

@@ -53,9 +53,9 @@ public class BoardController {
     @Operation(summary = "Json 으로 보내주세요 [보안]")
     @PostMapping() //Create
     public String addTypeOfBoard(@RequestBody BoardRequestDto boardRequestDto,
-                                 HttpServletRequest request, HttpServletResponse response) {
+                                 HttpServletRequest request ) {
         log.info("작성 컨트롤러 진입");
-        return boardTypeOfService.addTypeOfBoard(boardRequestDto, request, response);
+        return boardTypeOfService.addTypeOfBoard(boardRequestDto, request);
     }
     @Operation(summary = "게시글 호출시에 같이 호출하여 게시판 조회수 업")
     @PostMapping("/updateview")
@@ -65,8 +65,8 @@ public class BoardController {
     }
     @Operation(summary = "[보안]")
     @PostMapping("/recommend")
-    public String recommendThisBoard(@RequestBody BoardIdRequestDTO boardIdRequestDTO, HttpServletRequest request, HttpServletResponse response){
-        return commonBoardService.recommendThisBoard(boardIdRequestDTO.getId(),request, response);
+    public String recommendThisBoard(@RequestBody BoardIdRequestDTO boardIdRequestDTO, HttpServletRequest request){
+        return commonBoardService.recommendThisBoard(boardIdRequestDTO.getId(),request);
     }
     @Operation(summary = "사진 name return api")
     @PostMapping("/image")
@@ -76,13 +76,13 @@ public class BoardController {
 //==================================================================================
     @Operation(summary = "[보안]")
     @PutMapping("/{id}")
-    public String updateBoard(@PathVariable Long id, @RequestBody TestDto testDto, HttpServletRequest request, HttpServletResponse response){
-        return commonBoardService.updateService(id, testDto, request, response);
+    public String updateBoard(@PathVariable Long id, @RequestBody TestDto testDto, HttpServletRequest request){
+        return commonBoardService.updateService(id, testDto, request);
     }
     @Operation(summary = "[보안]")
     @DeleteMapping("/{id}")
-    public String deleteBoard(@PathVariable("id")Long id, HttpServletRequest request, HttpServletResponse response){
-        return commonBoardService.deleteService(id, request, response);
+    public String deleteBoard(@PathVariable("id")Long id, HttpServletRequest request){
+        return commonBoardService.deleteService(id, request);
     }
 
 }

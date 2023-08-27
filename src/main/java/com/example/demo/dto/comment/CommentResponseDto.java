@@ -13,25 +13,22 @@ import java.util.List;
 public class CommentResponseDto {
     private Long commentId;
     private String userName;
-    private String tag;
+    private String uid;
     private String comment;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime modifiedDate;
     private List<ReplyResponseDto> replies;
 
-    public CommentResponseDto(CommentEntity commentEntity){
+    public CommentResponseDto(CommentEntity commentEntity,String uid){
         this.commentId = commentEntity.getId();
         this.userName = commentEntity.getUserName();
         this.comment = commentEntity.getComment();
         this.modifiedDate = commentEntity.getModifiedDate();
+        if (uid.equals(commentEntity.getUid())) {
+            this.uid = commentEntity.getUid();
+        }
     }
-    public CommentResponseDto(ReplyEntity replyEntity){
-        this.commentId = replyEntity.getId();
-        this.userName = replyEntity.getUserName();
-        this.tag = replyEntity.getTag();
-        this.comment = replyEntity.getComment();
-        this.modifiedDate = replyEntity.getModifiedDate();
-    }
+
     public void setReplies(List<ReplyResponseDto> replies){
         this.replies = replies;
     }
