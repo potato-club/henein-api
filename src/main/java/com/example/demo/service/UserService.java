@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.board.BoardListResponseDto;
+import com.example.demo.dto.board.MyBoardListResponseDto;
 import com.example.demo.dto.userchar.*;
 import com.example.demo.dto.login.BasicLoginRequestDto;
 import com.example.demo.dto.login.KakaoOAuth2User;
@@ -100,7 +101,7 @@ public class UserService {
         return new UserInfoResponseDto(userEntity);
     }
     @Transactional
-    public String userNicknameChange(HttpServletRequest request, UserNicknameChange userNickname) throws UnsupportedEncodingException {
+    public String userNicknameChange(HttpServletRequest request, UserNicknameChange userNickname) {
         UserEntity userEntity = fetchUserEntityByHttpRequest(request);
         userEntity.Update(userNickname);
         userRepository.save(userEntity);
@@ -192,7 +193,7 @@ public class UserService {
     //============내 활동관련 =======================//
 
     @Transactional
-    public List<BoardListResponseDto> getMyBoardList(HttpServletRequest request) {
+    public List<MyBoardListResponseDto> getMyBoardList(HttpServletRequest request) {
         UserEntity userEntity = fetchUserEntityByHttpRequest(request);
 
         QBoardEntity qBoardEntity= QBoardEntity.boardEntity;
@@ -203,11 +204,11 @@ public class UserService {
                 .orderBy(qBoardEntity.id.desc())
                 .fetch();
 
-        return boardEntityList.stream().map(BoardListResponseDto::new).collect(Collectors.toList());
+        return boardEntityList.stream().map(MyBoardListResponseDto::new).collect(Collectors.toList());
     }
 
     @Transactional
-    public List<BoardListResponseDto> getMyBoardsWithCommentList(HttpServletRequest request) {
+    public List<MyBoardListResponseDto> getMyBoardsWithCommentList(HttpServletRequest request) {
         UserEntity userEntity = fetchUserEntityByHttpRequest(request);
 
         QCommentEntity qCommentEntity = QCommentEntity.commentEntity;
@@ -219,7 +220,7 @@ public class UserService {
                 .orderBy(qCommentEntity.boardEntity.id.desc())
                 .fetch();
 
-        return boardEntityList.stream().map(BoardListResponseDto::new).collect(Collectors.toList());
+        return boardEntityList.stream().map(MyBoardListResponseDto::new).collect(Collectors.toList());
     }
 
 
