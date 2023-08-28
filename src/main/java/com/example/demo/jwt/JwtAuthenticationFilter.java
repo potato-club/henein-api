@@ -48,6 +48,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 헤더에서 Token을 따옴
         String accessToken = jwtTokenProvider.resolveAccessToken(request);
         ErrorJwtCode errorCode;
+
+        if (accessToken == null || accessToken.trim().isEmpty()) {
+            errorCode = ErrorJwtCode.EMPTY_TOKEN;
+            setResponse(response, errorCode);
+            return;
+        }
+
         try {
             if (accessToken != null && jwtTokenProvider.validateToken(response, accessToken)) {
                 // Get the username from the access token
