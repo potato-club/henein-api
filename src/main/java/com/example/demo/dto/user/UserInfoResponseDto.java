@@ -13,7 +13,7 @@ public class UserInfoResponseDto {
 
     public UserInfoResponseDto(UserEntity userEntity,String uid){
         this.userName = userEntity.getUserName();
-        if (uid.equals(userEntity.getUid())) {
+        if (Objects.equals(uid, userEntity.getUid())) {
             this.uid = userEntity.getUid();
         }
     }

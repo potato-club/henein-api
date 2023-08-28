@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -27,7 +28,7 @@ public class ReplyResponseDto {
         comment = reply.getComment();
         modifiedDate = reply.getCreatedDate();
         updated = reply.getUpdated();
-        if (uid.equals(reply.getUid())) {
+        if (Objects.equals(uid, reply.getUid())) {
             this.uid = reply.getUid();
         }
     }

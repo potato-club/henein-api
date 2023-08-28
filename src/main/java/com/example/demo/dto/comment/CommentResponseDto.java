@@ -8,6 +8,7 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 public class CommentResponseDto {
@@ -24,7 +25,7 @@ public class CommentResponseDto {
         this.userName = commentEntity.getUserName();
         this.comment = commentEntity.getComment();
         this.modifiedDate = commentEntity.getModifiedDate();
-        if (uid.equals(commentEntity.getUid())) {
+        if (Objects.equals(uid, commentEntity.getUid())) {
             this.uid = commentEntity.getUid();
         }
     }
