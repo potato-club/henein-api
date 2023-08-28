@@ -66,8 +66,11 @@ public class CommentService {
         List<CommentResponseDto> resultDtoList = new ArrayList<>();
         for (CommentEntity parentComment : commentEntityList){
             List<ReplyEntity> childComment = getChildComment(parentComment);
+            CommentResponseDto parentDto;
+            if ( userEntity != null) {
+               parentDto = new CommentResponseDto(parentComment, userEntity.getUid());
+            } else parentDto = new CommentResponseDto(parentComment);
 
-            CommentResponseDto parentDto = new CommentResponseDto(parentComment,userEntity.getUid());
             parentDto.setReplies(childComment.stream()
                     .map(replyEntity -> new ReplyResponseDto(replyEntity,userEntity.getUid()))
                     .collect(Collectors.toList()));

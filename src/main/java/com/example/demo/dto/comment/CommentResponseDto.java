@@ -29,6 +29,13 @@ public class CommentResponseDto {
             this.uid = commentEntity.getUid();
         }
     }
+    public CommentResponseDto(CommentEntity commentEntity){
+        this.commentId = commentEntity.getId();
+        this.userName = commentEntity.getUserName();
+        this.comment = commentEntity.getComment();
+        this.modifiedDate = commentEntity.getModifiedDate();
+
+    }
 
     public void setReplies(List<ReplyResponseDto> replies){
         this.replies = replies;

@@ -70,7 +70,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             setResponse(response, errorCode);
             return;
         } catch (UnsupportedJwtException e) {
-            errorCode = ErrorJwtCode.UNSUPPORTED_TOKEN;
+            errorCode = ErrorJwtCode.INVALID_TOKEN;
             setResponse(response, errorCode);
             return;
         } catch (IllegalArgumentException e) {
@@ -78,7 +78,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             setResponse(response, errorCode);
             return;
         } catch (SignatureException e) {
-            errorCode = ErrorJwtCode.SIGNATURE_MISMATCH;
+            errorCode = ErrorJwtCode.INVALID_TOKEN;
             setResponse(response, errorCode);
             return;
         } catch (RuntimeException e) {
