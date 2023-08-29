@@ -32,4 +32,12 @@ public class ReplyResponseDto {
             this.uid = reply.getUid();
         }
     }
+    public ReplyResponseDto(ReplyEntity reply) {
+        replyId = reply.getId();
+        userName =reply.getUserName();
+        tag = reply.getTag();
+        comment = reply.getComment();
+        modifiedDate = reply.getCreatedDate();
+        updated = reply.getUpdated();
+    }
 }

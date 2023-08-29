@@ -57,7 +57,7 @@ public class JwtTokenProvider {
     //헤더에 있는 AT토큰 가져오기
     @Transactional
     public String resolveAccessToken(HttpServletRequest request) {
-        if (request.getHeader("Authorization") != null )
+        if (request.getHeader("Authorization") != null && !request.getHeader("Authorization").trim().isEmpty() )
             return request.getHeader("Authorization").substring(7);
         return null;
     }

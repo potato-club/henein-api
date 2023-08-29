@@ -38,13 +38,13 @@ public class UserInfoController {
     @Operation(summary = "유저 정보에 대한 요청 API [보안]")
     @GetMapping
     public UserInfoResponseDto userInfo(HttpServletRequest request){
-        log.info("유저컨트롤러진입----------------------------------------------");
+
         return userService.userInfo(request);
     }
     @Operation(summary = "유저 이름 변경 API")
     @PutMapping("/set-name")
     public String userNicknameChange(@RequestBody UserNicknameChange userNickname, HttpServletRequest request) throws UnsupportedEncodingException {
-        log.info("유저 이름 컨트롤러진입----------------------------------------------");
+
         String userName = userNickname.getUserName();
         if (userName == null || userName.length() < 2 || userName.length() >= 15) {
             throw new NotFoundException("유저이름이 너무 짧거나 깁니다",ErrorCode.INVALID_ACCESS);

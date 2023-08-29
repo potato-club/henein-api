@@ -9,6 +9,7 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -35,15 +36,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         String path = request.getRequestURI();
+        String method = request.getMethod();
 
-        if (path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs") || path.startsWith("/swagger-resources")) {
+        if (path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs") || path.startsWith("/swagger-resources")
+            || path.contains("/auth/login") || path.contains("/auth/login/register") || path.contains("/auth/login/kakao") ||path.contains("/auth/refresh")
+            || (method.equals(HttpMethod.GET.name()) && path.startsWith("/board"))) {
+
             filterChain.doFilter(request,response);
             return;
         }
-        else if (path.contains("/auth/login") || path.contains("/auth/login/register") || path.contains("/auth/login/kakao") ||path.contains("/auth/refresh")) {
-            filterChain.doFilter(request,response);
-            return;
-        }
+
 
         // 헤더에서 Token을 따옴
         String accessToken = jwtTokenProvider.resolveAccessToken(request);
@@ -51,8 +53,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (accessToken == null || accessToken.trim().isEmpty()) {
             errorCode = ErrorJwtCode.EMPTY_TOKEN;
-            setResponse(response, errorCode);
-            return;
+            setResponse(response,errorCode);
+            return; // 위의 링크에 걸리지 않고 토큰이 없는 경우 엠티처리
         }
 
         try {

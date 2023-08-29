@@ -69,11 +69,16 @@ public class CommentService {
             CommentResponseDto parentDto;
             if ( userEntity != null) {
                parentDto = new CommentResponseDto(parentComment, userEntity.getUid());
-            } else parentDto = new CommentResponseDto(parentComment);
+               parentDto.setReplies(childComment.stream()
+                        .map(replyEntity -> new ReplyResponseDto(replyEntity,userEntity.getUid()))
+                        .collect(Collectors.toList()));
+            } else {
+                parentDto = new CommentResponseDto(parentComment);
+                parentDto.setReplies(childComment.stream()
+                        .map(replyEntity -> new ReplyResponseDto(replyEntity))
+                        .collect(Collectors.toList()));
+            }
 
-            parentDto.setReplies(childComment.stream()
-                    .map(replyEntity -> new ReplyResponseDto(replyEntity,userEntity.getUid()))
-                    .collect(Collectors.toList()));
             resultDtoList.add(parentDto);
         }
         return resultDtoList;
