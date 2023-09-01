@@ -18,6 +18,8 @@ public class BoardListResponseDto {
     private Long id;
     @ApiModelProperty(value="게시글 제목", example = "테스트 제목입니다.", required = true)
     private String title;
+    @ApiModelProperty(value = "게시판 분류",example = "게시판 분류")
+    private String boardType;
     @ApiModelProperty(value="댓글 갯수", example = "정수값", required = true)
     private int commentNum;
     @ApiModelProperty(value="게시글 작성자", example = "테스트 글쓴이", required = true)
@@ -30,6 +32,7 @@ public class BoardListResponseDto {
     public BoardListResponseDto(BoardEntity boardEntity){
         this.id = boardEntity.getId();
         this.title = boardEntity.getTitle();
+        this.boardType = boardEntity.getBoardType().getTitle();
         this.commentNum = boardEntity.getCommentNum();
         this.userName = boardEntity.getUserEntity().getUserName();
         this.createTime = boardEntity.getCreatedDate();

@@ -1,7 +1,6 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.board.BoardListResponseDto;
-import com.example.demo.dto.board.MyBoardListResponseDto;
 import com.example.demo.dto.userchar.*;
 import com.example.demo.dto.login.BasicLoginRequestDto;
 import com.example.demo.dto.login.KakaoOAuth2User;
@@ -38,7 +37,6 @@ import reactor.core.publisher.Mono;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
-import java.io.UnsupportedEncodingException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -193,7 +191,7 @@ public class UserService {
     //============내 활동관련 =======================//
 
     @Transactional
-    public List<MyBoardListResponseDto> getMyBoardList(HttpServletRequest request) {
+    public List<BoardListResponseDto> getMyBoardList(HttpServletRequest request) {
         UserEntity userEntity = fetchUserEntityByHttpRequest(request);
 
         QBoardEntity qBoardEntity= QBoardEntity.boardEntity;
@@ -204,11 +202,11 @@ public class UserService {
                 .orderBy(qBoardEntity.id.desc())
                 .fetch();
 
-        return boardEntityList.stream().map(MyBoardListResponseDto::new).collect(Collectors.toList());
+        return boardEntityList.stream().map(BoardListResponseDto::new).collect(Collectors.toList());
     }
 
     @Transactional
-    public List<MyBoardListResponseDto> getMyBoardsWithCommentList(HttpServletRequest request) {
+    public List<BoardListResponseDto> getMyBoardsWithCommentList(HttpServletRequest request) {
         UserEntity userEntity = fetchUserEntityByHttpRequest(request);
 
         QCommentEntity qCommentEntity = QCommentEntity.commentEntity;
@@ -220,7 +218,7 @@ public class UserService {
                 .orderBy(qCommentEntity.boardEntity.id.desc())
                 .fetch();
 
-        return boardEntityList.stream().map(MyBoardListResponseDto::new).collect(Collectors.toList());
+        return boardEntityList.stream().map(BoardListResponseDto::new).collect(Collectors.toList());
     }
 
 

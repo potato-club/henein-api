@@ -1,6 +1,6 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.board.MyBoardListResponseDto;
+import com.example.demo.dto.board.BoardListResponseDto;
 import com.example.demo.dto.userchar.NodeConnection;
 import com.example.demo.dto.user.UserInfoResponseDto;
 
@@ -17,12 +17,9 @@ import io.swagger.v3.oas.annotations.Operation;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Mono;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
@@ -82,12 +79,12 @@ public class UserInfoController {
     //================내 활동 관련 =====================//
     @Operation(summary = "내가 쓴 게시글 보기")
     @GetMapping("/myboards")
-    public List<MyBoardListResponseDto> getMyBoardList (HttpServletRequest request) {
+    public List<BoardListResponseDto> getMyBoardList (HttpServletRequest request) {
         return userService.getMyBoardList(request);
     }
     @Operation(summary = "댓글 작성한 게시글 보기")
     @GetMapping("/mycomment-boards")
-    public List<MyBoardListResponseDto> getMyBoardsWithCommentList (HttpServletRequest request) {
+    public List<BoardListResponseDto> getMyBoardsWithCommentList (HttpServletRequest request) {
         return userService.getMyBoardsWithCommentList(request);
     }
 
