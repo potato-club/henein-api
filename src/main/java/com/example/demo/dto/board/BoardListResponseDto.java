@@ -1,16 +1,13 @@
 package com.example.demo.dto.board;
 
-import com.example.demo.dto.file.FileResponseDto;
 import com.example.demo.entity.BoardEntity;
-import com.example.demo.enumCustom.BoardType;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
+
 
 @Getter
 @AllArgsConstructor

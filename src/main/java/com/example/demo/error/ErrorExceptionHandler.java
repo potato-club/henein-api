@@ -1,12 +1,14 @@
 package com.example.demo.error;
 
 import com.example.demo.error.exception.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 
 @RestControllerAdvice
+@Slf4j
 public class ErrorExceptionHandler {
     @ExceptionHandler({BadRequestException.class})
     public ResponseEntity<ErrorEntity> exceptionHandler(final BadRequestException e) {
@@ -40,6 +42,7 @@ public class ErrorExceptionHandler {
     }
     @ExceptionHandler({JwtException.class})
     public ResponseEntity<ErrorEntity> exceptionHandler(final JwtException e) {
+        log.info("JwtException");
         ErrorEntity errorEntity = ErrorEntity.builder()
                 .errorCode(e.getErrorCode().getCode())
                 .errorMessage(e.getMessage())
