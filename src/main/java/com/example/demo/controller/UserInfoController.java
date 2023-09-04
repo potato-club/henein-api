@@ -2,8 +2,8 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.board.BoardListResponseDto;
 import com.example.demo.dto.user.UserDetailInfoResponseDto;
-import com.example.demo.dto.userchar.NodeConnection;
 import com.example.demo.dto.user.UserInfoResponseDto;
+import com.example.demo.dto.userchar.NodeConnection;
 
 import com.example.demo.dto.user.UserNicknameChange;
 import com.example.demo.dto.userchar.UserCharacter;
@@ -37,9 +37,15 @@ public class UserInfoController {
 
     @Operation(summary = "유저 정보에 대한 요청 API")
     @GetMapping
-    public UserDetailInfoResponseDto userInfo(HttpServletRequest request){
+    public UserInfoResponseDto userInfo(HttpServletRequest request){
 
         return userService.userInfo(request);
+    }
+    @Operation(summary = "유저 정보에 대한 요청 API")
+    @GetMapping("/profile")
+    public UserDetailInfoResponseDto userDetailInfo(HttpServletRequest request){
+
+        return userService.userDetailInfo(request);
     }
     @Operation(summary = "유저 사진 변경 API")
     @PutMapping("/set-picture")

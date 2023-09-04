@@ -2,11 +2,11 @@ package com.example.demo.service;
 
 import com.example.demo.dto.board.BoardListResponseDto;
 import com.example.demo.dto.user.UserDetailInfoResponseDto;
+import com.example.demo.dto.user.UserInfoResponseDto;
 import com.example.demo.dto.userchar.*;
 import com.example.demo.dto.login.BasicLoginRequestDto;
 import com.example.demo.dto.login.KakaoOAuth2User;
 
-import com.example.demo.dto.user.UserInfoResponseDto;
 import com.example.demo.dto.user.UserNicknameChange;
 import com.example.demo.entity.*;
 import com.example.demo.enumCustom.S3EntityType;
@@ -99,9 +99,9 @@ public class UserService {
         // Optionally, return the new access token in the response body as well
         return ResponseEntity.ok("good");
     }
-    //===============마이페이지 관련
-    @Transactional
-    public UserDetailInfoResponseDto userInfo(HttpServletRequest request){
+    //===============마이페이지 관련===================
+
+    public UserInfoResponseDto userInfo(HttpServletRequest request){
         UserEntity userEntity = fetchUserEntityByHttpRequest(request);
 
         UserCharEntity userCharEntity = userCharRepository.findByUserEntityAndPickByUser(userEntity,true);
@@ -109,16 +109,39 @@ public class UserService {
         List<S3File> s3File = s3FileRepository.findAllByS3EntityTypeAndTypeId(S3EntityType.USER,userEntity.getId());
 
         if ( s3File.size() == 0 && userCharEntity == null ) {
-            return new UserDetailInfoResponseDto(userEntity.getUserName(),userEntity.getUid(),null,null);
+            return new UserInfoResponseDto(userEntity.getUserName(),userEntity.getUid(),null,null);
         }
         else if (userCharEntity == null) {
-            return new UserDetailInfoResponseDto(userEntity.getUserName(),userEntity.getUid(),null,s3File.get(0).getFileUrl());
+            return new UserInfoResponseDto(userEntity.getUserName(),userEntity.getUid(),null,s3File.get(0).getFileUrl());
         }
         else if (s3File.size() == 0) {
-            return new UserDetailInfoResponseDto(userEntity.getUserName(),userEntity.getUid(),userCharEntity.getNickName(),null);
+            return new UserInfoResponseDto(userEntity.getUserName(),userEntity.getUid(),userCharEntity.getNickName(),null);
         }
 
-        return new UserDetailInfoResponseDto(userEntity.getUserName(),userEntity.getUid(),userCharEntity.getNickName(),s3File.get(0).getFileUrl());
+        return new UserInfoResponseDto(userEntity.getUserName(),userEntity.getUid(),userCharEntity.getNickName(),s3File.get(0).getFileUrl());
+    }
+
+    public UserDetailInfoResponseDto userDetailInfo(HttpServletRequest request) {
+        UserEntity userEntity = fetchUserEntityByHttpRequest(request);
+
+        QBoardEntity qBoardEntity= QBoardEntity.boardEntity;
+        long boardCount = jpaQueryFactory
+                .selectFrom(qBoardEntity)
+                .where(qBoardEntity.userEntity.eq(userEntity))
+                .fetchCount();
+
+        QCommentEntity qCommentEntity = QCommentEntity.commentEntity;
+        long commentCount = jpaQueryFactory
+                .selectFrom(qCommentEntity)
+                .where(qCommentEntity.userEmail.eq(userEntity.getUserEmail()))
+                .fetchCount();
+
+        List<S3File> s3File = s3FileRepository.findAllByS3EntityTypeAndTypeId(S3EntityType.USER,userEntity.getId());
+
+        if (s3File.size() == 0) {
+            return new UserDetailInfoResponseDto(userEntity,null,boardCount,commentCount);
+        }
+        return new UserDetailInfoResponseDto(userEntity,s3File.get(0).getFileUrl(),boardCount,commentCount);
     }
     @Transactional
     public String userNicknameChange(HttpServletRequest request, UserNicknameChange userNickname) {

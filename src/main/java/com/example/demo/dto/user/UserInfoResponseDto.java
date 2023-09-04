@@ -1,24 +1,23 @@
 package com.example.demo.dto.user;
 
-import com.example.demo.entity.UserEntity;
 import lombok.Getter;
-
-import java.util.Objects;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class UserInfoResponseDto {
     private String userName;
     private String uid;
+    private String pickCharacter;
+    private String imageUrl;
 
-
-    public UserInfoResponseDto(UserEntity userEntity,String uid){
-        this.userName = userEntity.getUserName();
-        if (Objects.equals(uid, userEntity.getUid())) {
-            this.uid = userEntity.getUid();
-        }
+    public UserInfoResponseDto(String userName, String uid, String pickCharacter, String imageUrl) {
+        this.userName = userName;
+        this.uid = uid;
+        this.pickCharacter = pickCharacter;
+        this.imageUrl = imageUrl;
     }
-    public UserInfoResponseDto(UserEntity userEntity){
-        this.userName = userEntity.getUserName();
-    }
+    public void UpdateImage () {
 
+    }
 }
