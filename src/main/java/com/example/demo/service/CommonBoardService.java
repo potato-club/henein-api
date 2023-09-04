@@ -78,7 +78,7 @@ public class CommonBoardService {
         }
         //이미지가 없으면 연결되어 있던 사진entity들 non_use로 처리
         if(imagesUrl.isEmpty() && boardEntity.isHasImage()){
-            List<S3File> fileList = s3FileRespository.findAllByTypeId(id);
+            List<S3File> fileList = s3FileRespository.findAllByS3EntityTypeAndTypeId(S3EntityType.BOARD,id);
             fileList.stream().forEach(s3File -> s3File.setEntityData(S3EntityType.NON_USED,null));
             boardEntity.setHasImage(false);
         }
@@ -89,7 +89,7 @@ public class CommonBoardService {
         //4. 행동 수행
         else if (imagesUrl != null){
             boardEntity.setHasImage(true);
-            List<S3File> savedList = s3FileRespository.findAllByTypeId(id);
+            List<S3File> savedList = s3FileRespository.findAllByS3EntityTypeAndTypeId(S3EntityType.BOARD,id);
             List<S3File> findList = new ArrayList<>();
             for (int i = 0; i < imagesUrl.size();i++){
                 findList.add(s3FileRespository.findByFileUrl(imagesUrl.get(i)));
@@ -119,7 +119,7 @@ public class CommonBoardService {
             throw new RuntimeException("게시글 삭제 권한이 없습니다.");
         }
         //게시글에 저장되어있던 사진들 전부 미사용으로 전환
-        List<S3File> fileList = s3FileRespository.findAllByTypeId(boardEntity.getId());
+        List<S3File> fileList = s3FileRespository.findAllByS3EntityTypeAndTypeId(S3EntityType.BOARD,id);
         fileList.stream().forEach(s3File -> s3File.setEntityData(S3EntityType.NON_USED, null));
         boardRepository.delete(boardEntity);
 
@@ -133,7 +133,7 @@ public class CommonBoardService {
         ViewIncreaseDto viewIncreaseDto = new ViewIncreaseDto();
         viewIncreaseDto.setViews(boardEntity.getViews()+1);
         boardEntity.Update(viewIncreaseDto);
-        boardRepository.save(boardEntity);
+
         return "조회수 증가완료";
     }
     @Transactional
@@ -161,23 +161,13 @@ public class CommonBoardService {
             boardEntity.Update(boardRecommendDTO);
             recommendEntity.setValue(false);
 
-            recommandRepository.save(recommendEntity);
             return "추천 취소";
         } else {
             BoardRecommendDTO boardRecommendDTO = new BoardRecommendDTO(boardEntity.getRecommend()+1);
             boardEntity.Update(boardRecommendDTO);
             recommendEntity.setValue(true);
 
-            recommandRepository.save(recommendEntity);
             return "재추천 완료";
         }
     }
-  /*  @Transactional
-    public String unRecommendThisBoard(Long id){
-        BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 게시글 정보가 없습니다");});
-        BoardRecommendDTO recommandUpdateDTO = new BoardRecommendDTO();
-        recommandUpdateDTO.setRecommend(boardEntity.getRecommend()-1);
-        boardEntity.Update(recommandUpdateDTO);
-        boardRepository.save(boardEntity);
-    }*/
 }

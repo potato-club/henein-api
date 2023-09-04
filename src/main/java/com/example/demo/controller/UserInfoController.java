@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.board.BoardListResponseDto;
+import com.example.demo.dto.user.UserDetailInfoResponseDto;
 import com.example.demo.dto.userchar.NodeConnection;
 import com.example.demo.dto.user.UserInfoResponseDto;
 
@@ -18,8 +19,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
@@ -32,11 +35,16 @@ import java.util.List;
 public class UserInfoController {
     private final UserService userService;
 
-    @Operation(summary = "유저 정보에 대한 요청 API [보안]")
+    @Operation(summary = "유저 정보에 대한 요청 API")
     @GetMapping
-    public UserInfoResponseDto userInfo(HttpServletRequest request){
+    public UserDetailInfoResponseDto userInfo(HttpServletRequest request){
 
         return userService.userInfo(request);
+    }
+    @Operation(summary = "유저 사진 변경 API")
+    @PutMapping("/set-picture")
+    public void updateUserPicture(@RequestPart MultipartFile image, HttpServletRequest request) throws IOException {
+        userService.updateUserPicture(image, request);
     }
     @Operation(summary = "유저 이름 변경 API")
     @PutMapping("/set-name")

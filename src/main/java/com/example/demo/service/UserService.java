@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.board.BoardListResponseDto;
+import com.example.demo.dto.user.UserDetailInfoResponseDto;
 import com.example.demo.dto.userchar.*;
 import com.example.demo.dto.login.BasicLoginRequestDto;
 import com.example.demo.dto.login.KakaoOAuth2User;
@@ -8,6 +9,7 @@ import com.example.demo.dto.login.KakaoOAuth2User;
 import com.example.demo.dto.user.UserInfoResponseDto;
 import com.example.demo.dto.user.UserNicknameChange;
 import com.example.demo.entity.*;
+import com.example.demo.enumCustom.S3EntityType;
 import com.example.demo.enumCustom.UserRole;
 import com.example.demo.error.ErrorCode;
 import com.example.demo.error.exception.BadRequestException;
@@ -17,6 +19,7 @@ import com.example.demo.error.exception.NotFoundException;
 import com.example.demo.jwt.JwtTokenProvider;
 import com.example.demo.jwt.KakaoOAuth2AccessTokenResponse;
 import com.example.demo.jwt.KakaoOAuth2Client;
+import com.example.demo.repository.S3FileRespository;
 import com.example.demo.repository.UserCharRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.jwtservice.KakaoOAuth2UserDetailsServcie;
@@ -30,6 +33,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -37,6 +41,7 @@ import reactor.core.publisher.Mono;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -47,6 +52,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final S3FileRespository s3FileRepository;
+    private final S3Service s3Service;
     private final UserCharRepository userCharRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final KakaoOAuth2UserDetailsServcie kakaoOAuth2UserDetailsServcie;
@@ -94,9 +101,24 @@ public class UserService {
     }
     //===============마이페이지 관련
     @Transactional
-    public UserInfoResponseDto userInfo(HttpServletRequest request){
+    public UserDetailInfoResponseDto userInfo(HttpServletRequest request){
         UserEntity userEntity = fetchUserEntityByHttpRequest(request);
-        return new UserInfoResponseDto(userEntity);
+
+        UserCharEntity userCharEntity = userCharRepository.findByUserEntityAndPickByUser(userEntity,true);
+
+        List<S3File> s3File = s3FileRepository.findAllByS3EntityTypeAndTypeId(S3EntityType.USER,userEntity.getId());
+
+        if ( s3File.size() == 0 && userCharEntity == null ) {
+            return new UserDetailInfoResponseDto(userEntity.getUserName(),userEntity.getUid(),null,null);
+        }
+        else if (userCharEntity == null) {
+            return new UserDetailInfoResponseDto(userEntity.getUserName(),userEntity.getUid(),null,s3File.get(0).getFileUrl());
+        }
+        else if (s3File.size() == 0) {
+            return new UserDetailInfoResponseDto(userEntity.getUserName(),userEntity.getUid(),userCharEntity.getNickName(),null);
+        }
+
+        return new UserDetailInfoResponseDto(userEntity.getUserName(),userEntity.getUid(),userCharEntity.getNickName(),s3File.get(0).getFileUrl());
     }
     @Transactional
     public String userNicknameChange(HttpServletRequest request, UserNicknameChange userNickname) {
@@ -104,6 +126,12 @@ public class UserService {
         userEntity.Update(userNickname);
         userRepository.save(userEntity);
         return "유저 이름 설정 완료";
+    }
+    @Transactional
+    public void updateUserPicture(MultipartFile image, HttpServletRequest request) throws IOException {
+        UserEntity userEntity = fetchUserEntityByHttpRequest(request);
+
+        s3Service.uploadImageUserPicture(image, userEntity.getId());
     }
     @Transactional
     public void pickCharacter(Long id, HttpServletRequest request) {

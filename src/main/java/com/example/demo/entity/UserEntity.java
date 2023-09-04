@@ -22,6 +22,8 @@ import java.util.UUID;
 @Entity
 public class UserEntity extends BaseTimeEntity{
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String uid;
     @Column(nullable = false)
     private UserRole userRole;
@@ -31,7 +33,6 @@ public class UserEntity extends BaseTimeEntity{
     private String userName;
     @Column
     private String password;
-
     @Column(length = 512,nullable = false)
     private String refreshToken;
 
@@ -47,7 +48,6 @@ public class UserEntity extends BaseTimeEntity{
     }
 
     public void setRefreshToken(String refreshToken){
-
         this.refreshToken = refreshToken;
     }
 

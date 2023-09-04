@@ -7,6 +7,7 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.util.IOUtils;
 import com.example.demo.entity.S3File;
+import com.example.demo.entity.UserEntity;
 import com.example.demo.enumCustom.S3EntityType;
 import com.example.demo.repository.S3FileRespository;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,20 @@ public class S3Service {
         s3FileRespository.save(resultList.get(0));
 
         return resultList.get(0).getFileUrl();
+    }
+    public void uploadImageUserPicture(MultipartFile image, Long id) throws IOException {
+        List<MultipartFile> s3FileList = new ArrayList<>();
+
+        s3FileList.add(image);
+        List<S3File> newS3List = this.existsFiles(s3FileList);
+        List<S3File> oldS3File = s3FileRespository.findAllByS3EntityTypeAndTypeId(S3EntityType.USER,id);
+
+        if (oldS3File.size()!=0) {
+            oldS3File.get(0).setEntityData(S3EntityType.NON_USED,null);
+        }
+
+        newS3List.get(0).setEntityData(S3EntityType.USER, id);
+        s3FileRespository.save(newS3List.get(0));
     }
 
     private List<S3File> existsFiles(List<MultipartFile> imageList) throws IOException {
