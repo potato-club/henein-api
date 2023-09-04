@@ -44,13 +44,13 @@ public class AuthenticationController {
 
     @Operation(summary = "Authorization에 accessToken, RefreshToken에 refreshToken이 들어있음")
     @GetMapping("/login/kakao")
-    public ResponseEntity<?> kakaoLogin(@RequestParam("code") String code, HttpServletResponse response) throws IOException {
+    public ResponseEntity<?> kakaoLogin(@RequestParam("code") String code, HttpServletResponse response) {
         log.info("Controller -> login/kakao 진입시도 코드: "+code);
         return userService.kakaoLogin(code,response);
     }
     @Operation(summary = "AT를 재발급 받기 위한 API")
     @GetMapping("/refresh")
-    public ResponseEntity<?> refreshAT(HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
+    public ResponseEntity<?> refreshAT(HttpServletRequest request, HttpServletResponse response) {
        return userService.refreshAT(request, response);
     }
 }

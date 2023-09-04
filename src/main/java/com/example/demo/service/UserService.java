@@ -84,8 +84,8 @@ public class UserService {
         //bearer 지우기
         String RTHeader = jwtTokenProvider.resolveRefreshToken(request);
 
-        // rt 넣어서 검증하고 유저이름 가져오기 /
-        String userEmail = jwtTokenProvider.refreshAccessToken(RTHeader ,response);
+        // rt 넣어서 검증하고 유저이름 가져오기
+        String userEmail = jwtTokenProvider.refreshAccessToken(RTHeader);
         UserEntity userEntity = userRepository.findByUserEmail(userEmail).orElseThrow(()->{throw new RuntimeException();});
         //db에 있는 토큰값과 넘어온 토큰이 같은지
         if (!userEntity.getRefreshToken().equals(RTHeader)){

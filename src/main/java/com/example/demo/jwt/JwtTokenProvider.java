@@ -94,7 +94,7 @@ public class JwtTokenProvider {
             throw new io.jsonwebtoken.SignatureException("JWT signature does not match");
         }
     }
-    public boolean validateRefreshToken(HttpServletResponse response, String token){
+    public boolean validateRefreshToken(String token){
         try {
             Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
             return true;
@@ -111,9 +111,9 @@ public class JwtTokenProvider {
         }
     }
 
-    public String refreshAccessToken(String token, HttpServletResponse response) {
+    public String refreshAccessToken(String token) {
 
-        validateRefreshToken(response, token);
+        validateRefreshToken(token);
 
         String userEmail = getUsernameFromRefreshToken(token);
         return userEmail;
