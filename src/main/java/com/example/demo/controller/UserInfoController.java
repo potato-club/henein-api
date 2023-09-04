@@ -5,10 +5,11 @@ import com.example.demo.dto.user.UserDetailInfoResponseDto;
 import com.example.demo.dto.user.UserInfoResponseDto;
 import com.example.demo.dto.userchar.NodeConnection;
 
-import com.example.demo.dto.user.UserNicknameChange;
+import com.example.demo.dto.user.UserInfoUpdate;
 import com.example.demo.dto.userchar.UserCharacter;
 import com.example.demo.dto.userchar.UserMapleApi;
 import com.example.demo.error.ErrorCode;
+import com.example.demo.error.exception.ForbiddenException;
 import com.example.demo.error.exception.NotFoundException;
 import com.example.demo.service.UserService;
 import io.swagger.annotations.Api;
@@ -47,20 +48,19 @@ public class UserInfoController {
 
         return userService.userDetailInfo(request);
     }
-    @Operation(summary = "유저 사진 변경 API")
-    @PutMapping("/set-picture")
-    public void updateUserPicture(@RequestPart MultipartFile image, HttpServletRequest request) throws IOException {
-        userService.updateUserPicture(image, request);
-    }
-    @Operation(summary = "유저 이름 변경 API")
-    @PutMapping("/set-name")
-    public String userNicknameChange(@RequestBody UserNicknameChange userNickname, HttpServletRequest request) throws UnsupportedEncodingException {
+//    @Operation(summary = "유저 사진 변경 API")
+//    @PutMapping("/set-picture")
+//    public void updateUserPicture(MultipartFile image, HttpServletRequest request) throws IOException {
+//        userService.updateUserPicture(image, request);
+//    }
+    @Operation(summary = "유저 이름,사진 변경 API - [form-data]")
+    @PutMapping()
+    public String userUpdate(@RequestPart MultipartFile image, @RequestPart String userName, HttpServletRequest request) throws IOException {
 
-        String userName = userNickname.getUserName();
         if (userName == null || userName.length() < 2 || userName.length() >= 15) {
-            throw new NotFoundException("유저이름이 너무 짧거나 깁니다",ErrorCode.INVALID_ACCESS);
+            throw new ForbiddenException("이름이 너무 짧거나 깁니다.",ErrorCode.BAD_REQUEST);
         }
-        return userService.userNicknameChange(request, userNickname);
+        return userService.userUpdate(image,userName, request);
     }
     //=====================메이플 캐릭터 관련=========================//
     @Operation(summary = "현재 인증된 모든 캐릭터 가져오기")

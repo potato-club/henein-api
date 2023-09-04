@@ -7,7 +7,7 @@ import com.example.demo.dto.userchar.*;
 import com.example.demo.dto.login.BasicLoginRequestDto;
 import com.example.demo.dto.login.KakaoOAuth2User;
 
-import com.example.demo.dto.user.UserNicknameChange;
+import com.example.demo.dto.user.UserInfoUpdate;
 import com.example.demo.entity.*;
 import com.example.demo.enumCustom.S3EntityType;
 import com.example.demo.enumCustom.UserRole;
@@ -144,18 +144,21 @@ public class UserService {
         return new UserDetailInfoResponseDto(userEntity,s3File.get(0).getFileUrl(),boardCount,commentCount);
     }
     @Transactional
-    public String userNicknameChange(HttpServletRequest request, UserNicknameChange userNickname) {
-        UserEntity userEntity = fetchUserEntityByHttpRequest(request);
-        userEntity.Update(userNickname);
-        userRepository.save(userEntity);
-        return "유저 이름 설정 완료";
-    }
-    @Transactional
-    public void updateUserPicture(MultipartFile image, HttpServletRequest request) throws IOException {
+    public String userUpdate(MultipartFile image, String userName,HttpServletRequest request) throws IOException {
         UserEntity userEntity = fetchUserEntityByHttpRequest(request);
 
+        userEntity.Update(userName);
+
         s3Service.uploadImageUserPicture(image, userEntity.getId());
+
+        return "유저 이름 설정 완료";
     }
+//    @Transactional
+//    public void updateUserPicture(MultipartFile image, HttpServletRequest request) throws IOException {
+//        UserEntity userEntity = fetchUserEntityByHttpRequest(request);
+//
+//        s3Service.uploadImageUserPicture(image, userEntity.getId());
+//    }
     @Transactional
     public void pickCharacter(Long id, HttpServletRequest request) {
         UserEntity userEntity = fetchUserEntityByHttpRequest(request);

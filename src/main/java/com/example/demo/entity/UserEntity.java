@@ -1,8 +1,7 @@
 package com.example.demo.entity;
 
-import com.example.demo.dto.user.UserNicknameChange;
+import com.example.demo.dto.user.UserInfoUpdate;
 import com.example.demo.enumCustom.UserRole;
-import com.sun.istack.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,9 +9,6 @@ import lombok.NoArgsConstructor;
 
 
 import javax.persistence.*;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Size;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
@@ -43,8 +39,8 @@ public class UserEntity extends BaseTimeEntity{
         this.userRole = UserRole.USER;
         this.uid = String.valueOf(UUID.randomUUID());
     }
-    public void Update(UserNicknameChange userNicknameChange) {
-        this.userName = userNicknameChange.getUserName();
+    public void Update(String userName) {
+        this.userName = userName;
     }
 
     public void setRefreshToken(String refreshToken){
