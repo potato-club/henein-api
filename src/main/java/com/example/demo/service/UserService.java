@@ -26,6 +26,7 @@ import com.example.demo.service.jwtservice.KakaoOAuth2UserDetailsServcie;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -64,6 +65,8 @@ public class UserService {
     private final RedisService redisService;
     private final JPAQueryFactory jpaQueryFactory;
 
+    @Value("${apiKey}")
+    private String apiKey;
 
 //=================필터사용
     @Transactional
@@ -186,10 +189,10 @@ public class UserService {
     //인증 받아오기
     public String requestToNexon(HttpServletRequest request,UserMapleApi userMapleApi){
         UserEntity userEntity = fetchUserEntityByHttpRequest(request);
-
+        String api = "cube?key="+apiKey;
 
          this.cubeWebClient.post()
-                 .uri("cube")
+                 .uri(api)
                 .body(BodyInserters.fromValue(userMapleApi))
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<List<String>>() {})
