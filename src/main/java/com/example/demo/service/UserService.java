@@ -144,21 +144,18 @@ public class UserService {
         return new UserDetailInfoResponseDto(userEntity,s3File.get(0).getFileUrl(),boardCount,commentCount);
     }
     @Transactional
-    public String userUpdate(MultipartFile image, String userName,HttpServletRequest request) throws IOException {
+    public String userUpdate(MultipartFile image, String userName, HttpServletRequest request) throws IOException {
         UserEntity userEntity = fetchUserEntityByHttpRequest(request);
 
-        userEntity.Update(userName);
+        if (userName != null) {
+            userEntity.Update(userName);
+        } else if (!(image == null || image.isEmpty())) {
+            s3Service.uploadImageUserPicture(image, userEntity.getId());
+        }
 
-        s3Service.uploadImageUserPicture(image, userEntity.getId());
-
-        return "유저 이름 설정 완료";
+        return "200ok";
     }
-//    @Transactional
-//    public void updateUserPicture(MultipartFile image, HttpServletRequest request) throws IOException {
-//        UserEntity userEntity = fetchUserEntityByHttpRequest(request);
-//
-//        s3Service.uploadImageUserPicture(image, userEntity.getId());
-//    }
+
     @Transactional
     public void pickCharacter(Long id, HttpServletRequest request) {
         UserEntity userEntity = fetchUserEntityByHttpRequest(request);
@@ -185,7 +182,7 @@ public class UserService {
 
         return resultList.stream().map(UserCharacter::new).collect(Collectors.toList());
     }
-    private static final int character_limit = 100;
+    private final int character_limit = 100;
     //인증 받아오기
     public String requestToNexon(HttpServletRequest request,UserMapleApi userMapleApi){
         UserEntity userEntity = fetchUserEntityByHttpRequest(request);
@@ -195,7 +192,7 @@ public class UserService {
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<List<String>>() {})
                 .flatMap(result -> {
-                    if (100 > userCharRepository.countByUserEntity(userEntity)) {
+                    if (character_limit > userCharRepository.countByUserEntity(userEntity)) {
                         List<UserCharEntity> userCharEntityList = new ArrayList<>();
                         for (int i = 0; i < result.size(); i++) {
                             userCharEntityList.add(new UserCharEntity(userEntity, result.get(i)));

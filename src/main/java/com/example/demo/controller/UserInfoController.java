@@ -48,16 +48,12 @@ public class UserInfoController {
 
         return userService.userDetailInfo(request);
     }
-//    @Operation(summary = "유저 사진 변경 API")
-//    @PutMapping("/set-picture")
-//    public void updateUserPicture(MultipartFile image, HttpServletRequest request) throws IOException {
-//        userService.updateUserPicture(image, request);
-//    }
     @Operation(summary = "유저 이름,사진 변경 API - [form-data]")
     @PutMapping()
-    public String userUpdate(@RequestPart MultipartFile image, @RequestPart String userName, HttpServletRequest request) throws IOException {
+    public String userUpdate(@RequestPart(required = false) MultipartFile image,
+                             @RequestPart(required = false) String userName, HttpServletRequest request) throws IOException {
 
-        if (userName == null || userName.length() < 2 || userName.length() >= 15) {
+        if (userName != null && (userName.length() < 2 || userName.length() >= 15)) {
             throw new ForbiddenException("이름이 너무 짧거나 깁니다.",ErrorCode.BAD_REQUEST);
         }
         return userService.userUpdate(image,userName, request);
