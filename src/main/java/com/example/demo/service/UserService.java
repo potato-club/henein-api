@@ -235,15 +235,15 @@ public class UserService {
     }
     @Transactional
     public String responseToRedisAndUpdate(NodeConnection nodeConnection){
-        if (!userCharRepository.existsByNickName(nodeConnection.getDetailCharacter().getNickname())){
+        if (!userCharRepository.existsByNickName(nodeConnection.getCharacter().getNickname())){
             throw new NotFoundException(ErrorCode.NULL_VALUE.getMessage(),ErrorCode.NULL_VALUE);
         }
-        UserCharEntity userCharEntity = userCharRepository.findByNickName(nodeConnection.getDetailCharacter().getNickname())
+        UserCharEntity userCharEntity = userCharRepository.findByNickName(nodeConnection.getCharacter().getNickname())
                 .orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND.getMessage(),ErrorCode.NOT_FOUND);});
 
-        userCharEntity.update(nodeConnection.getDetailCharacter());
+        userCharEntity.update(nodeConnection.getCharacter());
 
-        return redisService.updateWork(nodeConnection.getDetailCharacter().getNickname());
+        return redisService.updateWork(nodeConnection.getCharacter().getNickname());
     }
 
     //============내 활동관련 =======================//

@@ -22,7 +22,7 @@ public class UserCharEntity extends BaseTimeEntity{
     private boolean pickByUser = false;
 
     @Column
-    private Long experience;
+    private String experience;
     @Column
     private String avatar;
     @Column(nullable = false,unique = true)
