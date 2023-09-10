@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public class DetailCharacter {
     String id;
-    Long experience;
+    String experience;
     String avatar;
     String world;
     String nickname;

@@ -7,5 +7,6 @@ import java.io.Serializable;
 @Getter
 public class NodeConnection {
     String id;
-    DetailCharacter detailCharacter;
+    String nickname;
+    DetailCharacter character;
 }
