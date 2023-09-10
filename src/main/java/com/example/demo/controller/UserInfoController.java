@@ -82,7 +82,7 @@ public class UserInfoController {
     @Operation(summary = "노드에서 spring으로 요청할 api")
     @PostMapping("/character/info")
     public String test(@RequestBody NodeConnection nodeConnection){
-
+        log.info("호빈이 접속");
         return userService.responseToRedisAndUpdate(nodeConnection);
     }
 
