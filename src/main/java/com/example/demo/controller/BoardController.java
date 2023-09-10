@@ -1,7 +1,6 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.board.*;
-import com.example.demo.entity.S3File;
 import com.example.demo.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -17,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 

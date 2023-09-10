@@ -70,15 +70,18 @@ public class UserInfoController {
     public void pickCharacter(@RequestParam Long id, HttpServletRequest request){
         userService.pickCharacter(id,request);
     }
+
     @Operation(summary = "단일 캐릭터 정보갱신 요청")
     @GetMapping("/character/renew")
     public String requestUpdateChar(@RequestParam String name){
         return userService.requestUpdateToNode(name);
     }
+
     @Operation(summary = "유저가 가지고있는 캐릭터 큐브 내역으로 불러오기" )
     @PostMapping("/character/auth") String requestNexon(@RequestBody UserMapleApi userMapleApi,HttpServletRequest request){
         return userService.requestToNexon(request,userMapleApi);
     }
+
     @Operation(summary = "노드에서 spring으로 요청할 api")
     @PostMapping("/character/info")
     public String test(@RequestBody NodeConnection nodeConnection){
