@@ -182,17 +182,19 @@ public class UserService {
 
         return resultList.stream().map(UserCharacter::new).collect(Collectors.toList());
     }
-    private final int character_limit = 100;
+
     //인증 받아오기
     public String requestToNexon(HttpServletRequest request,UserMapleApi userMapleApi){
         UserEntity userEntity = fetchUserEntityByHttpRequest(request);
 
+
          this.cubeWebClient.post()
+                 .uri("cube")
                 .body(BodyInserters.fromValue(userMapleApi))
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<List<String>>() {})
                 .flatMap(result -> {
-                    if (character_limit > userCharRepository.countByUserEntity(userEntity)) {
+                    if (100 > userCharRepository.countByUserEntity(userEntity)) {
                         List<UserCharEntity> userCharEntityList = new ArrayList<>();
                         for (int i = 0; i < result.size(); i++) {
                             userCharEntityList.add(new UserCharEntity(userEntity, result.get(i)));
@@ -200,9 +202,11 @@ public class UserService {
                         userCharRepository.saveAll(userCharEntityList);
                     } else return Mono.error(()->new RuntimeException("over of max character"));
                     return Mono.just(result);
-                });
-         return "update finish";
+                })
+                 .subscribe();
+         return "Please wait about 30 seconds and try /userinfo/all";
     }
+
     @Transactional
     public String requestUpdateToNode(String userCharName){
         UserCharEntity userCharEntity = userCharRepository.findByNickName(userCharName)
