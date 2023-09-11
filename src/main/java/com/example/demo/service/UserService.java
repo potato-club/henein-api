@@ -271,6 +271,7 @@ public class UserService {
 
         List<BoardEntity> boardEntityList = jpaQueryFactory
                 .select(qCommentEntity.boardEntity)
+                .distinct()
                 .from(qCommentEntity)
                 .where(qCommentEntity.userEmail.eq(userEntity.getUserEmail()))
                 .orderBy(qCommentEntity.boardEntity.id.desc())
