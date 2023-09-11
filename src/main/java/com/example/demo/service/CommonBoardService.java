@@ -1,6 +1,5 @@
 package com.example.demo.service;
 
-import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.example.demo.dto.board.*;
 import com.example.demo.entity.BoardEntity;
 import com.example.demo.entity.RecommendEntity;
@@ -12,13 +11,10 @@ import com.example.demo.repository.BoardRepository;
 import com.example.demo.repository.RecommandRepository;
 import com.example.demo.repository.S3FileRespository;
 import com.example.demo.repository.UserRepository;
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.HashSet;

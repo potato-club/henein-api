@@ -1,12 +1,8 @@
 package com.example.demo.entity;
 
 import com.example.demo.dto.userchar.DetailCharacter;
-import com.example.demo.dto.userchar.NodeConnection;
-import jdk.jfr.Label;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 import javax.persistence.*;
 
 @Entity

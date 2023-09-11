@@ -6,8 +6,6 @@ import com.example.demo.dto.user.UserInfoResponseDto;
 import com.example.demo.dto.userchar.*;
 import com.example.demo.dto.login.BasicLoginRequestDto;
 import com.example.demo.dto.login.KakaoOAuth2User;
-
-import com.example.demo.dto.user.UserInfoUpdate;
 import com.example.demo.entity.*;
 import com.example.demo.enumCustom.S3EntityType;
 import com.example.demo.enumCustom.UserRole;

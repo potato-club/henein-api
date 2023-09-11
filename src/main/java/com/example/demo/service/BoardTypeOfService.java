@@ -1,18 +1,13 @@
 package com.example.demo.service;
 
-import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.example.demo.dto.board.BoardListResponseDto;
 import com.example.demo.dto.board.BoardRequestDto;
-import com.example.demo.dto.board.BoardResponseDto;
 import com.example.demo.entity.BoardEntity;
-import com.example.demo.entity.S3File;
 import com.example.demo.entity.UserEntity;
 import com.example.demo.enumCustom.BoardType;
-//import com.example.demo.error.exception.NotFoundException;
 import com.example.demo.enumCustom.S3EntityType;
 import com.example.demo.error.ErrorCode;
 import com.example.demo.error.exception.NotFoundException;
-import com.example.demo.jwt.JwtTokenProvider;
 import com.example.demo.repository.BoardRepository;
 import com.example.demo.repository.S3FileRespository;
 import lombok.RequiredArgsConstructor;
@@ -20,13 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
-
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;

@@ -4,27 +4,19 @@ import com.example.demo.dto.board.BoardListResponseDto;
 import com.example.demo.dto.user.UserDetailInfoResponseDto;
 import com.example.demo.dto.user.UserInfoResponseDto;
 import com.example.demo.dto.userchar.NodeConnection;
-
-import com.example.demo.dto.user.UserInfoUpdate;
 import com.example.demo.dto.userchar.UserCharacter;
 import com.example.demo.dto.userchar.UserMapleApi;
 import com.example.demo.error.ErrorCode;
 import com.example.demo.error.exception.ForbiddenException;
-import com.example.demo.error.exception.NotFoundException;
 import com.example.demo.service.UserService;
 import io.swagger.annotations.Api;
-
 import io.swagger.v3.oas.annotations.Operation;
-
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 
