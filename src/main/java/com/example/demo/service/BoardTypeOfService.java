@@ -67,7 +67,7 @@ public class BoardTypeOfService {
 
     //===================================================================================================
     @Transactional
-    public String addTypeOfBoard(BoardRequestDto boardRequestDto, HttpServletRequest request){
+    public long addTypeOfBoard(BoardRequestDto boardRequestDto, HttpServletRequest request){
         UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request); // jwt 로직 추가
 
         BoardType board;
@@ -99,7 +99,7 @@ public class BoardTypeOfService {
             s3Service.changeImageInfo(imagesUrl, S3EntityType.BOARD, savedBoard.getId());
         }
 
-        return "저장 완료";
+        return savedBoard.getId();
     }
 
 }

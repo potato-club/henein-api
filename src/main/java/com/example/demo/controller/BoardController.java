@@ -50,7 +50,7 @@ public class BoardController {
     //==================================================================================
     @Operation(summary = "Json 으로 보내주세요 [보안]")
     @PostMapping() //Create
-    public String addTypeOfBoard(@RequestBody BoardRequestDto boardRequestDto,
+    public long addTypeOfBoard(@RequestBody BoardRequestDto boardRequestDto,
                                  HttpServletRequest request ) {
         log.info("작성 컨트롤러 진입");
         return boardTypeOfService.addTypeOfBoard(boardRequestDto, request);
@@ -74,7 +74,7 @@ public class BoardController {
 //==================================================================================
     @Operation(summary = "[보안]")
     @PutMapping("/{id}")
-    public String updateBoard(@PathVariable Long id, @RequestBody TestDto testDto, HttpServletRequest request){
+    public long updateBoard(@PathVariable Long id, @RequestBody TestDto testDto, HttpServletRequest request){
         return commonBoardService.updateService(id, testDto, request);
     }
     @Operation(summary = "[보안]")

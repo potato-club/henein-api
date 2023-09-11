@@ -60,7 +60,7 @@ public class CommonBoardService {
         return boardResponseDto;
     }
     @Transactional
-    public String updateService(Long id, TestDto testDto, HttpServletRequest request){
+    public long updateService(Long id, TestDto testDto, HttpServletRequest request){
         UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request);
         BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 게시글 정보가 없습니다");});
         if (boardEntity.getUserEntity().getUserEmail() != userEntity.getUserEmail()){
@@ -109,7 +109,7 @@ public class CommonBoardService {
         }
 
         boardEntity.Update(testDto);
-        return "수정완료";
+        return boardEntity.getId();
     }
     @Transactional
     public String deleteService(Long id, HttpServletRequest request ){
