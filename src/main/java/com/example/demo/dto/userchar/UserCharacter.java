@@ -11,7 +11,7 @@ import javax.persistence.*;
 public class UserCharacter {
     private Long id;
     private boolean pickByUser;
-    private String avatar;
+    private byte[] avatar;
     private String nickName;
     private String world;
     private int level;

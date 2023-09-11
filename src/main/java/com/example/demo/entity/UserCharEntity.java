@@ -2,6 +2,7 @@ package com.example.demo.entity;
 
 import com.example.demo.dto.userchar.DetailCharacter;
 import com.example.demo.dto.userchar.NodeConnection;
+import jdk.jfr.Label;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,7 +25,8 @@ public class UserCharEntity extends BaseTimeEntity{
     @Column
     private String experience;
     @Column
-    private String avatar;
+    @Lob
+    private byte[] avatar;
     @Column(nullable = false,unique = true)
     private String nickName;
     @Column
@@ -45,7 +47,7 @@ public class UserCharEntity extends BaseTimeEntity{
     }
     public void update(DetailCharacter detailCharacter){
        this.experience = detailCharacter.getExperience();
-       this.avatar = detailCharacter.getAvatar();
+       this.avatar = detailCharacter.getAvatar().getBytes();
        this.world = detailCharacter.getWorld();
        this.level = detailCharacter.getLevel();
        this.job = detailCharacter.getJob();
