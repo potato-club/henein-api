@@ -20,9 +20,8 @@ public class UserCharEntity extends BaseTimeEntity{
 
     @Column
     private String experience;
-    @Column
-    @Lob
-    private byte[] avatar;
+    @Column(length = 1000)
+    private String avatar;
     @Column(nullable = false,unique = true)
     private String nickName;
     @Column
@@ -43,7 +42,7 @@ public class UserCharEntity extends BaseTimeEntity{
     }
     public void update(DetailCharacter detailCharacter){
        this.experience = detailCharacter.getExperience();
-       this.avatar = detailCharacter.getAvatar().getBytes();
+       this.avatar = detailCharacter.getAvatar();
        this.world = detailCharacter.getWorld();
        this.level = detailCharacter.getLevel();
        this.job = detailCharacter.getJob();
