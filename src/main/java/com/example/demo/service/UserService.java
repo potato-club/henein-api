@@ -214,7 +214,7 @@ public class UserService {
                 .orElseThrow(()->{throw new NotFoundException(ErrorCode.NULL_VALUE.getMessage(),ErrorCode.NULL_VALUE);});
         //요청 보내기전에 1시간 시간 제한 걸어야함 레디스 유효시간 1시간임
         if (redisService.checkRedis(userCharName)) {
-            throw new BadRequestException(ErrorCode.NULL_VALUE.getMessage(),ErrorCode.NULL_VALUE); // 몇분 남았는지도 알려줘야함
+            throw new BadRequestException("1시간 요청 제한",ErrorCode.NULL_VALUE); // 몇분 남았는지도 알려줘야함
         }
         Map<String, String> callback = new HashMap<>();
         callback.put("callback", "https://henesysback.shop/userinfo/character/info");
@@ -233,6 +233,8 @@ public class UserService {
     }
     @Transactional
     public String responseToRedisAndUpdate(NodeConnection nodeConnection){
+        log.info(nodeConnection.getNickname());
+        log.info(nodeConnection.getCharacter().getAvatar());
         if (!userCharRepository.existsByNickName(nodeConnection.getCharacter().getNickname())){
             throw new NotFoundException(ErrorCode.NULL_VALUE.getMessage(),ErrorCode.NULL_VALUE);
         }
