@@ -180,7 +180,7 @@ public class UserService {
         UserEntity userEntity = fetchUserEntityByHttpRequest(request);
 
         List<UserCharEntity> resultList = userCharRepository.findAllByUserEntity(userEntity);
-
+        log.info(resultList.get(0).getAvatar());
         return resultList.stream().map(UserCharacter::new).collect(Collectors.toList());
     }
 
