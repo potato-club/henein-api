@@ -169,10 +169,14 @@ public class UserService {
             newCharEntity.pickThisCharacter();
             return;
         }
-
-        oldCharEntity.unPickThisCharacter();
+        else if (oldCharEntity.getId() == id){
+            oldCharEntity.unPickThisCharacter();
+            return;
+        }
 
         UserCharEntity newCharEntity = userCharRepository.findByUserEntityAndId(userEntity, id);
+
+        oldCharEntity.unPickThisCharacter();
         newCharEntity.pickThisCharacter();
 
     }
