@@ -41,6 +41,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -186,6 +188,14 @@ public class UserService {
 
     //인증 받아오기
     public String requestToNexon(HttpServletRequest request,UserMapleApi userMapleApi){
+        //날짜가 오늘일시 에러.
+        if (userMapleApi.getStartDay().equals(LocalDate.now())) {
+            throw new BadRequestException("Today's date cannot be requested", ErrorCode.BAD_REQUEST);
+        }
+        else if (ChronoUnit.DAYS.between(userMapleApi.getStartDay(),userMapleApi.getEndDay()) >=62){
+            throw new BadRequestException("Cannot request for more than 2 months", ErrorCode.BAD_REQUEST);
+        }
+        //날짜 비교해서 2달 이상이면 에러
         UserEntity userEntity = fetchUserEntityByHttpRequest(request);
         String api = "cube?key="+apiKey;
 
@@ -195,14 +205,14 @@ public class UserService {
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<List<String>>() {})
                 .flatMap(result -> {
-                    if (100 > userCharRepository.countByUserEntity(userEntity)) {
-                        List<UserCharEntity> userCharEntityList = new ArrayList<>();
-                        for (int i = 0; i < result.size(); i++) {
-                            userCharEntityList.add(new UserCharEntity(userEntity, result.get(i)));
-                        }
-                        userCharRepository.saveAll(userCharEntityList);
-                    } else return Mono.error(()->new RuntimeException("over of max character"));
-                    return Mono.just(result);
+                    List<UserCharEntity> userCharEntityList = new ArrayList<>();
+
+                    for (int i = 0; i < result.size(); i++) {
+                        userCharEntityList.add(new UserCharEntity(userEntity, result.get(i)));
+                    }
+                    userCharRepository.saveAll(userCharEntityList);
+
+                    return null;
                 })
                  .subscribe();
          return "Please wait about 30 seconds and try /userinfo/all";
