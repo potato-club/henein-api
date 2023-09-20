@@ -1,19 +1,23 @@
 package com.example.demo.dto.user;
 
-import com.example.demo.entity.UserEntity;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class UserInfoResponseDto {
     private String userName;
-    private String floor;
-    private int userLevel;
-    private String job;
+    private String uid;
+    private String pickCharacter;
+    private String imageUrl;
 
-    public UserInfoResponseDto(UserEntity userEntity){
-        this.userName = userEntity.getUserName();
-        this.floor = userEntity.getFloor();
-        this.userLevel =userEntity.getUserLevel();
-        this.job = userEntity.getJob();
+    public UserInfoResponseDto(String userName, String uid, String pickCharacter, String imageUrl) {
+        this.userName = userName;
+        this.uid = uid;
+        this.pickCharacter = pickCharacter;
+        this.imageUrl = imageUrl;
+    }
+    public void UpdateImage () {
+
     }
 }

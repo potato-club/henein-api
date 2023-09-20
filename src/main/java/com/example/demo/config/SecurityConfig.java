@@ -1,88 +1,71 @@
 package com.example.demo.config;
 
 import com.example.demo.jwt.JwtAuthenticationFilter;
-import com.example.demo.jwt.JwtTokenProvider;
-import com.example.demo.jwt.KakaoOAuth2Client;
-import com.example.demo.service.KakaoOAuth2UserDetailsServcie;
-import com.example.demo.service.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
-import javax.servlet.http.HttpServletResponse;
 
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    private final JwtTokenProvider jwtTokenProvider;
-    private final KakaoOAuth2UserDetailsServcie kakaoOAuth2UserDetailsService;
-    private final UserDetailsServiceImpl userDetailsService;
+@EnableGlobalMethodSecurity(securedEnabled = true)
+public class SecurityConfig {
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
-    @Override
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
-    }
-
-
-    @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(userDetailsService, jwtTokenProvider);
-    }
-
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .cors()
+                .and()
                 .csrf().disable()
                 .formLogin().disable()
+                .oauth2Login()
+                .and()
                 .logout()
                 .logoutSuccessUrl("/")
                 .and()
-
+                .headers()
+                // X-Frame-Options 헤더 설정
+                    .frameOptions()
+                    //클릭재킹 방지
+                    .sameOrigin()// 'SAMEORIGIN' 정책을 설정. 이 페이지를 같은 출처의 페이지 내의 프레임에서만 표시 가능.
+                    //X-content-Type-Options 헤더 설정 content-type 무시 비허용
+                    .contentTypeOptions()
+                    .and()
+                    //강제 Https 접속 실행, HSTS - 중간자 공격 방지
+                    .httpStrictTransportSecurity()
+                    .includeSubDomains(true) //서브 도메인도 포함인지
+                    .maxAgeInSeconds(31536000) //1년
+                    .and()
+                .and()
                 .authorizeRequests()
                 // .antMatchers(HttpMethod.POST,"/board/recommend").hasAnyAuthority("USER","ADMIN")
                 .antMatchers(HttpMethod.OPTIONS,"/**").permitAll()//userinfo불러올때의 CORS를 해결하기 위해 OPTIONS에 대한 설정함
-                .anyRequest().permitAll()
+                .antMatchers("/userinfo/test").permitAll()
+                .antMatchers("/auth/login").permitAll()
+                .antMatchers("/auth/login/**").permitAll()
+                .antMatchers("/auth/refresh").permitAll()
+                .antMatchers(HttpMethod.POST, "/userinfo/character/info").permitAll()
+                .antMatchers(HttpMethod.GET,"/board/**").permitAll() // /board/**에 대한 GET 요청을 허용합니다.
+                .antMatchers(HttpMethod.POST,"/userinfo/character/info").permitAll()
+                .antMatchers("/board/**").authenticated()
+                .antMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/swagger-ui.html").permitAll()
+                .anyRequest().authenticated()
 
                 .and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter, BasicAuthenticationFilter.class)
                 .exceptionHandling()
-                .authenticationEntryPoint((request, response, authException) ->
-                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized 바보야"));
+                .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
+        return http.build();
 
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplateBuilder().build();
-    }
-
-    @Bean
-    public KakaoOAuth2Client kakaoOAuth2Client() {
-        return new KakaoOAuth2Client();
-    }
-
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(kakaoOAuth2UserDetailsService);
     }
 
 }

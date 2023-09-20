@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.comment.CommentRequsetDto;
 import com.example.demo.dto.comment.CommentResponseDto;
+import com.example.demo.dto.comment.ReplyRequestDto;
 import com.example.demo.service.CommentService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -26,39 +27,42 @@ public class CommentController {
     final private CommentService commentService;
     @Operation(summary = "게시판의 id로 댓글 전부 호출 API")
     @GetMapping("/{id}/comment") //넘겨주는건 게시판의 id, 댓글 보는건 인증 X
-    public List<CommentResponseDto> getComment(@PathVariable("id") Long id){
-        return commentService.getCommentOfBoard(id);
+    public List<CommentResponseDto> getComment(@PathVariable("id") Long id,@RequestHeader(value = "Authorization",required = false)String authentication){
+        return commentService.getCommentOfBoard(id,authentication);
     }
     @Operation(summary = "댓글 작성 API [commentId = null], [보안]")
-    @PostMapping("/comment")
-    public String addCommentOfParent(@RequestBody CommentRequsetDto commentRequsetDto, HttpServletRequest request, HttpServletResponse response){
-        log.info(commentRequsetDto.getBoardId()+"과"+commentRequsetDto.getCommentId());
-
-        return commentService.addCommentOfParent(commentRequsetDto,request,response);
+    @PostMapping("{id}/comment")
+    public String addCommentOfParent(@PathVariable Long id, @RequestBody CommentRequsetDto commentRequsetDto, HttpServletRequest request){
+        return commentService.addCommentOfParent(id, commentRequsetDto,request);
     }
     @Operation(summary = "대댓글 작성 API [commentId = 부모댓글의 id], [보안]")
-    @PostMapping("/comment/child")
-    public String addCommentOfChild(@RequestBody CommentRequsetDto commentRequsetDto, HttpServletRequest request, HttpServletResponse response){
-        return commentService.addCommentOfChild(commentRequsetDto,request,response);
+    @PostMapping("/{id}/comment/{co-id}/child")
+    public String addCommentOfChild(@PathVariable("id") Long id, @PathVariable("co-id") Long coId,
+                                    @RequestBody ReplyRequestDto replyRequestDto, HttpServletRequest request){
+        return commentService.addCommentOfChild(id,coId, replyRequestDto,request);
     }
     @Operation(summary = "댓글수정 API [commentId = 수정될 댓글Id], [보안]")
-    @PutMapping("/comment")
-    public String updateCommentOfParent(@RequestBody CommentRequsetDto commentRequsetDto, HttpServletRequest request, HttpServletResponse response){
-        return commentService.updateCommentOfParent(commentRequsetDto,request,response);
+    @PutMapping("/{id}/comment/{co-id}")
+    public String updateCommentOfParent(@PathVariable("id") Long id, @PathVariable("co-id") Long coId,
+                                        @RequestBody CommentRequsetDto commentRequsetDto, HttpServletRequest request){
+        return commentService.updateCommentOfParent(id,coId,commentRequsetDto,request);
     }
     @Operation(summary = "대댓글 수정 API [commentId = 수정될 대댓글 id], [보안]")
-    @PutMapping("/comment/child")
-    public String updateCommentOfChild(@RequestBody CommentRequsetDto commentRequsetDto, HttpServletRequest request, HttpServletResponse response){
-        return commentService.updateCommentOfChild(commentRequsetDto,request,response);
+    @PutMapping("/{id}/comment/child/{re-id}")
+    public String updateCommentOfChild(@PathVariable("id")Long id,@PathVariable("re-id")Long reId,
+                                       @RequestBody ReplyRequestDto replyRequestDto, HttpServletRequest request){
+        return commentService.updateCommentOfChild(id,reId, replyRequestDto, request);
     }
     @Operation(summary = "댓글 삭제 API [보안]")
-    @DeleteMapping("/comment")
-    public String deleteCommentOfParent(@RequestBody CommentRequsetDto commentRequsetDto, HttpServletRequest request, HttpServletResponse response){
-        return commentService.deleteCommentOfParent(commentRequsetDto,request,response);
+    @DeleteMapping("/{id}/comment/{co-id}")
+    public String deleteCommentOfParent(@PathVariable("id") Long id, @PathVariable("co-id") Long coId,
+                                         HttpServletRequest request){
+        return commentService.deleteCommentOfParent(id,coId,request);
     }
     @Operation(summary = "대댓글 수정 API [보안]")
-    @DeleteMapping("/comment/parent")
-    public String deleteCommentOfChild(@RequestBody CommentRequsetDto commentRequsetDto, HttpServletRequest request, HttpServletResponse response){
-        return commentService.deleteCommentOfChild(commentRequsetDto,request,response);
+    @DeleteMapping("/{id}/comment/child/{re-id}")
+    public String deleteCommentOfChild(@PathVariable("id") Long id, @PathVariable("re-id") Long reId,
+                                        HttpServletRequest request){
+        return commentService.deleteCommentOfChild(id,reId,request);
     }
 }

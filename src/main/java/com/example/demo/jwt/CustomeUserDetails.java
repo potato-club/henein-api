@@ -1,6 +1,7 @@
 package com.example.demo.jwt;
 
 import com.example.demo.entity.UserEntity;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,13 +9,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 
 @Slf4j
+@RequiredArgsConstructor
 public class CustomeUserDetails implements UserDetails {
 
-    private UserEntity userEntity;
+    private final UserEntity userEntity;
 
-    public CustomeUserDetails(UserEntity userEntity){
-        this.userEntity = userEntity;
-    }
     public UserEntity getUserEntity(){
         return this.userEntity;
     }

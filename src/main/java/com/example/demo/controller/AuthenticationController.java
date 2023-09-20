@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.login.BasicLoginRequestDto;
 import com.example.demo.error.ErrorCode;
 import com.example.demo.jwt.JwtTokenProvider;
 import com.example.demo.service.UserService;
@@ -27,28 +28,29 @@ public class AuthenticationController {
 
     private final UserService userService;
 
-    private final JwtTokenProvider jwtTokenProvider;
 
-    @ApiIgnore
-    @GetMapping("/login")
-    public ResponseEntity<String> login(@RequestParam String email, HttpServletResponse response) {
-        String accessToken = jwtTokenProvider.generateAccessToken(email);
-        String refreshToken = jwtTokenProvider.generateRefreshToken(email);
-
-        response.setHeader("Authorization","Bearer " + accessToken);
-        response.setHeader("RefreshToken","Bearer "+ refreshToken);
-
-        return ResponseEntity.ok("로그인 성공");
+    @Operation(summary = "로컬 로그인 userEmail,password")
+    @PostMapping("/login")
+    public ResponseEntity<String> basicLogin(@RequestBody BasicLoginRequestDto basicLoginRequestDto, HttpServletResponse response) {
+        log.info(basicLoginRequestDto.getUserEmail()+"__"+basicLoginRequestDto.getPassword());
+        return userService.basicLogin(basicLoginRequestDto,response);
     }
+    @Operation(summary = "로컬 회원가입 userEmail,password")
+    @PostMapping("/login/register")
+    public ResponseEntity<String> basicSignUp(@RequestBody BasicLoginRequestDto basicLoginRequestDto, HttpServletResponse response) {
+        log.info(basicLoginRequestDto.getUserEmail()+"__"+basicLoginRequestDto.getPassword());
+        return userService.basicSignUp(basicLoginRequestDto,response);
+    }
+
     @Operation(summary = "Authorization에 accessToken, RefreshToken에 refreshToken이 들어있음")
     @GetMapping("/login/kakao")
-    public ResponseEntity<?> kakaoLogin(@RequestParam("code") String code, HttpServletResponse response) throws IOException {
+    public ResponseEntity<?> kakaoLogin(@RequestParam("code") String code, HttpServletResponse response) {
         log.info("Controller -> login/kakao 진입시도 코드: "+code);
         return userService.kakaoLogin(code,response);
     }
     @Operation(summary = "AT를 재발급 받기 위한 API")
     @GetMapping("/refresh")
-    public ResponseEntity<?> refreshAT(HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
+    public ResponseEntity<?> refreshAT(HttpServletRequest request, HttpServletResponse response) {
        return userService.refreshAT(request, response);
     }
 }

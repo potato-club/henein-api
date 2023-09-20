@@ -1,8 +1,8 @@
 package com.example.demo.jwt;
 
 import com.example.demo.error.ErrorCode;
+import com.example.demo.error.exception.JwtException;
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,8 +29,6 @@ public class JwtTokenProvider {
     @Value("${jwt.refresh-expriation}")
     private long refreshTokenExpiration;
 
-    //토큰 생성 메서드 구현
-    //AT 구현
 
     public String generateAccessToken(String email) {
         Date now = new Date();
@@ -59,7 +57,7 @@ public class JwtTokenProvider {
     //헤더에 있는 AT토큰 가져오기
     @Transactional
     public String resolveAccessToken(HttpServletRequest request) {
-        if (request.getHeader("Authorization") != null )
+        if (request.getHeader("Authorization") != null && !request.getHeader("Authorization").trim().isEmpty() )
             return request.getHeader("Authorization").substring(7);
         return null;
     }
@@ -71,12 +69,8 @@ public class JwtTokenProvider {
     }
 
    public String getUserEmailFromAccessToken(String token) {
-       try {
-           String temp = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
-           return temp;
-       } catch (NullPointerException e) {
-           return null;
-       }
+       String temp = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
+       return temp;
    }
 
     public String getUsernameFromRefreshToken(String token) {
@@ -88,38 +82,39 @@ public class JwtTokenProvider {
         try {
             Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
             return true;
+        } catch (MalformedJwtException e) {
+            throw new MalformedJwtException("Invalid JWT token");
         } catch (ExpiredJwtException e) {
-            response.addHeader("exception", String.valueOf(ErrorCode.EXPIRED_TOKEN.getCode()));
-        } catch (SignatureException e) {
-            response.addHeader("exception", String.valueOf(ErrorCode.INVALID_TOKEN.getCode()));
+            throw new ExpiredJwtException(null, null, "Token has expired");
         } catch (UnsupportedJwtException e) {
-            response.addHeader("exception", String.valueOf(ErrorCode.INVALID_TOKEN.getCode()));
+            throw new UnsupportedJwtException("JWT token is unsupported");
         } catch (IllegalArgumentException e) {
-            response.addHeader("exception", String.valueOf(ErrorCode.NON_LOGIN.getCode()));
+            throw new IllegalArgumentException("JWT claims string is empty");
+        } catch (io.jsonwebtoken.SignatureException e) {
+            throw new io.jsonwebtoken.SignatureException("JWT signature does not match");
         }
-        return false;
     }
-    public boolean validateRefreshToken(HttpServletResponse response, String token){
+    public boolean validateRefreshToken(String token){
         try {
             Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
             return true;
+        } catch (MalformedJwtException e) {
+            throw new MalformedJwtException("Invalid JWT token");
         } catch (ExpiredJwtException e) {
-            response.addHeader("exception", String.valueOf(ErrorCode.RE_LOGIN.getCode()));
-        } catch (SignatureException e) {
-            response.addHeader("exception", String.valueOf(ErrorCode.INVALID_TOKEN.getCode()));
+            throw new ExpiredJwtException(null, null, "Token has expired");
         } catch (UnsupportedJwtException e) {
-            response.addHeader("exception", String.valueOf(ErrorCode.INVALID_TOKEN.getCode()));
+            throw new UnsupportedJwtException("JWT token is unsupported");
         } catch (IllegalArgumentException e) {
-            response.addHeader("exception", String.valueOf(ErrorCode.NON_LOGIN.getCode()));
+            throw new IllegalArgumentException("JWT claims string is empty");
+        } catch (io.jsonwebtoken.SignatureException e) {
+            throw new SignatureException("JWT signature does not match");
         }
-        return false;
     }
 
-    public String refreshAccessToken(String token, HttpServletResponse response) throws UnsupportedEncodingException {
+    public String refreshAccessToken(String token) {
 
-        if (!validateRefreshToken(response, token)) {
-            throw new RuntimeException("Invalid refresh token");
-        }
+        validateRefreshToken(token);
+
         String userEmail = getUsernameFromRefreshToken(token);
         return userEmail;
     }

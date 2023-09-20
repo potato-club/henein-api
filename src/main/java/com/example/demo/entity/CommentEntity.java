@@ -25,17 +25,26 @@ public class CommentEntity extends BaseTimeEntity {
     private String userEmail;
     @Column(nullable = false)
     private String userName;
+    @Column(nullable = false)
+    private String uid;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id", nullable = false)
     private BoardEntity boardEntity;
 
     @OneToMany(mappedBy = "parent")
-    private List<ReplyEntity> replies = new ArrayList<>();
+    private List<ReplyEntity> replies;
+    @Column(nullable = false)
+    private Boolean deleted = false;
     @Column(nullable = false)
     private Boolean updated;
 
     public void update(CommentRequsetDto commentRequsetDto, String userName) {
         this.comment = commentRequsetDto.getComment();
         this.userName = userName;
+    }
+    public void delete(){
+        this.deleted = true;
+        this.userName = "알 수 없음";
+        this.comment = "삭제된 댓글입니다.";
     }
 }

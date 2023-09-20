@@ -1,26 +1,25 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.board.BoardListResponseDto;
+import com.example.demo.dto.user.UserDetailInfoResponseDto;
 import com.example.demo.dto.user.UserInfoResponseDto;
-
-import com.example.demo.dto.user.UserNicknameChange;
+import com.example.demo.dto.user.UserInfoUpdate;
+import com.example.demo.dto.userchar.NodeConnection;
+import com.example.demo.dto.userchar.UserCharacter;
+import com.example.demo.dto.userchar.UserMapleApi;
 import com.example.demo.error.ErrorCode;
-import com.example.demo.error.exception.NotFoundException;
+import com.example.demo.error.exception.ForbiddenException;
 import com.example.demo.service.UserService;
 import io.swagger.annotations.Api;
-
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.UnsupportedEncodingException;
+import java.io.IOException;
+import java.util.List;
 
-import static com.example.demo.error.ErrorCode.NULL_VALUE;
 
 @RestController
 @RequestMapping("/userinfo")
@@ -29,26 +28,70 @@ import static com.example.demo.error.ErrorCode.NULL_VALUE;
 @Slf4j
 public class UserInfoController {
     private final UserService userService;
-    @Operation(summary = "유저 정보에 대한 요청 API [보안]")
-    @GetMapping
-    public UserInfoResponseDto userInfo(HttpServletRequest request, HttpServletResponse response){
-        log.info("유저컨트롤러진입----------------------------------------------");
-        return userService.userInfo(request, response);
-    }
-    //@Tag(name = "신규유저 이름변경처리", description = "username: 변경할 이름")
-    @Operation(summary = "유저 이름 변경 API")
-    @PutMapping("/set-name")
-    public String userNicknameChange(@RequestBody UserNicknameChange userNickname, HttpServletRequest request , HttpServletResponse response) throws UnsupportedEncodingException {
-        log.info("유저 이름 컨트롤러진입----------------------------------------------");
-        String userName = userNickname.getUserName();
-        if (userName == null || userName.length() < 2 || userName.length() >= 15) {
-            throw new NotFoundException(ErrorCode.INVALID_USER,"유저이름이 너무 짧거나 깁니다");
-        }
-        return userService.userNicknameChange(request,response, userNickname);
-    }
-    @GetMapping("/achieve")
-    public void getAchieveList(HttpServletRequest request,HttpServletResponse response){
-        //보안로직
 
+    @Operation(summary = "유저 정보에 대한 요청 API")
+    @GetMapping
+    public UserInfoResponseDto userInfo(HttpServletRequest request){
+
+        return userService.userInfo(request);
     }
+    @Operation(summary = "유저 정보에 대한 요청 API")
+    @GetMapping("/profile")
+    public UserDetailInfoResponseDto userDetailInfo(HttpServletRequest request){
+
+        return userService.userDetailInfo(request);
+    }
+    @Operation(summary = "유저 이름,사진 변경 API - [form-data]")
+    @PutMapping(consumes = "multipart/form-data;charset=UTF-8")
+    public String userUpdate(@RequestPart(required = false) MultipartFile image,
+                             @RequestPart(required = false) String userName, HttpServletRequest request) throws IOException {
+        if (userName != null && (userName.length() < 2 || userName.length() >= 15)) {
+            throw new ForbiddenException("이름이 너무 짧거나 깁니다.",ErrorCode.BAD_REQUEST);
+        }
+        return userService.userUpdate(image,userName, request);
+    }
+
+    //=====================메이플 캐릭터 관련=========================//
+    @Operation(summary = "현재 인증된 모든 캐릭터 가져오기")
+    @GetMapping("/character/all")
+    public List<UserCharacter> getAllUserCharacterInfo(HttpServletRequest request){
+        return userService.getAllUserCharacterInfo(request);
+    }
+
+    @Operation(summary = "대표 캐릭터 설정")
+    @PostMapping("/character/pick")
+    public void pickCharacter(@RequestParam Long id, HttpServletRequest request){
+        userService.pickCharacter(id,request);
+    }
+
+    @Operation(summary = "단일 캐릭터 정보갱신 요청")
+    @GetMapping("/character/renew")
+    public String requestUpdateChar(@RequestParam String name){
+        return userService.requestUpdateToNode(name);
+    }
+
+    @Operation(summary = "유저가 가지고있는 캐릭터 큐브 내역으로 불러오기" )
+    @PostMapping("/character/auth") String requestNexon(@RequestBody UserMapleApi userMapleApi,HttpServletRequest request){
+        return userService.requestToNexon(request,userMapleApi);
+    }
+
+    @Operation(summary = "노드에서 spring으로 요청할 api")
+    @PostMapping("/character/info")
+    public String test(@RequestBody NodeConnection nodeConnection){
+        log.info("호빈이 접속");
+        return userService.responseToRedisAndUpdate(nodeConnection);
+    }
+
+    //================내 활동 관련 =====================//
+    @Operation(summary = "내가 쓴 게시글 보기")
+    @GetMapping("/myboards")
+    public List<BoardListResponseDto> getMyBoardList (HttpServletRequest request) {
+        return userService.getMyBoardList(request);
+    }
+    @Operation(summary = "댓글 작성한 게시글 보기")
+    @GetMapping("/mycomment-boards")
+    public List<BoardListResponseDto> getMyBoardsWithCommentList (HttpServletRequest request) {
+        return userService.getMyBoardsWithCommentList(request);
+    }
+
 }

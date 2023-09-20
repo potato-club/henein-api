@@ -2,6 +2,7 @@ package com.example.demo.entity;
 
 import com.example.demo.dto.board.BoardRecommendDTO;
 import com.example.demo.dto.board.BoardRequestDto;
+import com.example.demo.dto.board.TestDto;
 import com.example.demo.dto.comment.CommentNumUpdateDto;
 import com.example.demo.dto.board.ViewIncreaseDto;
 import com.example.demo.enumCustom.BoardType;
@@ -41,14 +42,13 @@ public class BoardEntity extends BaseTimeEntity{
     private int views;
     @Column
     private int recommend;
+    @Lob
     @Column(nullable = false)
     private String text;
-
     @OneToMany(mappedBy = "boardEntity", orphanRemoval = true)
-    private List<S3File> image = new ArrayList<>();
-
-    @OneToMany(mappedBy = "boardEntity", orphanRemoval = true)
-    private List<CommentEntity> commentEntityList = new ArrayList<>();
+    private List<CommentEntity> commentEntityList;
+    @Column
+    private boolean hasImage;
 
     @Builder
     public BoardEntity (BoardRequestDto boardRequestDto, BoardType board, UserEntity userEntity){
@@ -57,9 +57,14 @@ public class BoardEntity extends BaseTimeEntity{
         this.text = boardRequestDto.getText();
         this.boardType = board;
     }
-    public void Update(BoardRequestDto boardRequestDto){
-        this.title = boardRequestDto.getTitle();
-        this.text = boardRequestDto.getText();
+
+    public void setHasImage(boolean value) {
+        this.hasImage = value;
+    }
+
+    public void Update(TestDto testDto){
+        this.title = testDto.getTitle();
+        this.text = testDto.getText();
     }
     public void Update(BoardRecommendDTO boardRecommendDTO){
         this.recommend = boardRecommendDTO.getRecommend();
