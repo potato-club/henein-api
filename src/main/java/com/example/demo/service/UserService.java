@@ -193,10 +193,10 @@ public class UserService {
     //인증 받아오기
     public String requestToNexon(HttpServletRequest request,UserMapleApi userMapleApi){
         //날짜가 오늘일시 에러.
-        if (userMapleApi.getStartDay().equals(LocalDate.now())) {
+        if (userMapleApi.getRecentDay().equals(LocalDate.now())) {
             throw new BadRequestException("Today's date cannot be requested", ErrorCode.BAD_REQUEST);
         }
-        else if (ChronoUnit.DAYS.between(userMapleApi.getStartDay(),userMapleApi.getEndDay()) >=62){
+        else if (ChronoUnit.DAYS.between(userMapleApi.getRecentDay(),userMapleApi.getPastDay()) > 61){
             throw new BadRequestException("Cannot request for more than 2 months", ErrorCode.BAD_REQUEST);
         }
         //날짜 비교해서 2달 이상이면 에러
@@ -209,13 +209,17 @@ public class UserService {
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<List<String>>() {})
                 .flatMap(result -> {
+
                     List<UserCharEntity> userCharEntityList = new ArrayList<>();
 
                     for (int i = 0; i < result.size(); i++) {
-                        userCharEntityList.add(new UserCharEntity(userEntity, result.get(i)));
+                        if (!userCharRepository.existsByNickName(result.get(i))) {
+                            userCharEntityList.add(new UserCharEntity(userEntity, result.get(i)));
+                        }
                     }
-                    userCharRepository.saveAll(userCharEntityList);
-
+                    if (!userCharEntityList.isEmpty()) {
+                        userCharRepository.saveAll(userCharEntityList);
+                    }
                     return null;
                 })
                  .subscribe();
@@ -224,10 +228,12 @@ public class UserService {
 
     @Transactional
     public String requestUpdateToNode(String userCharName){
-        UserCharEntity userCharEntity = userCharRepository.findByNickName(userCharName)
-                .orElseThrow(()->{throw new NotFoundException(ErrorCode.NULL_VALUE.getMessage(),ErrorCode.NULL_VALUE);});
+        //저장된 캐릭인지
+        if (!userCharRepository.existsByNickName(userCharName)) {
+            throw new NotFoundException(ErrorCode.NULL_VALUE.getMessage(),ErrorCode.NULL_VALUE);
+        }
         //요청 보내기전에 1시간 시간 제한 걸어야함 레디스 유효시간 1시간임
-        if (redisService.checkRedis(userCharName)) {
+        else if (redisService.checkRedis(userCharName)) {
             throw new BadRequestException("1시간 요청 제한",ErrorCode.NULL_VALUE); // 몇분 남았는지도 알려줘야함
         }
         Map<String, String> callback = new HashMap<>();
