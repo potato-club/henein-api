@@ -65,7 +65,7 @@ public class UserInfoController {
     }
 
     @Operation(summary = "단일 캐릭터 정보갱신 요청")
-    @GetMapping("/character/renew")
+    @PostMapping("/character/renew")
     public String requestUpdateChar(@RequestParam String name){
         return userService.requestUpdateToNode(name);
     }

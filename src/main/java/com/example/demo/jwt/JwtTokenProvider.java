@@ -1,6 +1,7 @@
 package com.example.demo.jwt;
 
 import com.example.demo.error.ErrorCode;
+import com.example.demo.error.ErrorJwtCode;
 import com.example.demo.error.exception.JwtException;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
@@ -78,20 +79,20 @@ public class JwtTokenProvider {
         return claims.getSubject();
     }
 
-    public boolean validateToken(HttpServletResponse response, String token){
+    public boolean validateToken(String token){
         try {
             Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
             return true;
         } catch (MalformedJwtException e) {
-            throw new MalformedJwtException("Invalid JWT token");
+            throw new JwtException(ErrorCode.INVALID_TOKEN.getMessage(),ErrorCode.INVALID_TOKEN);
         } catch (ExpiredJwtException e) {
-            throw new ExpiredJwtException(null, null, "Token has expired");
+            throw new JwtException(ErrorCode.EXPIRED_AT.getMessage(), ErrorCode.EXPIRED_AT);
         } catch (UnsupportedJwtException e) {
-            throw new UnsupportedJwtException("JWT token is unsupported");
+            throw new JwtException(ErrorCode.INVALID_TOKEN.getMessage(), ErrorCode.INVALID_TOKEN);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("JWT claims string is empty");
-        } catch (io.jsonwebtoken.SignatureException e) {
-            throw new io.jsonwebtoken.SignatureException("JWT signature does not match");
+            throw new JwtException(ErrorCode.EMPTY_TOKEN.getMessage(), ErrorCode.EMPTY_TOKEN);
+        } catch (SignatureException e) {
+            throw new JwtException(ErrorCode.INVALID_TOKEN.getMessage(), ErrorCode.INVALID_TOKEN);
         }
     }
     public boolean validateRefreshToken(String token){

@@ -59,7 +59,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         try {
-            if (accessToken != null && jwtTokenProvider.validateToken(response, accessToken)) {
+            if (accessToken != null && jwtTokenProvider.validateToken(accessToken)) {
                 // Get the username from the access token
                 log.info("jwt필터진입");
                 String email = jwtTokenProvider.getUserEmailFromAccessToken(accessToken);

@@ -41,6 +41,8 @@ public class CommonBoardService {
 
         if (authentication != null){ //사용자가 이 게시판에 대해서 추천했는지에 대한 t f 적용
             authentication = authentication.substring(7);
+            jwtTokenProvider.validateToken(authentication);
+
             String userEmail = jwtTokenProvider.getUserEmailFromAccessToken(authentication); // 정보 가져옴
             UserEntity userEntity = userRepository.findByUserEmail(userEmail).orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + userEmail));
 

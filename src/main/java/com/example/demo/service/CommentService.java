@@ -46,8 +46,9 @@ public class CommentService {
         }
         UserEntity userEntity;
         if (authentication != null) {
-
             authentication = authentication.substring(7);
+            jwtTokenProvider.validateToken(authentication);
+
             String userEmail = jwtTokenProvider.getUserEmailFromAccessToken(authentication); // 정보 가져옴
             userEntity = userRepository.findByUserEmail(userEmail).
                     orElseThrow(() -> new UnAuthorizedException(ErrorCode.INVALID_ACCESS.getMessage(),ErrorCode.INVALID_ACCESS));
@@ -206,7 +207,7 @@ public class CommentService {
         if (replyEntity.getParent().getDeleted()){
             CommentEntity commentEntity = replyEntity.getParent();
             replyRepository.delete(replyEntity);
-            if (commentEntity.getReplies().isEmpty()){
+            if (commentEntity.getReplies().size() == 1 && commentEntity.getReplies().get(0).getId()==replyEntity.getId()){
                 commentRepository.delete(commentEntity);
             }
             return "삭제완료";
