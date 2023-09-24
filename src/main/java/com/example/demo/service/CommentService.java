@@ -36,6 +36,7 @@ public class CommentService {
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
+    private final EntityManager entityManager;
 
 
 
@@ -66,15 +67,23 @@ public class CommentService {
 
         List<CommentResponseDto> resultDtoList = new ArrayList<>();
         for (CommentEntity parentComment : commentEntityList){
+
             List<ReplyEntity> childComment = getChildComment(parentComment);
-            CommentResponseDto parentDto;
+            CommentResponseDto parentDto = new CommentResponseDto(parentComment);
+
             if ( userEntity != null) {
-               parentDto = new CommentResponseDto(parentComment, userEntity.getUid());
+                if ( parentComment.getDeleted() ){
+                    parentDto.setUid("deleted");
+                } else {
+                    parentDto.setUid(userEntity.getUid());
+                }
                parentDto.setReplies(childComment.stream()
                         .map(replyEntity -> new ReplyResponseDto(replyEntity,userEntity.getUid()))
                         .collect(Collectors.toList()));
             } else {
-                parentDto = new CommentResponseDto(parentComment);
+                if ( parentComment.getDeleted() ){
+                    parentDto.setUid("deleted");
+                }
                 parentDto.setReplies(childComment.stream()
                         .map(replyEntity -> new ReplyResponseDto(replyEntity))
                         .collect(Collectors.toList()));

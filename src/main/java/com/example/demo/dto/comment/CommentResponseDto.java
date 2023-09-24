@@ -20,21 +20,15 @@ public class CommentResponseDto {
     private LocalDateTime modifiedDate;
     private List<ReplyResponseDto> replies;
 
-    public CommentResponseDto(CommentEntity commentEntity,String uid){
-        this.commentId = commentEntity.getId();
-        this.userName = commentEntity.getUserName();
-        this.comment = commentEntity.getComment();
-        this.modifiedDate = commentEntity.getModifiedDate();
-        if (Objects.equals(uid, commentEntity.getUid())) {
-            this.uid = commentEntity.getUid();
-        }
-    }
     public CommentResponseDto(CommentEntity commentEntity){
         this.commentId = commentEntity.getId();
         this.userName = commentEntity.getUserName();
         this.comment = commentEntity.getComment();
         this.modifiedDate = commentEntity.getModifiedDate();
 
+    }
+    public void setUid(String uid){
+        this.uid = uid;
     }
 
     public void setReplies(List<ReplyResponseDto> replies){
