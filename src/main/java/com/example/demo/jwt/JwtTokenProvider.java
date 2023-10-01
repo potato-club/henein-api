@@ -84,15 +84,15 @@ public class JwtTokenProvider {
             Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
             return true;
         } catch (MalformedJwtException e) {
-            throw new JwtException(ErrorCode.INVALID_TOKEN.getMessage(),ErrorCode.INVALID_TOKEN);
+            throw e;
         } catch (ExpiredJwtException e) {
-            throw new JwtException(ErrorCode.EXPIRED_AT.getMessage(), ErrorCode.EXPIRED_AT);
+            throw e;
         } catch (UnsupportedJwtException e) {
-            throw new JwtException(ErrorCode.INVALID_TOKEN.getMessage(), ErrorCode.INVALID_TOKEN);
+            throw e;
         } catch (IllegalArgumentException e) {
-            throw new JwtException(ErrorCode.EMPTY_TOKEN.getMessage(), ErrorCode.EMPTY_TOKEN);
+            throw e;
         } catch (SignatureException e) {
-            throw new JwtException(ErrorCode.INVALID_TOKEN.getMessage(), ErrorCode.INVALID_TOKEN);
+            throw e;
         }
     }
     public boolean validateRefreshToken(String token){
