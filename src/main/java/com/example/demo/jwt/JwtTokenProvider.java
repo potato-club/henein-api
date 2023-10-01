@@ -100,15 +100,15 @@ public class JwtTokenProvider {
             Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
             return true;
         } catch (MalformedJwtException e) {
-            throw new MalformedJwtException("Invalid JWT token");
+            throw new JwtException(ErrorCode.INVALID_TOKEN.getMessage(), ErrorCode.INVALID_TOKEN);
         } catch (ExpiredJwtException e) {
-            throw new ExpiredJwtException(null, null, "Token has expired");
+            throw new JwtException(ErrorCode.EXPIRED_RT.getMessage(), ErrorCode.EXPIRED_RT);
         } catch (UnsupportedJwtException e) {
-            throw new UnsupportedJwtException("JWT token is unsupported");
+            throw new JwtException(ErrorCode.INVALID_TOKEN.getMessage(), ErrorCode.INVALID_TOKEN);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("JWT claims string is empty");
+            throw new JwtException(ErrorCode.EMPTY_TOKEN.getMessage(), ErrorCode.EMPTY_TOKEN);
         } catch (io.jsonwebtoken.SignatureException e) {
-            throw new SignatureException("JWT signature does not match");
+            throw new JwtException(ErrorCode.INVALID_TOKEN.getMessage(), ErrorCode.INVALID_TOKEN);
         }
     }
 
