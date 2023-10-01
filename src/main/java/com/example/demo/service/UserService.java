@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.dto.board.BoardListResponseDto;
 import com.example.demo.dto.user.UserDetailInfoResponseDto;
+import com.example.demo.dto.user.UserInfoChange;
 import com.example.demo.dto.user.UserInfoResponseDto;
 import com.example.demo.dto.userchar.*;
 import com.example.demo.dto.login.BasicLoginRequestDto;
@@ -147,13 +148,13 @@ public class UserService {
         return new UserDetailInfoResponseDto(userEntity,s3File.get(0).getFileUrl(),boardCount,commentCount);
     }
     @Transactional
-    public String userUpdate(MultipartFile image, String userName, HttpServletRequest request) throws IOException {
+    public String userUpdate(UserInfoChange userInfoChange, HttpServletRequest request) throws IOException {
         UserEntity userEntity = fetchUserEntityByHttpRequest(request);
 
-        if (userName != null) {
-            userEntity.Update(userName);
-        } else if (!(image == null || image.isEmpty())) {
-            s3Service.uploadImageUserPicture(image, userEntity.getId());
+        if (userInfoChange.getUserName() != null) {
+            userEntity.Update(userInfoChange.getUserName());
+        } else if (!(userInfoChange.getImage() == null || userInfoChange.getImage().isEmpty())) {
+            s3Service.uploadImageUserPicture(userInfoChange.getImage(), userEntity.getId());
         }
 
         return "200ok";

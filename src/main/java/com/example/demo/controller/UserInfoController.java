@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.board.BoardListResponseDto;
 import com.example.demo.dto.user.UserDetailInfoResponseDto;
+import com.example.demo.dto.user.UserInfoChange;
 import com.example.demo.dto.user.UserInfoResponseDto;
 import com.example.demo.dto.user.UserInfoUpdate;
 import com.example.demo.dto.userchar.NodeConnection;
@@ -41,14 +42,16 @@ public class UserInfoController {
 
         return userService.userDetailInfo(request);
     }
+
     @Operation(summary = "유저 이름,사진 변경 API - [form-data]")
-    @PutMapping(consumes = "multipart/form-data;charset=UTF-8")
-    public String userUpdate(@RequestPart(required = false) MultipartFile image,
-                             @RequestPart(required = false) String userName, HttpServletRequest request) throws IOException {
-        if (userName != null && (userName.length() < 2 || userName.length() >= 15)) {
+    @PostMapping(consumes = "multipart/form-data;charset=UTF-8")
+    public String userUpdate(@ModelAttribute UserInfoChange userInfoChange, HttpServletRequest request) throws IOException {
+        if (userInfoChange.getUserName() != null && (userInfoChange.getUserName().length() < 2 || userInfoChange.getUserName().length() >= 15)) {
             throw new ForbiddenException("이름이 너무 짧거나 깁니다.",ErrorCode.BAD_REQUEST);
+        }else if (userInfoChange.getUserName() == null && userInfoChange.getImage() == null) {
+            throw new ForbiddenException("수정할 사항이 없습니다.",ErrorCode.BAD_REQUEST);
         }
-        return userService.userUpdate(image,userName, request);
+        return userService.userUpdate(userInfoChange, request);
     }
 
     //=====================메이플 캐릭터 관련=========================//
