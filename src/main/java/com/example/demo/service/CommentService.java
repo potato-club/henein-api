@@ -4,6 +4,7 @@ import com.example.demo.dto.comment.*;
 import com.example.demo.entity.*;
 import com.example.demo.error.ErrorCode;
 
+import com.example.demo.error.exception.ForbiddenException;
 import com.example.demo.error.exception.NotFoundException;
 import com.example.demo.error.exception.UnAuthorizedException;
 import com.example.demo.jwt.JwtTokenProvider;
@@ -164,9 +165,9 @@ public class CommentService {
         if (!boardRepository.existsById(id)) {
             throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);
         }
-        CommentEntity commentEntity = commentRepository.findById(coId).orElseThrow(()->{throw new RuntimeException("해당 댓글이 없습니다");});
+        CommentEntity commentEntity = commentRepository.findById(coId).orElseThrow(()->{throw new NotFoundException("해당 댓글이 없습니다.",ErrorCode.NOT_FOUND_EXCEPTION);});
         if (!commentEntity.getUserEmail().equals(userEntity.getUserEmail())) {
-            throw new RuntimeException("권한이 없는 사용자 입니다.");
+            throw new ForbiddenException(ErrorCode.FORBIDDEN_EXCEPTION.getMessage(), ErrorCode.FORBIDDEN_EXCEPTION);
         }
         commentEntity.update(commentRequsetDto,userEntity.getUserName());
         return "수정 완료";
@@ -177,9 +178,9 @@ public class CommentService {
         if (!boardRepository.existsById(id)) {
             throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);
         }
-        ReplyEntity replyEntity = replyRepository.findById(reId).orElseThrow(()->{throw new RuntimeException("해당 댓글이 없습니다");});
+        ReplyEntity replyEntity = replyRepository.findById(reId).orElseThrow(()->{throw new NotFoundException("해당 댓글이 없습니다.",ErrorCode.NOT_FOUND_EXCEPTION);});
         if (!replyEntity.getUserEmail().equals(userEntity.getUserEmail())){
-            throw new RuntimeException("권한이 없는 사용자 입니다.");
+            throw new ForbiddenException(ErrorCode.FORBIDDEN_EXCEPTION.getMessage(), ErrorCode.FORBIDDEN_EXCEPTION);
         }
         replyEntity.update(replyRequestDto,userEntity.getUserName());
         return "수정 완료";
@@ -188,12 +189,12 @@ public class CommentService {
     @Transactional
     public String deleteCommentOfParent(Long id,Long coId, HttpServletRequest request ){
         UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request);
-        CommentEntity commentEntity = commentRepository.findById(coId).orElseThrow(()->{throw new RuntimeException("해당 댓글이 없습니다");});
+        CommentEntity commentEntity = commentRepository.findById(coId).orElseThrow(()->{throw new NotFoundException("해당 댓글이 없습니다.",ErrorCode.NOT_FOUND_EXCEPTION);});
         if (!(commentEntity.getUserEmail().equals(userEntity.getUserEmail()))){
-            throw new RuntimeException("권한이 없는 사용자 입니다.");
+            throw new ForbiddenException(ErrorCode.FORBIDDEN_EXCEPTION.getMessage(), ErrorCode.FORBIDDEN_EXCEPTION);
         }
         //자식이 있으면 deleted == true
-        if (commentEntity.getReplies() != null){
+        if (commentEntity.getReplies().size() != 0){
             commentEntity.delete();
             decreaseBoardCommentNum(id);
             return "임시 삭제완료";
@@ -207,9 +208,9 @@ public class CommentService {
     @Transactional
     public String deleteCommentOfChild(Long id,Long reId,HttpServletRequest request){
         UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request);
-        ReplyEntity replyEntity = replyRepository.findById(reId).orElseThrow(()->{throw new RuntimeException("해당 댓글이 없습니다");});
+        ReplyEntity replyEntity = replyRepository.findById(reId).orElseThrow(()->{throw new NotFoundException("해당 댓글이 없습니다.",ErrorCode.NOT_FOUND_EXCEPTION);});
         if (!(replyEntity.getUserEmail().equals(userEntity.getUserEmail()))){
-            throw new RuntimeException("권한이 없는 사용자 입니다");
+            throw new ForbiddenException(ErrorCode.FORBIDDEN_EXCEPTION.getMessage(), ErrorCode.FORBIDDEN_EXCEPTION);
         }
 
         decreaseBoardCommentNum(id);
@@ -227,7 +228,7 @@ public class CommentService {
         return "삭제완료";
     }
     public void decreaseBoardCommentNum(Long id){
-        BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 게시글이 없습니다");});
+        BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new NotFoundException("해당 게시글이 없습니다.",ErrorCode.NOT_FOUND_EXCEPTION);});
         //보드 게시판의 댓글수 업데이트
         if(boardEntity.getCommentNum() > 0) {
             CommentNumUpdateDto commentNumUpdateDto = new CommentNumUpdateDto();
