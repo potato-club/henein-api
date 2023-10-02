@@ -13,7 +13,7 @@ public class ErrorExceptionHandler {
     @ExceptionHandler({BadRequestException.class})
     public ResponseEntity<ErrorEntity> exceptionHandler(final BadRequestException e) {
         ErrorEntity errorEntity = ErrorEntity.builder()
-                .errorCode(e.getErrorCode().getCode())
+                .code(e.getErrorCode().getCode())
                 .errorMessage(e.getMessage())
                 .build();
         return ResponseEntity
@@ -23,7 +23,7 @@ public class ErrorExceptionHandler {
     @ExceptionHandler({DuplicateException.class})
     public ResponseEntity<ErrorEntity> exceptionHandler(final DuplicateException e) {
         ErrorEntity errorEntity = ErrorEntity.builder()
-                .errorCode(e.getErrorCode().getCode())
+                .code(e.getErrorCode().getCode())
                 .errorMessage(e.getMessage())
                 .build();
         return ResponseEntity
@@ -33,7 +33,7 @@ public class ErrorExceptionHandler {
     @ExceptionHandler({ForbiddenException.class})
     public ResponseEntity<ErrorEntity> exceptionHandler(final ForbiddenException e) {
         ErrorEntity errorEntity = ErrorEntity.builder()
-                .errorCode(e.getErrorCode().getCode())
+                .code(e.getErrorCode().getCode())
                 .errorMessage(e.getMessage())
                 .build();
         return ResponseEntity
@@ -44,7 +44,7 @@ public class ErrorExceptionHandler {
     public ResponseEntity<ErrorEntity> exceptionHandler(final JwtException e) {
         log.info("JwtException");
         ErrorEntity errorEntity = ErrorEntity.builder()
-                .errorCode(e.getErrorCode().getCode())
+                .code(e.getErrorCode().getCode())
                 .errorMessage(e.getMessage())
                 .build();
         return ResponseEntity
@@ -54,7 +54,7 @@ public class ErrorExceptionHandler {
     @ExceptionHandler({NotFoundException.class})
     public ResponseEntity<ErrorEntity> exceptionHandler(final NotFoundException e) {
         ErrorEntity errorEntity = ErrorEntity.builder()
-                .errorCode(e.getErrorCode().getCode())
+                .code(e.getErrorCode().getCode())
                 .errorMessage(e.getMessage())
                 .build();
         return ResponseEntity
@@ -64,7 +64,7 @@ public class ErrorExceptionHandler {
     @ExceptionHandler({UnAuthorizedException.class})
     public ResponseEntity<ErrorEntity> exceptionHandler(final UnAuthorizedException e) {
         ErrorEntity errorEntity = ErrorEntity.builder()
-                .errorCode(e.getErrorCode().getCode())
+                .code(e.getErrorCode().getCode())
                 .errorMessage(e.getMessage())
                 .build();
         return ResponseEntity

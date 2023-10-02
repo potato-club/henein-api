@@ -8,11 +8,11 @@ import org.springframework.http.HttpStatus;
 @Data
 
 public class ErrorEntity {
-  private int errorCode;
+  private int code;
   private String errorMessage;
   @Builder
-  public ErrorEntity(HttpStatus httpStatus, int errorCode, String errorMessage) {
-    this.errorCode = errorCode;
+  public ErrorEntity(HttpStatus httpStatus, int code, String errorMessage) {
+    this.code = code;
     this.errorMessage = errorMessage;
   }
 }
