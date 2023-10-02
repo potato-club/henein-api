@@ -153,7 +153,8 @@ public class UserService {
 
         if (userInfoChange.getUserName() != null) {
             userEntity.Update(userInfoChange.getUserName());
-        } else if (!(userInfoChange.getImage() == null || userInfoChange.getImage().isEmpty())) {
+        }
+        if (!(userInfoChange.getImage() == null || userInfoChange.getImage().isEmpty())) {
             s3Service.uploadImageUserPicture(userInfoChange.getImage(), userEntity.getId());
         }
 
