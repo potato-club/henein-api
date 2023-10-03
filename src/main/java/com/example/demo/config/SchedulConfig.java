@@ -1,22 +1,46 @@
 package com.example.demo.config;
 
+import com.example.demo.entity.QS3File;
+import com.example.demo.enumCustom.S3EntityType;
+import com.example.demo.repository.S3FileRespository;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
-import org.springframework.web.servlet.config.annotation.AsyncSupportConfigurer;
+import org.springframework.scheduling.support.CronTrigger;
 
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+
+@Configuration
+@EnableScheduling
+@RequiredArgsConstructor
 public class SchedulConfig implements SchedulingConfigurer {
+    private final JPAQueryFactory jpaQueryFactory;
     @Override
     public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
-
+        taskRegistrar.setScheduler(taskExecutor());
+        taskRegistrar.addTriggerTask(
+                ()-> {
+                    QS3File qs3File = QS3File.s3File;
+                    jpaQueryFactory
+                            .delete(qs3File)
+                            .where(qs3File.s3EntityType.eq(S3EntityType.NON_USED))
+                            .execute();
+                },
+                triggerContext -> new CronTrigger("0 0 6 * * ?").nextExecutionTime(triggerContext) //매일 오전 6시
+        );
     }
 
-    public ThreadPoolTaskExecutor taskExecutor() {
-        ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-        taskExecutor.setCorePoolSize(5); // 최소로 대기하는 스레드 갯수
-        taskExecutor.setMaxPoolSize(10); // 최대로 요청할 수 있는 스레드 갯수 최대가 넘으면 큐에 저장되서 기다림
-        taskExecutor.setQueueCapacity(25); // 큐에 대기될 수 있는 최대수 여기서 넘으면 ThreadPoolExecutor 오류 발생
-        taskExecutor.initialize(); //
-        return taskExecutor;
+    @Bean
+    public Executor taskExecutor() {
+        ScheduledThreadPoolExecutor executor = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(10);
+        executor.setRemoveOnCancelPolicy(true);
+        return executor;
     }
 }
