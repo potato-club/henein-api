@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
@@ -85,6 +86,15 @@ public class S3Service {
             s3FileList.add(s3File);
         }
         s3FileList.stream().forEach(s3File -> s3File.setEntityData(s3EntityType, typeId));
+    }
+    public void deleteImage(List<S3File> nonUsedImageList) {
+        try {
+            for (S3File s3File : nonUsedImageList) {
+                amazonS3.deleteObject(bucket, s3File.getFileName());
+            }
+        }catch (AmazonServiceException e) {
+            throw new RuntimeException(e);
+        }
     }
     public byte[] downloadImage(String key) throws IOException {
         byte[] content;
