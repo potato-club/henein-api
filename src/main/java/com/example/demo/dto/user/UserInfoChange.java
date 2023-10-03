@@ -9,4 +9,5 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserInfoChange {
     private MultipartFile image;
     private String userName;
+
 }

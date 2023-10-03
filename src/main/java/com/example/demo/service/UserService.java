@@ -151,7 +151,7 @@ public class UserService {
     public String userUpdate(UserInfoChange userInfoChange, HttpServletRequest request) throws IOException {
         UserEntity userEntity = fetchUserEntityByHttpRequest(request);
 
-        if (userInfoChange.getUserName() != null) {
+        if (!userInfoChange.getUserName().trim().isEmpty()) {
             userEntity.Update(userInfoChange.getUserName());
         }
         if (!(userInfoChange.getImage() == null || userInfoChange.getImage().isEmpty())) {
