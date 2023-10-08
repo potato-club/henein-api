@@ -1,6 +1,5 @@
 package com.example.demo.dto.board;
 
-import com.example.demo.dto.user.UserSimpleResponseDto;
 import com.example.demo.entity.*;
 import com.example.demo.enumCustom.BoardType;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -9,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Getter
 @AllArgsConstructor
@@ -18,10 +18,12 @@ public class BoardResponseDto {
     private BoardType boardType;
     @ApiModelProperty(value="게시글 제목", example = "테스트 제목입니다.", required = true)
     private String title;
+    @ApiModelProperty(value="작성자", example = "작성자", required = true)
+    private String userName;
+    @ApiModelProperty(value="본인 글 식별", example = "작성자 고유Id", required = true)
+    private String uid;
     @ApiModelProperty(value="댓글 갯수", example = "정수값", required = true)
     private int commentNum;
-    @ApiModelProperty(value="게시글 작성자", example = "테스트 글쓴이", required = true)
-    private UserSimpleResponseDto userSimpleResponseDto;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime createTime;
     @ApiModelProperty(value="조회수", example = "정수값", required = true)
@@ -40,7 +42,10 @@ public class BoardResponseDto {
         this.boardType =boardEntity.getBoardType();
         this.title = boardEntity.getTitle();
         this.commentNum = boardEntity.getCommentNum();
-        this.userSimpleResponseDto = new UserSimpleResponseDto(boardEntity.getUserEntity(), uid);
+        this.userName = boardEntity.getUserName();
+        if (Objects.equals(uid,boardEntity.getUserEntity().getUid())) {
+            this.uid = boardEntity.getUserEntity().getUid();
+        }
         this.createTime = boardEntity.getCreatedDate();
         this.views = boardEntity.getViews();
         this.hasImage = boardEntity.isHasImage();

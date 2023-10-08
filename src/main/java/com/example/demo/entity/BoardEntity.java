@@ -33,6 +33,8 @@ public class BoardEntity extends BaseTimeEntity{
     private BoardType boardType;
     @Column(nullable = false)
     private String title;
+    @Column(nullable = false)
+    private String userName;
     @Column
     private int commentNum;
     @ManyToOne
@@ -53,6 +55,7 @@ public class BoardEntity extends BaseTimeEntity{
     @Builder
     public BoardEntity (BoardRequestDto boardRequestDto, BoardType board, UserEntity userEntity){
         this.title = boardRequestDto.getTitle();
+        this.userName = userEntity.getUserName();
         this.userEntity = userEntity;
         this.text = boardRequestDto.getText();
         this.boardType = board;

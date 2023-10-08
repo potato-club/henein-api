@@ -48,7 +48,7 @@ public class UserInfoController {
     public String userUpdate(@ModelAttribute UserInfoChange userInfoChange, HttpServletRequest request) throws IOException {
         if (!userInfoChange.getUserName().trim().isEmpty() && (userInfoChange.getUserName().length() < 2 || userInfoChange.getUserName().length() > 15) ) {
             throw new ForbiddenException("이름이 너무 짧거나 깁니다.",ErrorCode.BAD_REQUEST);
-        }else if (userInfoChange.getUserName().trim().isEmpty() && userInfoChange.getImage() == null) {
+        }else if (userInfoChange.getUserName().trim().isEmpty() && userInfoChange.getImage().isEmpty()) {
             throw new ForbiddenException("수정할 사항이 없습니다.",ErrorCode.BAD_REQUEST);
         }
         return userService.userUpdate(userInfoChange, request);
