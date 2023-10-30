@@ -42,7 +42,6 @@ public class ErrorExceptionHandler {
     }
     @ExceptionHandler({JwtException.class})
     public ResponseEntity<ErrorEntity> exceptionHandler(final JwtException e) {
-        log.info("JwtException");
         ErrorEntity errorEntity = ErrorEntity.builder()
                 .code(e.getErrorCode().getCode())
                 .errorMessage(e.getMessage())

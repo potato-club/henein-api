@@ -76,7 +76,8 @@ public class CommentService {
                 if ( parentComment.getDeleted() ){
                     parentDto.setUid("deleted");
                 } else {
-                    parentDto.setUid(userEntity.getUid());
+                    if ( userEntity.getUid().equals(parentComment.getUid()))
+                        parentDto.setUid(userEntity.getUid());
                 }
                parentDto.setReplies(childComment.stream()
                         .map(replyEntity -> new ReplyResponseDto(replyEntity,userEntity.getUid()))
