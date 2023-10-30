@@ -26,7 +26,7 @@ public class ReplyResponseDto {
         userName =reply.getUserName();
         tag = reply.getTag();
         comment = reply.getComment();
-        modifiedDate = reply.getCreatedDate();
+        modifiedDate = reply.getModifiedDate();
         updated = reply.getUpdated();
         if (Objects.equals(uid, reply.getUid())) {
             this.uid = reply.getUid();
@@ -37,7 +37,7 @@ public class ReplyResponseDto {
         userName =reply.getUserName();
         tag = reply.getTag();
         comment = reply.getComment();
-        modifiedDate = reply.getCreatedDate();
+        modifiedDate = reply.getModifiedDate();
         updated = reply.getUpdated();
     }
 }

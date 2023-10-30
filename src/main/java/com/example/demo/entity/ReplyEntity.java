@@ -32,6 +32,7 @@ public class ReplyEntity extends BaseTimeEntity{
     private Boolean updated;
     public void update(ReplyRequestDto replyRequestDto, String userName) {
         this.comment = replyRequestDto.getComment();
+        this.updated = true;
         this.userName = userName;
     }
 }

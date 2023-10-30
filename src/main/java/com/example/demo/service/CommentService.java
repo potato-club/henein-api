@@ -37,7 +37,6 @@ public class CommentService {
     private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
-    private final EntityManager entityManager;
 
 
 
