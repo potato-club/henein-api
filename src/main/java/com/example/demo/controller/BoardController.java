@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.board.*;
 import com.example.demo.service.*;
+import io.micrometer.core.annotation.Timed;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -35,11 +36,13 @@ public class BoardController {
             @ApiImplicitParam(name = "page", value = "원하는 페이지 값", required = true)
     })
     @GetMapping()
+    @Timed(value = "board.getPage",longTask = true)
     public Page<BoardListResponseDto> getTypeOfBoard(@RequestParam("board")char boardtype, @RequestParam("page")int page){
         return boardTypeOfService.getTypeOfBoard(page, boardtype);
     }
     //Read
     @GetMapping("/{id}")
+    @Timed(value = "board.getOne",longTask = true)
     public BoardResponseDto getOneBoard(@PathVariable Long id, @RequestHeader(value = "Authorization",required = false)String authentication){
         return commonBoardService.getOneService(id, authentication);
     }
