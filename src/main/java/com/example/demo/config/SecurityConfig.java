@@ -54,6 +54,7 @@ public class SecurityConfig {
                 .antMatchers("/auth/login").permitAll()
                 .antMatchers("/auth/login/**").permitAll()
                 .antMatchers("/auth/refresh").permitAll()
+                .antMatchers("/actuator/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/userinfo/character/info").permitAll()
                 .antMatchers(HttpMethod.GET,"/board/**").permitAll() // /board/**에 대한 GET 요청을 허용합니다.
                 .antMatchers(HttpMethod.POST,"/userinfo/character/info").permitAll()
