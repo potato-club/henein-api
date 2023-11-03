@@ -15,13 +15,9 @@ import com.example.demo.repository.ReplyRepository;
 import com.example.demo.repository.UserRepository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
@@ -111,13 +107,13 @@ public class CommentService {
 ///////////////////////////////
 
     @Transactional
-    public String addCommentOfParent(Long id,CommentRequsetDto commentRequsetDto, HttpServletRequest request){
+    public String addCommentOfParent(Long id, CommentRequestDto commentRequestDto, HttpServletRequest request){
         UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request);
         BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);});
         UserRole roleInBoard = setRoleInBoard(userEntity,boardEntity.getUserEntity());
 
         CommentEntity commentEntity = CommentEntity.builder()
-                .comment(commentRequsetDto.getComment())
+                .comment(commentRequestDto.getComment())
                 .userName(userEntity.getUserName())
                 .userEmail(userEntity.getUserEmail())
                 .roleInBoard(roleInBoard)
@@ -178,7 +174,7 @@ public class CommentService {
     }
 
     @Transactional
-    public String updateCommentOfParent(Long id,Long coId,CommentRequsetDto commentRequsetDto, HttpServletRequest request){
+    public String updateCommentOfParent(Long id, Long coId, CommentRequestDto commentRequestDto, HttpServletRequest request){
         UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request);
         if (!boardRepository.existsById(id)) {
             throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);
@@ -187,7 +183,7 @@ public class CommentService {
         if (!commentEntity.getUserEmail().equals(userEntity.getUserEmail())) {
             throw new ForbiddenException(ErrorCode.FORBIDDEN_EXCEPTION.getMessage(), ErrorCode.FORBIDDEN_EXCEPTION);
         }
-        commentEntity.update(commentRequsetDto,userEntity.getUserName());
+        commentEntity.update(commentRequestDto,userEntity.getUserName());
         return "수정 완료";
     }
     @Transactional

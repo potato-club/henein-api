@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommentRequsetDto {
+public class CommentRequestDto {
     @ApiModelProperty(value="댓글 내용", example = "문자열", required = true)
     private String comment;
 

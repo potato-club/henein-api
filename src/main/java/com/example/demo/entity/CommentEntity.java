@@ -1,6 +1,6 @@
 package com.example.demo.entity;
 
-import com.example.demo.dto.comment.CommentRequsetDto;
+import com.example.demo.dto.comment.CommentRequestDto;
 import com.example.demo.enumCustom.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
@@ -41,8 +40,8 @@ public class CommentEntity extends BaseTimeEntity {
     @Column(nullable = false)
     private Boolean updated;
 
-    public void update(CommentRequsetDto commentRequsetDto, String userName) {
-        this.comment = commentRequsetDto.getComment();
+    public void update(CommentRequestDto commentRequestDto, String userName) {
+        this.comment = commentRequestDto.getComment();
         this.userName = userName;
     }
     public void delete(){

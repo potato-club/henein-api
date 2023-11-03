@@ -62,6 +62,13 @@ dependencies {
 	//redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
+	//micrometer(prometheus)
+	// Micrometer Prometheus registry
+	implementation 'io.micrometer:micrometer-registry-prometheus'
+
+	// Spring Boot Actuator (메트릭 및 모니터링을 위한)
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
 
 }
 

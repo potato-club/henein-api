@@ -1,6 +1,5 @@
 package com.example.demo.entity;
 
-import com.example.demo.dto.comment.CommentRequsetDto;
 import com.example.demo.dto.comment.ReplyRequestDto;
 import com.example.demo.enumCustom.UserRole;
 import lombok.*;
