@@ -2,6 +2,7 @@ package com.example.demo.entity;
 
 import com.example.demo.dto.comment.CommentRequsetDto;
 import com.example.demo.dto.comment.ReplyRequestDto;
+import com.example.demo.enumCustom.UserRole;
 import lombok.*;
 
 import javax.persistence.*;
@@ -21,6 +22,8 @@ public class ReplyEntity extends BaseTimeEntity{
     private String comment;
     @Column(nullable = false)
     private String userEmail;
+    @Column(nullable = false)
+    private UserRole roleInBoard;
     @Column(nullable = false)
     private String userName;
     @Column(nullable = false)

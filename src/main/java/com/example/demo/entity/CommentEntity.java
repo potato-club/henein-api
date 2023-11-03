@@ -1,6 +1,7 @@
 package com.example.demo.entity;
 
 import com.example.demo.dto.comment.CommentRequsetDto;
+import com.example.demo.enumCustom.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,6 +24,8 @@ public class CommentEntity extends BaseTimeEntity {
     private String comment;
     @Column(nullable = false)
     private String userEmail;
+    @Column(nullable = false)
+    private UserRole roleInBoard;
     @Column(nullable = false)
     private String userName;
     @Column(nullable = false)

@@ -1,5 +1,6 @@
 package com.example.demo.config;
 
+import com.example.demo.enumCustom.UserRole;
 import com.example.demo.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -56,7 +57,7 @@ public class SecurityConfig {
                 .antMatchers(HttpMethod.POST, "/userinfo/character/info").permitAll()
                 .antMatchers(HttpMethod.GET,"/board/**").permitAll() // /board/**에 대한 GET 요청을 허용합니다.
                 .antMatchers(HttpMethod.POST,"/userinfo/character/info").permitAll()
-                .antMatchers("/board/**").authenticated()
+                .antMatchers(HttpMethod.POST, "/board/**").authenticated()
                 .antMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/swagger-ui.html").permitAll()
                 .anyRequest().authenticated()
 

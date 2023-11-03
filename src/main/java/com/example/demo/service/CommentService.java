@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.dto.comment.*;
 import com.example.demo.entity.*;
+import com.example.demo.enumCustom.UserRole;
 import com.example.demo.error.ErrorCode;
 
 import com.example.demo.error.exception.ForbiddenException;
@@ -113,10 +114,13 @@ public class CommentService {
     public String addCommentOfParent(Long id,CommentRequsetDto commentRequsetDto, HttpServletRequest request){
         UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request);
         BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);});
+        UserRole roleInBoard = setRoleInBoard(userEntity,boardEntity.getUserEntity());
+
         CommentEntity commentEntity = CommentEntity.builder()
                 .comment(commentRequsetDto.getComment())
                 .userName(userEntity.getUserName())
                 .userEmail(userEntity.getUserEmail())
+                .roleInBoard(roleInBoard)
                 .uid(userEntity.getUid())
                 .boardEntity(boardEntity)
                 .updated(false)
@@ -132,17 +136,20 @@ public class CommentService {
         boardRepository.save(boardEntity);
         return "댓글 작성 완료";
     }
+
     @Transactional
     public String addCommentOfChild(Long id,Long coId, ReplyRequestDto replyRequestDto, HttpServletRequest request){
         UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request);
         BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);});
         CommentEntity parentComment = commentRepository.findById(coId).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);});
+        UserRole roleInBoard = setRoleInBoard(userEntity,boardEntity.getUserEntity());
 
         ReplyEntity replyEntity = ReplyEntity.builder()
                 .tag(replyRequestDto.getTag())
                 .comment(replyRequestDto.getComment())
                 .uid(userEntity.getUid())
                 .userName(userEntity.getUserName())
+                .roleInBoard(roleInBoard)
                 .userEmail(userEntity.getUserEmail())
                 .parent(parentComment)
                 .updated(false)
@@ -157,6 +164,17 @@ public class CommentService {
 
         boardRepository.save(boardEntity);
         return "대댓글 작성 완료";
+    }
+    private UserRole setRoleInBoard(UserEntity userEntity, UserEntity writerEntity) {
+        if (userEntity.getUserRole().equals(UserRole.ADMIN)) {
+            return UserRole.ADMIN;
+        }
+        else if (userEntity.equals(writerEntity)) {
+            return UserRole.WRITER;
+        }
+        else {
+            return UserRole.USER;
+        }
     }
 
     @Transactional
