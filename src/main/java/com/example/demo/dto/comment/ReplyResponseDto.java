@@ -2,7 +2,6 @@ package com.example.demo.dto.comment;
 
 import com.example.demo.entity.ReplyEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 

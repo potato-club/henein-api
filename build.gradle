@@ -36,7 +36,7 @@ dependencies {
 	implementation group: 'org.springframework.boot', name: 'spring-boot-maven-plugin', version: '2.6.12'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	//swagger
-	implementation 'io.springfox:springfox-boot-starter:3.0.0'
+	//implementation 'io.springfox:springfox-boot-starter:3.0.0'
 	//Jwt
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
 	implementation 'io.jsonwebtoken:jjwt-impl:0.11.2'
@@ -49,7 +49,7 @@ dependencies {
 	implementation('org.springframework.boot:spring-boot-starter-webflux')
 	//  aws s3
 //	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
-	implementation 'com.amazonaws:aws-java-sdk-s3:1.11.1002'
+	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.13'
 	implementation 'com.amazonaws:aws-java-sdk-core:1.11.1002'
 
 	// querydsl dependencies

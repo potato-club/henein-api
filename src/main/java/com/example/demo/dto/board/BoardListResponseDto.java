@@ -2,7 +2,7 @@ package com.example.demo.dto.board;
 
 import com.example.demo.entity.BoardEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import io.swagger.annotations.ApiModelProperty;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -13,17 +13,17 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class BoardListResponseDto {
     private Long id;
-    @ApiModelProperty(value="게시글 제목", example = "테스트 제목입니다.", required = true)
+    //@ApiModelProperty(value="게시글 제목", example = "테스트 제목입니다.", required = true)
     private String title;
-    @ApiModelProperty(value = "게시판 분류",example = "게시판 분류")
+    //@ApiModelProperty(value = "게시판 분류",example = "게시판 분류")
     private String boardType;
-    @ApiModelProperty(value="댓글 갯수", example = "정수값", required = true)
+    //@ApiModelProperty(value="댓글 갯수", example = "정수값", required = true)
     private int commentNum;
-    @ApiModelProperty(value="게시글 작성자", example = "테스트 글쓴이", required = true)
+    //@ApiModelProperty(value="게시글 작성자", example = "테스트 글쓴이", required = true)
     private String userName;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime createTime;
-    @ApiModelProperty(value="조회수", example = "정수값", required = true)
+    //@ApiModelProperty(value="조회수", example = "정수값", required = true)
     private int views;
 
     public BoardListResponseDto(BoardEntity boardEntity){
