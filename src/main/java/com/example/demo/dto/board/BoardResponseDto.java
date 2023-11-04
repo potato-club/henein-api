@@ -3,6 +3,7 @@ package com.example.demo.dto.board;
 import com.example.demo.entity.*;
 import com.example.demo.enumCustom.BoardType;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -13,27 +14,27 @@ import java.util.Objects;
 @AllArgsConstructor
 public class BoardResponseDto {
     private Long id;
-    //@ApiModelProperty(value="게시글 타입", example = "Advertise", required = true)
+    @ApiModelProperty(value="게시글 타입", example = "Advertise", required = true)
     private BoardType boardType;
-    //@ApiModelProperty(value="게시글 제목", example = "테스트 제목입니다.", required = true)
+    @ApiModelProperty(value="게시글 제목", example = "테스트 제목입니다.", required = true)
     private String title;
-    //@ApiModelProperty(value="작성자", example = "작성자", required = true)
+    @ApiModelProperty(value="작성자", example = "작성자", required = true)
     private String userName;
-    //@ApiModelProperty(value="본인 글 식별", example = "작성자 고유Id", required = true)
+    @ApiModelProperty(value="본인 글 식별", example = "작성자 고유Id", required = true)
     private String uid;
-    //@ApiModelProperty(value="댓글 갯수", example = "정수값", required = true)
+    @ApiModelProperty(value="댓글 갯수", example = "정수값", required = true)
     private int commentNum;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime createTime;
-    //@ApiModelProperty(value="조회수", example = "정수값", required = true)
+    @ApiModelProperty(value="조회수", example = "정수값", required = true)
     private int views;
-    //@ApiModelProperty(value="추천받은 수", example = "정수값", required = true)
+    @ApiModelProperty(value="추천받은 수", example = "정수값", required = true)
     private int recommend;
-    //@ApiModelProperty(value="게시글 내용", example = "테스트 내용입니다~~", required = true)
+    @ApiModelProperty(value="게시글 내용", example = "테스트 내용입니다~~", required = true)
     private String text;
-    //@ApiModelProperty(value="사진 첨부 여부",example = "T or F",required = true)
+    @ApiModelProperty(value="사진 첨부 여부",example = "T or F",required = true)
     private boolean hasImage;
-    //@ApiModelProperty(value = "추천했는지", example = "T or F")
+    @ApiModelProperty(value = "추천했는지", example = "T or F")
     private boolean recommended;
 
     public BoardResponseDto (BoardEntity boardEntity, boolean recommended,String uid){

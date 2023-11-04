@@ -1,6 +1,7 @@
 package com.example.demo.dto.file;
 
 import com.example.demo.entity.S3File;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,9 +10,9 @@ import lombok.Data;
 @Builder
 @AllArgsConstructor
 public class FileDto {
-    //@ApiModelProperty(value = "이미지 파일 이름")
+    @ApiModelProperty(value = "이미지 파일 이름")
     private String fileName;
-    //@ApiModelProperty(value = "이미지 파일 url")
+    @ApiModelProperty(value = "이미지 파일 url")
     private String fileUrl;
 
     public FileDto(S3File file) {
