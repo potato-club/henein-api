@@ -41,13 +41,13 @@ public class AuthenticationController {
     @Operation(summary = "Naver 인증 메일 발송 요청")
     @PostMapping("/mail/naver")
     public ResponseEntity<String> sendNaver(String requestEmail) throws MessagingException, UnsupportedEncodingException {
-        emailService.sendMail(requestEmail,"naver");
+        emailService.sendNaverMail(requestEmail);
         return ResponseEntity.ok("인증 메일이 발송되었습니다.");
     }
     @Operation(summary = "Gmail 인증 메일 발송 API")
     @PostMapping("/mail/gmail")
-    public ResponseEntity<String> sendGmail(String recipientEmail) throws MessagingException, UnsupportedEncodingException {
-        emailService.sendMail(recipientEmail,"gmail");
+    public ResponseEntity<String> sendGmail(String requestEmail) throws MessagingException, UnsupportedEncodingException {
+        emailService.sendGmail(requestEmail);
         return ResponseEntity.ok("인증 메일이 발송되었습니다.");
     }
     @Operation(summary = "인증 코드 확인 API")

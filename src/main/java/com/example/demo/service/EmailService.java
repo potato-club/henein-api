@@ -7,6 +7,8 @@ import com.example.demo.error.exception.DuplicateException;
 import com.example.demo.jwt.JwtTokenProvider;
 import com.example.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -23,10 +25,11 @@ import java.util.UUID;
 
 @Service
 @Transactional
-@RequiredArgsConstructor
+
 public class EmailService {
 
     private final JavaMailSender naverSender;
+    private final JavaMailSender gmailSender;
     private final RedisService redisService;
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
@@ -36,15 +39,40 @@ public class EmailService {
     @Value("${email.gmail.id}")
     private String gmailId;
 
+    @Autowired
+    public EmailService(@Qualifier("gmail") JavaMailSender gmailSender,
+                            @Qualifier("naver") JavaMailSender naverSender,
+                            RedisService redisService,
+                            UserRepository userRepository,
+                            JwtTokenProvider jwtTokenProvider) {
+        this.gmailSender = gmailSender;
+        this.naverSender = naverSender;
+        this.redisService = redisService;
+        this.userRepository = userRepository;
+        this.jwtTokenProvider = jwtTokenProvider;
+    }
 
-    public void sendMail(String requestEmail,String sendType) throws MessagingException, UnsupportedEncodingException {
+    public void sendGmail(String requestEmail) throws MessagingException, UnsupportedEncodingException {
         if ( userRepository.existsByUserEmail(requestEmail) ) {
             throw new DuplicateException(ErrorCode.DUPLICATE_EMAIL.getMessage(),ErrorCode.DUPLICATE_EMAIL);
         }
+
+        redisService.deleteExistingOtp(requestEmail);
+        MimeMessage message = gmailSender.createMimeMessage();
+        String OTP = createKey();
+        message = commonMessage(requestEmail,message,"gmail",OTP);
+        redisService.setEmailOtpDataExpire(requestEmail, OTP, 5);
+        gmailSender.send(message);
+    }
+    public void sendNaverMail(String requestEmail) throws MessagingException, UnsupportedEncodingException {
+        if ( userRepository.existsByUserEmail(requestEmail) ) {
+            throw new DuplicateException(ErrorCode.DUPLICATE_EMAIL.getMessage(),ErrorCode.DUPLICATE_EMAIL);
+        }
+
         redisService.deleteExistingOtp(requestEmail);
         MimeMessage message = naverSender.createMimeMessage();
         String OTP = createKey();
-        message = commonMessage(requestEmail,message,sendType,OTP);
+        message = commonMessage(requestEmail,message,"naver",OTP);
         redisService.setEmailOtpDataExpire(requestEmail, OTP, 5);
         naverSender.send(message);
     }

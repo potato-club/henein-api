@@ -15,6 +15,10 @@ public class MailConfig {
     private String naverId;
     @Value("${email.naver.pw}")
     private String naverPw;
+    @Value("${email.gmail.id}")
+    private String gmailId;
+    @Value("${email.gmail.pw}")
+    private String gmailPw;
 
     @Bean(name ="naver")
     public JavaMailSender naverJavaMailSender() {
@@ -23,14 +27,7 @@ public class MailConfig {
         javaMailSender.setHost("smtp.naver.com"); // 메인 도메인 서버 주소 => 정확히는 smtp 서버 주소
         javaMailSender.setUsername(naverId); // 네이버 아이디
         javaMailSender.setPassword(naverPw); // 네이버 비밀번호
-
         javaMailSender.setPort(465); // 메일 인증서버 포트
-
-        javaMailSender.setJavaMailProperties(getMailProperties()); // 메일 인증서버 정보 가져오기
-
-        return javaMailSender;
-    }
-    private Properties getMailProperties() {
         Properties properties = new Properties();
         properties.setProperty("mail.transport.protocol", "smtp"); // 프로토콜 설정
         properties.setProperty("mail.smtp.auth", "true"); // smtp 인증
@@ -38,7 +35,24 @@ public class MailConfig {
         properties.setProperty("mail.debug", "true"); // 디버그 사용
         properties.setProperty("mail.smtp.ssl.trust","smtp.naver.com"); // ssl 인증 서버는 smtp.naver.com
         properties.setProperty("mail.smtp.ssl.enable","true"); // ssl 사용
-        return properties;
+
+
+        return javaMailSender;
     }
+    @Bean(name = "gmail")
+    public JavaMailSender gmailJavaMailSender() {
+        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+        mailSender.setHost("smtp.gmail.com");
+        mailSender.setPort(587);
+        mailSender.setUsername(gmailId);
+        mailSender.setPassword(gmailPw);
+        Properties props = mailSender.getJavaMailProperties();
+        props.put("mail.transport.protocol", "smtp");
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.debug", "true");
+        return mailSender;
+    }
+
 
 }
