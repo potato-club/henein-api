@@ -70,19 +70,7 @@ public class UserService {
     private String apiKey;
 
 //=================필터사용
-    @Transactional
-    public UserEntity fetchUserEntityByHttpRequest(HttpServletRequest request){
-        try {
-            String AT = jwtTokenProvider.resolveAccessToken(request);
 
-            String userEmail = jwtTokenProvider.getUserEmailFromAccessToken(AT); // 정보 가져옴
-
-            return userRepository.findByUserEmail(userEmail).
-                    orElseThrow(() -> new UnAuthorizedException(ErrorCode.INVALID_ACCESS.getMessage(),ErrorCode.INVALID_ACCESS));
-        }catch (NullPointerException e){
-            throw new NullPointerException(e.getMessage());
-        }
-    }
     @Transactional
     public ResponseEntity<?> refreshAT(HttpServletRequest request,HttpServletResponse response) {
         //bearer 지우기
@@ -106,7 +94,9 @@ public class UserService {
     //===============마이페이지 관련===================
 
     public UserInfoResponseDto userInfo(HttpServletRequest request){
-        UserEntity userEntity = fetchUserEntityByHttpRequest(request);
+        String userEmail = jwtTokenProvider.fetchUserEmailByHttpRequest(request);
+        UserEntity userEntity = userRepository.findByUserEmail(userEmail).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);});
+
 
         UserCharEntity userCharEntity = userCharRepository.findByUserEntityAndPickByUser(userEntity,true);
 
@@ -126,7 +116,9 @@ public class UserService {
     }
 
     public UserDetailInfoResponseDto userDetailInfo(HttpServletRequest request) {
-        UserEntity userEntity = fetchUserEntityByHttpRequest(request);
+        String userEmail = jwtTokenProvider.fetchUserEmailByHttpRequest(request);
+        UserEntity userEntity = userRepository.findByUserEmail(userEmail).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);});
+
 
         QBoardEntity qBoardEntity= QBoardEntity.boardEntity;
         long boardCount = jpaQueryFactory
@@ -149,7 +141,8 @@ public class UserService {
     }
     @Transactional
     public String userUpdate(UserInfoChange userInfoChange, HttpServletRequest request) throws IOException {
-        UserEntity userEntity = fetchUserEntityByHttpRequest(request);
+        String userEmail = jwtTokenProvider.fetchUserEmailByHttpRequest(request);
+        UserEntity userEntity = userRepository.findByUserEmail(userEmail).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);});
 
         if (!userInfoChange.getUserName().trim().isEmpty()) {
             userEntity.Update(userInfoChange.getUserName());
@@ -163,7 +156,9 @@ public class UserService {
 
     @Transactional
     public void pickCharacter(Long id, HttpServletRequest request) {
-        UserEntity userEntity = fetchUserEntityByHttpRequest(request);
+        String userEmail = jwtTokenProvider.fetchUserEmailByHttpRequest(request);
+        UserEntity userEntity = userRepository.findByUserEmail(userEmail).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);});
+
         UserCharEntity oldCharEntity = userCharRepository.findByUserEntityAndPickByUser(userEntity, true);
 
         if (oldCharEntity == null){
@@ -185,7 +180,8 @@ public class UserService {
     //캐릭터 관련
     @Transactional
     public List<UserCharacter> getAllUserCharacterInfo(HttpServletRequest request) {
-        UserEntity userEntity = fetchUserEntityByHttpRequest(request);
+        String userEmail= jwtTokenProvider.fetchUserEmailByHttpRequest(request);
+        UserEntity userEntity = userRepository.findByUserEmail(userEmail).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);});
 
         List<UserCharEntity> resultList = userCharRepository.findAllByUserEntity(userEntity);
         log.info(resultList.get(0).getAvatar());
@@ -202,7 +198,9 @@ public class UserService {
             throw new BadRequestException("Cannot request for more than 2 months", ErrorCode.BAD_REQUEST);
         }
         //날짜 비교해서 2달 이상이면 에러
-        UserEntity userEntity = fetchUserEntityByHttpRequest(request);
+        String userEmail = jwtTokenProvider.fetchUserEmailByHttpRequest(request);
+        UserEntity userEntity = userRepository.findByUserEmail(userEmail).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);});
+
         String api = "cube?key="+apiKey;
 
          this.cubeWebClient.post()
@@ -272,13 +270,13 @@ public class UserService {
 
     @Transactional
     public List<BoardListResponseDto> getMyBoardList(HttpServletRequest request) {
-        UserEntity userEntity = fetchUserEntityByHttpRequest(request);
+        String userEmail = jwtTokenProvider.fetchUserEmailByHttpRequest(request);
 
         QBoardEntity qBoardEntity= QBoardEntity.boardEntity;
 
         List<BoardEntity> boardEntityList = jpaQueryFactory
                 .selectFrom(qBoardEntity)
-                .where(qBoardEntity.userEntity.eq(userEntity))
+                .where(qBoardEntity.userEntity.userEmail.eq(userEmail))
                 .orderBy(qBoardEntity.id.desc())
                 .fetch();
 
@@ -287,7 +285,7 @@ public class UserService {
 
     @Transactional
     public List<BoardListResponseDto> getMyBoardsWithCommentList(HttpServletRequest request) {
-        UserEntity userEntity = fetchUserEntityByHttpRequest(request);
+        String userEmail = jwtTokenProvider.fetchUserEmailByHttpRequest(request);
 
         QCommentEntity qCommentEntity = QCommentEntity.commentEntity;
 
@@ -295,7 +293,7 @@ public class UserService {
                 .select(qCommentEntity.boardEntity)
                 .distinct()
                 .from(qCommentEntity)
-                .where(qCommentEntity.userEmail.eq(userEntity.getUserEmail()))
+                .where(qCommentEntity.userEmail.eq(userEmail))
                 .orderBy(qCommentEntity.boardEntity.id.desc())
                 .fetch();
 
@@ -322,29 +320,13 @@ public class UserService {
     }
 
     @Transactional
-    public ResponseEntity<String> basicSignUp(BasicLoginRequestDto basicLoginRequestDto, HttpServletResponse response){
-        //이미 있는 이메일인지 확인
-        if (userRepository.existsByUserEmail(basicLoginRequestDto.getUserEmail())){
-            throw new DuplicateException(ErrorCode.DUPLICATE_EMAIL.getMessage(),ErrorCode.DUPLICATE_EMAIL);
-        }
+    public ResponseEntity<String> basicSignUp(BasicLoginRequestDto basicLoginRequestDto, HttpServletRequest request){
+        //이메일 검증 성공했을테니 디비에서 찾아야함.
+        String userEmail = jwtTokenProvider.fetchUserEmailByHttpRequest(request);
+        UserEntity userEntity = userRepository.findByUserEmail(userEmail).orElseThrow(()->{throw new NotFoundException("인증된 이메일과 입력된 이메일이 다릅니다.", ErrorCode.NOT_FOUND_EXCEPTION);});
 
-        //토큰 발급
-        String accessToken = jwtTokenProvider.generateAccessToken(basicLoginRequestDto.getUserEmail());
-        String refreshToken = jwtTokenProvider.generateRefreshToken(basicLoginRequestDto.getUserEmail());
+        userEntity.UpdatePW(passwordEncoder.encode(basicLoginRequestDto.getPassword()));
 
-        //디비 저장
-        UserEntity userEntity = new UserEntity().builder()
-                .userRole(UserRole.USER)
-                .uid(String.valueOf(UUID.randomUUID()))
-                .userName("ㅇㅇ")
-                .userEmail(basicLoginRequestDto.getUserEmail())
-                .password(passwordEncoder.encode(basicLoginRequestDto.getPassword()))
-                .refreshToken(refreshToken)
-                .build();
-        userRepository.save(userEntity);
-
-        response.setHeader("Authorization","Bearer " + accessToken);
-        response.setHeader("RefreshToken","Bearer "+ refreshToken);
         return ResponseEntity.ok("회원가입 성공");
     }
     @Transactional

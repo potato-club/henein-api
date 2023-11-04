@@ -42,6 +42,7 @@ public class UserEntity extends BaseTimeEntity{
     public void Update(String userName) {
         this.userName = userName;
     }
+    public void UpdatePW(String password) {this.password = password;}
 
     public void setRefreshToken(String refreshToken){
         this.refreshToken = refreshToken;

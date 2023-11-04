@@ -8,8 +8,10 @@ import com.example.demo.enumCustom.BoardType;
 import com.example.demo.enumCustom.S3EntityType;
 import com.example.demo.error.ErrorCode;
 import com.example.demo.error.exception.NotFoundException;
+import com.example.demo.jwt.JwtTokenProvider;
 import com.example.demo.repository.BoardRepository;
 import com.example.demo.repository.S3FileRespository;
+import com.example.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -29,10 +31,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class BoardTypeOfService {
+    private final UserRepository userRepository;
     private final BoardRepository boardRepository;
     private final S3FileRespository s3FileRespository;
     private final S3Service s3Service;
-    private final UserService userService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Transactional //
     public Page<BoardListResponseDto> getTypeOfBoard(int page, int boardType){
@@ -58,7 +61,7 @@ public class BoardTypeOfService {
     //===================================================================================================
     @Transactional
     public long addTypeOfBoard(BoardRequestDto boardRequestDto, HttpServletRequest request){
-        UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request); // jwt 로직 추가
+        String userEmail = jwtTokenProvider.fetchUserEmailByHttpRequest(request); // jwt 로직 추가
 
         BoardType board;
         switch (boardRequestDto.getBoardType()){
@@ -70,6 +73,7 @@ public class BoardTypeOfService {
             case "N": board = BoardType.Notice; break;
             default: throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);
         }
+        UserEntity userEntity = userRepository.findByUserEmail(userEmail).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);});
 
         BoardEntity boardEntity = new BoardEntity(boardRequestDto,board, userEntity);
         BoardEntity savedBoard = boardRepository.save(boardEntity);

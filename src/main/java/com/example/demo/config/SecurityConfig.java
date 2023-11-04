@@ -51,9 +51,7 @@ public class SecurityConfig {
                 // .antMatchers(HttpMethod.POST,"/board/recommend").hasAnyAuthority("USER","ADMIN")
                 .antMatchers(HttpMethod.OPTIONS,"/**").permitAll()//userinfo불러올때의 CORS를 해결하기 위해 OPTIONS에 대한 설정함
                 .antMatchers("/userinfo/test").permitAll()
-                .antMatchers("/auth/login").permitAll()
-                .antMatchers("/auth/login/**").permitAll()
-                .antMatchers("/auth/refresh").permitAll()
+                .antMatchers("/auth/**").permitAll()
                 .antMatchers("/actuator/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/userinfo/character/info").permitAll()
                 .antMatchers(HttpMethod.GET,"/board/**").permitAll() // /board/**에 대한 GET 요청을 허용합니다.
