@@ -68,7 +68,8 @@ dependencies {
 
 	// Spring Boot Actuator (메트릭 및 모니터링을 위한)
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-
+	// mail 인증 시스템
+	implementation 'org.springframework.boot:spring-boot-starter-mail:2.7.1'
 
 }
 

@@ -30,7 +30,15 @@ public class JwtTokenProvider {
     @Value("${jwt.refresh-expriation}")
     private long refreshTokenExpiration;
 
+    public String fetchUserEmailByHttpRequest(HttpServletRequest request){
+        try {
+            String AT = resolveAccessToken(request);
 
+            return getUserEmailFromAccessToken(AT);
+        }catch (NullPointerException e){
+            throw new NullPointerException(e.getMessage());
+        }
+    }
     public String generateAccessToken(String email) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + accessTokenExpiration);

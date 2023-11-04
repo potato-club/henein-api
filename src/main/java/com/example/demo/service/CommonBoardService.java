@@ -6,6 +6,8 @@ import com.example.demo.entity.RecommendEntity;
 import com.example.demo.entity.S3File;
 import com.example.demo.entity.UserEntity;
 import com.example.demo.enumCustom.S3EntityType;
+import com.example.demo.error.ErrorCode;
+import com.example.demo.error.exception.NotFoundException;
 import com.example.demo.jwt.JwtTokenProvider;
 import com.example.demo.repository.BoardRepository;
 import com.example.demo.repository.RecommandRepository;
@@ -59,9 +61,9 @@ public class CommonBoardService {
     }
     @Transactional
     public long updateService(Long id, TestDto testDto, HttpServletRequest request){
-        UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request);
+        String userEmail = jwtTokenProvider.fetchUserEmailByHttpRequest(request);
         BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 게시글 정보가 없습니다");});
-        if (boardEntity.getUserEntity().getUserEmail() != userEntity.getUserEmail()){
+        if (boardEntity.getUserEntity().getUserEmail() != userEmail){
             throw new RuntimeException("게시글 수정 권한이 없습니다.");
         }
 
@@ -111,9 +113,9 @@ public class CommonBoardService {
     }
     @Transactional
     public String deleteService(Long id, HttpServletRequest request ){
-        UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request);
+        String userEmail = jwtTokenProvider.fetchUserEmailByHttpRequest(request);
         BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 게시글 정보가 없습니다");});
-        if (boardEntity.getUserEntity().getUserEmail() != userEntity.getUserEmail()){
+        if (boardEntity.getUserEntity().getUserEmail() != userEmail){
             throw new RuntimeException("게시글 삭제 권한이 없습니다.");
         }
         //게시글에 저장되어있던 사진들 전부 미사용으로 전환
@@ -137,7 +139,8 @@ public class CommonBoardService {
     @Transactional
     public String recommendThisBoard(Long id, HttpServletRequest request ){
         BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 게시글 정보가 없습니다");});
-        UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request);
+        String userEmail = jwtTokenProvider.fetchUserEmailByHttpRequest(request);
+        UserEntity userEntity = userRepository.findByUserEmail(userEmail).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);});
 
         RecommendEntity recommendEntity = recommandRepository.findByBoardEntityAndUserEntity(boardEntity,userEntity);
         //추천 DB에 없는 인원일때 ( 해당 게시글에 처음 추천을 누른 유저일시 )

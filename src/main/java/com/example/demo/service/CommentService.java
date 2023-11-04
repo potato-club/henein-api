@@ -31,7 +31,6 @@ public class CommentService {
     private final ReplyRepository replyRepository;
     private final BoardRepository boardRepository;
     private final JPAQueryFactory jpaQueryFactory;
-    private final UserService userService;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
 
@@ -108,7 +107,9 @@ public class CommentService {
 
     @Transactional
     public String addCommentOfParent(Long id, CommentRequestDto commentRequestDto, HttpServletRequest request){
-        UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request);
+        String userEmail = jwtTokenProvider.fetchUserEmailByHttpRequest(request);
+        UserEntity userEntity = userRepository.findByUserEmail(userEmail).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);});
+
         BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);});
         UserRole roleInBoard = setRoleInBoard(userEntity,boardEntity.getUserEntity());
 
@@ -135,7 +136,9 @@ public class CommentService {
 
     @Transactional
     public String addCommentOfChild(Long id,Long coId, ReplyRequestDto replyRequestDto, HttpServletRequest request){
-        UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request);
+        String userEmail = jwtTokenProvider.fetchUserEmailByHttpRequest(request);
+        UserEntity userEntity = userRepository.findByUserEmail(userEmail).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);});
+
         BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);});
         CommentEntity parentComment = commentRepository.findById(coId).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);});
         UserRole roleInBoard = setRoleInBoard(userEntity,boardEntity.getUserEntity());
@@ -175,36 +178,37 @@ public class CommentService {
 
     @Transactional
     public String updateCommentOfParent(Long id, Long coId, CommentRequestDto commentRequestDto, HttpServletRequest request){
-        UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request);
+        String userEmail = jwtTokenProvider.fetchUserEmailByHttpRequest(request);
+
         if (!boardRepository.existsById(id)) {
             throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);
         }
         CommentEntity commentEntity = commentRepository.findById(coId).orElseThrow(()->{throw new NotFoundException("해당 댓글이 없습니다.",ErrorCode.NOT_FOUND_EXCEPTION);});
-        if (!commentEntity.getUserEmail().equals(userEntity.getUserEmail())) {
+        if (!commentEntity.getUserEmail().equals(userEmail)) {
             throw new ForbiddenException(ErrorCode.FORBIDDEN_EXCEPTION.getMessage(), ErrorCode.FORBIDDEN_EXCEPTION);
         }
-        commentEntity.update(commentRequestDto,userEntity.getUserName());
+        commentEntity.update(commentRequestDto,userEmail);
         return "수정 완료";
     }
     @Transactional
     public String updateCommentOfChild(Long id,Long reId,ReplyRequestDto replyRequestDto, HttpServletRequest request){
-        UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request);
+        String userEmail = jwtTokenProvider.fetchUserEmailByHttpRequest(request);
         if (!boardRepository.existsById(id)) {
             throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);
         }
         ReplyEntity replyEntity = replyRepository.findById(reId).orElseThrow(()->{throw new NotFoundException("해당 댓글이 없습니다.",ErrorCode.NOT_FOUND_EXCEPTION);});
-        if (!replyEntity.getUserEmail().equals(userEntity.getUserEmail())){
+        if (!replyEntity.getUserEmail().equals(userEmail)){
             throw new ForbiddenException(ErrorCode.FORBIDDEN_EXCEPTION.getMessage(), ErrorCode.FORBIDDEN_EXCEPTION);
         }
-        replyEntity.update(replyRequestDto,userEntity.getUserName());
+        replyEntity.update(replyRequestDto,userEmail);
         return "수정 완료";
     }
 
     @Transactional
     public String deleteCommentOfParent(Long id,Long coId, HttpServletRequest request ){
-        UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request);
+        String userEmail = jwtTokenProvider.fetchUserEmailByHttpRequest(request);
         CommentEntity commentEntity = commentRepository.findById(coId).orElseThrow(()->{throw new NotFoundException("해당 댓글이 없습니다.",ErrorCode.NOT_FOUND_EXCEPTION);});
-        if (!(commentEntity.getUserEmail().equals(userEntity.getUserEmail()))){
+        if (!(commentEntity.getUserEmail().equals(userEmail))){
             throw new ForbiddenException(ErrorCode.FORBIDDEN_EXCEPTION.getMessage(), ErrorCode.FORBIDDEN_EXCEPTION);
         }
         //자식이 있으면 deleted == true
@@ -221,9 +225,9 @@ public class CommentService {
     }
     @Transactional
     public String deleteCommentOfChild(Long id,Long reId,HttpServletRequest request){
-        UserEntity userEntity = userService.fetchUserEntityByHttpRequest(request);
+        String userEmail = jwtTokenProvider.fetchUserEmailByHttpRequest(request);
         ReplyEntity replyEntity = replyRepository.findById(reId).orElseThrow(()->{throw new NotFoundException("해당 댓글이 없습니다.",ErrorCode.NOT_FOUND_EXCEPTION);});
-        if (!(replyEntity.getUserEmail().equals(userEntity.getUserEmail()))){
+        if (!(replyEntity.getUserEmail().equals(userEmail))){
             throw new ForbiddenException(ErrorCode.FORBIDDEN_EXCEPTION.getMessage(), ErrorCode.FORBIDDEN_EXCEPTION);
         }
 
