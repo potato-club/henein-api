@@ -40,9 +40,8 @@ public class CommentEntity extends BaseTimeEntity {
     @Column(nullable = false)
     private Boolean updated;
 
-    public void update(CommentRequestDto commentRequestDto, String userName) {
+    public void update(CommentRequestDto commentRequestDto) {
         this.comment = commentRequestDto.getComment();
-        this.userName = userName;
     }
     public void delete(){
         this.deleted = true;

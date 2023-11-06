@@ -187,7 +187,7 @@ public class CommentService {
         if (!commentEntity.getUserEmail().equals(userEmail)) {
             throw new ForbiddenException(ErrorCode.FORBIDDEN_EXCEPTION.getMessage(), ErrorCode.FORBIDDEN_EXCEPTION);
         }
-        commentEntity.update(commentRequestDto,userEmail);
+        commentEntity.update(commentRequestDto);
         return "수정 완료";
     }
     @Transactional
@@ -200,7 +200,7 @@ public class CommentService {
         if (!replyEntity.getUserEmail().equals(userEmail)){
             throw new ForbiddenException(ErrorCode.FORBIDDEN_EXCEPTION.getMessage(), ErrorCode.FORBIDDEN_EXCEPTION);
         }
-        replyEntity.update(replyRequestDto,userEmail);
+        replyEntity.update(replyRequestDto);
         return "수정 완료";
     }
 
