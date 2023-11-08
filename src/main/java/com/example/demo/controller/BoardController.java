@@ -37,8 +37,8 @@ public class BoardController {
     })
     @GetMapping()
     @Timed(value = "board.getPage",longTask = true)
-    public Page<BoardListResponseDto> getTypeOfBoard(@RequestParam("board")char boardtype, @RequestParam("page")int page){
-        return boardTypeOfService.getTypeOfBoard(page, boardtype);
+    public Page<BoardListResponseDto> getTypeOfBoard(@RequestParam("board")char boardtype, @RequestParam("page")int page, @RequestParam("size")int size){
+        return boardTypeOfService.getTypeOfBoard(page, boardtype, size);
     }
     //Read
     @GetMapping("/{id}")

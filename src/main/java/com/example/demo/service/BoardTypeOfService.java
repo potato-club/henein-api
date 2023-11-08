@@ -38,9 +38,9 @@ public class BoardTypeOfService {
     private final JwtTokenProvider jwtTokenProvider;
 
     @Transactional //
-    public Page<BoardListResponseDto> getTypeOfBoard(int page, int boardType){
+    public Page<BoardListResponseDto> getTypeOfBoard(int page, int boardType, int size){
         BoardType board;
-        PageRequest pageRequest = PageRequest.of(page-1, 20);
+        PageRequest pageRequest = PageRequest.of(page-1, size);
 
         switch (boardType){
             case 65: board = BoardType.Advertise; break;
@@ -55,7 +55,8 @@ public class BoardTypeOfService {
         }
 
         Page<BoardEntity> boardEntityList = boardRepository.findByBoardTypeOrderByIdDesc(board,pageRequest);
-        return new PageImpl<>(boardEntityList.getContent().stream().map(BoardListResponseDto::new).collect(Collectors.toList()), pageRequest, boardEntityList.getTotalElements());
+        return new PageImpl<>(boardEntityList.getContent().stream().map(BoardListResponseDto::new)
+                .collect(Collectors.toList()), pageRequest, boardEntityList.getTotalElements());
     }
 
     //===================================================================================================
