@@ -9,10 +9,7 @@ import com.example.demo.error.exception.ForbiddenException;
 import com.example.demo.error.exception.NotFoundException;
 import com.example.demo.error.exception.UnAuthorizedException;
 import com.example.demo.jwt.JwtTokenProvider;
-import com.example.demo.repository.BoardRepository;
-import com.example.demo.repository.CommentRepository;
-import com.example.demo.repository.ReplyRepository;
-import com.example.demo.repository.UserRepository;
+import com.example.demo.repository.*;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,6 +30,7 @@ public class CommentService {
     private final JPAQueryFactory jpaQueryFactory;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
+    private final BoardCommentNumberingRepository boardCommentNumberingRepository;
 
 
 
@@ -123,16 +121,17 @@ public class CommentService {
                 .updated(false)
                 .deleted(false)
                 .build();
+
         commentRepository.save(commentEntity);
 
+        this.checkBoardCommentNumbering(boardEntity.getId(),userEmail);
         //보드 게시판의 댓글수 업데이트
-        CommentNumUpdateDto commentNumUpdateDto = new CommentNumUpdateDto();
-        commentNumUpdateDto.setCommentNum(boardEntity.getCommentNum()+1);
-        boardEntity.Update(commentNumUpdateDto);
+        boardEntity.Update(boardEntity.getCommentNum()+1);
 
         boardRepository.save(boardEntity);
         return "댓글 작성 완료";
     }
+
 
     @Transactional
     public String addCommentOfChild(Long id,Long coId, ReplyRequestDto replyRequestDto, HttpServletRequest request){
@@ -153,16 +152,27 @@ public class CommentService {
                 .parent(parentComment)
                 .updated(false)
                 .build();
-        replyRepository.save(replyEntity);
 
+        replyRepository.save(replyEntity);
+        this.checkBoardCommentNumbering(boardEntity.getId(),userEmail);
 
         //보드 게시판의 댓글수 업데이트
-        CommentNumUpdateDto commentNumUpdateDto = new CommentNumUpdateDto();
-        commentNumUpdateDto.setCommentNum(boardEntity.getCommentNum()+1);
-        boardEntity.Update(commentNumUpdateDto);
+
+        boardEntity.Update(boardEntity.getCommentNum()+1);
 
         boardRepository.save(boardEntity);
         return "대댓글 작성 완료";
+    }
+    private void checkBoardCommentNumbering(long boardId, String userEmail) {
+        List<BoardCommentNumberingEntity> numberingEntityList = boardCommentNumberingRepository.findAllByBoardId(boardId);
+        for ( BoardCommentNumberingEntity numberingEntity : numberingEntityList) {
+            if ( numberingEntity.getUserEmail().equals(userEmail) ) {
+                return;
+            }
+        }
+        int lastNum = numberingEntityList.size()-1;
+        BoardCommentNumberingEntity numberingEntity = new BoardCommentNumberingEntity(boardId,userEmail,numberingEntityList.get(lastNum).getUserNumbering());
+        boardCommentNumberingRepository.save(numberingEntity);
     }
     private UserRole setRoleInBoard(UserEntity userEntity, UserEntity writerEntity) {
         if (userEntity.getUserRole().equals(UserRole.ADMIN)) {
@@ -208,11 +218,13 @@ public class CommentService {
     public String deleteCommentOfParent(Long id,Long coId, HttpServletRequest request ){
         String userEmail = jwtTokenProvider.fetchUserEmailByHttpRequest(request);
         CommentEntity commentEntity = commentRepository.findById(coId).orElseThrow(()->{throw new NotFoundException("해당 댓글이 없습니다.",ErrorCode.NOT_FOUND_EXCEPTION);});
+
         if (!(commentEntity.getUserEmail().equals(userEmail))){
             throw new ForbiddenException(ErrorCode.FORBIDDEN_EXCEPTION.getMessage(), ErrorCode.FORBIDDEN_EXCEPTION);
         }
+        this.deleteBoardCommentNumbering(commentEntity.getBoardEntity().getId(),userEmail);
         //자식이 있으면 deleted == true
-        if (commentEntity.getReplies().size() != 0){
+        if (!commentEntity.getReplies().isEmpty()){
             commentEntity.delete();
             decreaseBoardCommentNum(id);
             return "임시 삭제완료";
@@ -223,6 +235,10 @@ public class CommentService {
         }
 
     }
+    private void deleteBoardCommentNumbering(long boardId, String userEmail) {
+        boardCommentNumberingRepository.deleteByBoardIdAndUserEmail(boardId,userEmail);
+
+    }
     @Transactional
     public String deleteCommentOfChild(Long id,Long reId,HttpServletRequest request){
         String userEmail = jwtTokenProvider.fetchUserEmailByHttpRequest(request);
@@ -230,6 +246,8 @@ public class CommentService {
         if (!(replyEntity.getUserEmail().equals(userEmail))){
             throw new ForbiddenException(ErrorCode.FORBIDDEN_EXCEPTION.getMessage(), ErrorCode.FORBIDDEN_EXCEPTION);
         }
+
+       this.deleteBoardCommentNumbering(replyEntity.getParent().getBoardEntity().getId(),userEmail);
 
         decreaseBoardCommentNum(id);
         if (replyEntity.getParent().getDeleted()){
@@ -249,9 +267,7 @@ public class CommentService {
         BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new NotFoundException("해당 게시글이 없습니다.",ErrorCode.NOT_FOUND_EXCEPTION);});
         //보드 게시판의 댓글수 업데이트
         if(boardEntity.getCommentNum() > 0) {
-            CommentNumUpdateDto commentNumUpdateDto = new CommentNumUpdateDto();
-            commentNumUpdateDto.setCommentNum(boardEntity.getCommentNum() - 1);
-            boardEntity.Update(commentNumUpdateDto);
+            boardEntity.Update(boardEntity.getCommentNum() - 1);
         }
     }
 }

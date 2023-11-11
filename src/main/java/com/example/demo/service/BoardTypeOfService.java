@@ -10,7 +10,6 @@ import com.example.demo.error.ErrorCode;
 import com.example.demo.error.exception.NotFoundException;
 import com.example.demo.jwt.JwtTokenProvider;
 import com.example.demo.repository.BoardRepository;
-import com.example.demo.repository.S3FileRespository;
 import com.example.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +32,6 @@ import java.util.stream.Collectors;
 public class BoardTypeOfService {
     private final UserRepository userRepository;
     private final BoardRepository boardRepository;
-    private final S3FileRespository s3FileRespository;
     private final S3Service s3Service;
     private final JwtTokenProvider jwtTokenProvider;
 

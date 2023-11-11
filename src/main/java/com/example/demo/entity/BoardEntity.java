@@ -3,20 +3,14 @@ package com.example.demo.entity;
 import com.example.demo.dto.board.BoardRecommendDTO;
 import com.example.demo.dto.board.BoardRequestDto;
 import com.example.demo.dto.board.TestDto;
-import com.example.demo.dto.comment.CommentNumUpdateDto;
 import com.example.demo.dto.board.ViewIncreaseDto;
 import com.example.demo.enumCustom.BoardType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.security.core.userdetails.User;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -72,8 +66,8 @@ public class BoardEntity extends BaseTimeEntity{
     public void Update(BoardRecommendDTO boardRecommendDTO){
         this.recommend = boardRecommendDTO.getRecommend();
     }
-    public void Update(CommentNumUpdateDto commentNumUpdateDto){
-        this.commentNum = commentNumUpdateDto.getCommentNum();
+    public void Update(int incrementNum){
+        this.commentNum = incrementNum;
     }
     public void Update(ViewIncreaseDto viewIncreaseDto){ this.views =viewIncreaseDto.getViews();}
 }
