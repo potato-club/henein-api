@@ -26,7 +26,7 @@ public class BoardCommentNumberingEntity {
     public BoardCommentNumberingEntity (long boardId, String userEmail,int userCount) {
         this.boardId = boardId;
         this.userEmail = userEmail;
-        this.userNumbering = userCount+1;
+        this.userNumbering = userCount;
     }
 
 }

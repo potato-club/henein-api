@@ -17,7 +17,9 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,7 +37,7 @@ public class CommentService {
 
 
     @Transactional
-    public List<CommentResponseDto> getCommentOfBoard(Long boardId, String authentication) {
+    public NumberingWithCommentResponseDto getCommentOfBoard(Long boardId, String authentication) {
         if (!boardRepository.existsById(boardId)) {
             throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);
         }
@@ -86,7 +88,14 @@ public class CommentService {
 
             resultDtoList.add(parentDto);
         }
-        return resultDtoList;
+
+        List<BoardCommentNumberingEntity> numberingEntityList = boardCommentNumberingRepository.findAllByBoardId(boardId);
+        Map<String, Integer> numberingResult = new HashMap<>();
+        for (BoardCommentNumberingEntity b : numberingEntityList) {
+            numberingResult.put(b.getUserEmail(),b.getUserNumbering());
+        }
+
+        return new NumberingWithCommentResponseDto(numberingResult,resultDtoList);
     }
 
     private List<ReplyEntity> getChildComment(CommentEntity commentEntity){
@@ -165,13 +174,18 @@ public class CommentService {
     }
     private void checkBoardCommentNumbering(long boardId, String userEmail) {
         List<BoardCommentNumberingEntity> numberingEntityList = boardCommentNumberingRepository.findAllByBoardId(boardId);
-        for ( BoardCommentNumberingEntity numberingEntity : numberingEntityList) {
-            if ( numberingEntity.getUserEmail().equals(userEmail) ) {
-                return;
+        if (!numberingEntityList.isEmpty()) {
+            for ( BoardCommentNumberingEntity numberingEntity : numberingEntityList) {
+                if ( numberingEntity.getUserEmail().equals(userEmail) ) {
+                    return;
+                }
             }
+
+            BoardCommentNumberingEntity numberingEntity = new BoardCommentNumberingEntity(boardId,userEmail,numberingEntityList.get(numberingEntityList.size()-1).getUserNumbering()+1);
+            boardCommentNumberingRepository.save(numberingEntity);
+            return;
         }
-        int lastNum = numberingEntityList.size()-1;
-        BoardCommentNumberingEntity numberingEntity = new BoardCommentNumberingEntity(boardId,userEmail,numberingEntityList.get(lastNum).getUserNumbering());
+        BoardCommentNumberingEntity numberingEntity = new BoardCommentNumberingEntity(boardId,userEmail,1);
         boardCommentNumberingRepository.save(numberingEntity);
     }
     private UserRole setRoleInBoard(UserEntity userEntity, UserEntity writerEntity) {

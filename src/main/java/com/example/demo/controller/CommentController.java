@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.comment.CommentRequestDto;
 import com.example.demo.dto.comment.CommentResponseDto;
+import com.example.demo.dto.comment.NumberingWithCommentResponseDto;
 import com.example.demo.dto.comment.ReplyRequestDto;
 import com.example.demo.service.CommentService;
 import io.swagger.annotations.Api;
@@ -22,7 +23,7 @@ public class CommentController {
     final private CommentService commentService;
     @Operation(summary = "게시판의 id로 댓글 전부 호출 API")
     @GetMapping("/{id}/comment") //넘겨주는건 게시판의 id, 댓글 보는건 인증 X
-    public List<CommentResponseDto> getComment(@PathVariable("id") Long id,@RequestHeader(value = "Authorization",required = false)String authentication){
+    public NumberingWithCommentResponseDto getComment(@PathVariable("id") Long id, @RequestHeader(value = "Authorization",required = false)String authentication){
         return commentService.getCommentOfBoard(id,authentication);
     }
     @Operation(summary = "댓글 작성 API [commentId = null], [보안]")
