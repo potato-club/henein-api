@@ -1,7 +1,6 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.comment.CommentRequestDto;
-import com.example.demo.dto.comment.CommentResponseDto;
 import com.example.demo.dto.comment.NumberingWithCommentResponseDto;
 import com.example.demo.dto.comment.ReplyRequestDto;
 import com.example.demo.service.CommentService;
@@ -10,9 +9,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
+
 
 @RestController
 @RequestMapping(value = "/board")
@@ -23,8 +21,8 @@ public class CommentController {
     final private CommentService commentService;
     @Operation(summary = "게시판의 id로 댓글 전부 호출 API")
     @GetMapping("/{id}/comment") //넘겨주는건 게시판의 id, 댓글 보는건 인증 X
-    public NumberingWithCommentResponseDto getComment(@PathVariable("id") Long id, @RequestHeader(value = "Authorization",required = false)String authentication){
-        return commentService.getCommentOfBoard(id,authentication);
+    public NumberingWithCommentResponseDto getComment(@PathVariable("id") Long id, HttpServletRequest request){
+        return commentService.getCommentOfBoard(id,request);
     }
     @Operation(summary = "댓글 작성 API [commentId = null], [보안]")
     @PostMapping("{id}/comment")

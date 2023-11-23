@@ -2,24 +2,17 @@ package com.example.demo.service;
 
 import com.example.demo.dto.comment.*;
 import com.example.demo.entity.*;
-import com.example.demo.enumCustom.UserRole;
 import com.example.demo.error.ErrorCode;
-
 import com.example.demo.error.exception.ForbiddenException;
 import com.example.demo.error.exception.NotFoundException;
-import com.example.demo.error.exception.UnAuthorizedException;
 import com.example.demo.jwt.JwtTokenProvider;
 import com.example.demo.repository.*;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,169 +28,235 @@ public class CommentService {
     private final BoardCommentNumberingRepository boardCommentNumberingRepository;
 
 
-
     @Transactional
-    public NumberingWithCommentResponseDto getCommentOfBoard(Long boardId, String authentication) {
-        if (!boardRepository.existsById(boardId)) {
-            throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);
-        }
-        UserEntity userEntity;
-        if (authentication != null) {
-            authentication = authentication.substring(7);
-            jwtTokenProvider.validateToken(authentication);
+    public NumberingWithCommentResponseDto getCommentOfBoard(Long boardId, HttpServletRequest request) {
 
-            String userEmail = jwtTokenProvider.getUserEmailFromAccessToken(authentication); // 정보 가져옴
-            userEntity = userRepository.findByUserEmail(userEmail).
-                    orElseThrow(() -> new UnAuthorizedException(ErrorCode.INVALID_ACCESS.getMessage(),ErrorCode.INVALID_ACCESS));
-        } else {
-            userEntity = null;
-        }
-
+        QBoardEntity qBoardEntity = QBoardEntity.boardEntity;
         QCommentEntity qCommentEntity = QCommentEntity.commentEntity;
-
-        List<CommentEntity> commentEntityList = jpaQueryFactory.select(qCommentEntity)
-                .from(qCommentEntity)
-                .where(qCommentEntity.boardEntity.id.eq(boardId))//부모댓글부터 가져옴
-                .orderBy(qCommentEntity.id.asc())
-                .fetch();
-
-        List<CommentResponseDto> resultDtoList = new ArrayList<>();
-        for (CommentEntity parentComment : commentEntityList){
-
-            List<ReplyEntity> childComment = getChildComment(parentComment);
-            CommentResponseDto parentDto = new CommentResponseDto(parentComment);
-
-            if ( userEntity != null) {
-                if ( parentComment.getDeleted() ){
-                    parentDto.setUid("deleted");
-                } else {
-                    if ( userEntity.getUid().equals(parentComment.getUid()))
-                        parentDto.setUid(userEntity.getUid());
-                }
-               parentDto.setReplies(childComment.stream()
-                        .map(replyEntity -> new ReplyResponseDto(replyEntity,userEntity.getUid()))
-                        .collect(Collectors.toList()));
-            } else {
-                if ( parentComment.getDeleted() ){
-                    parentDto.setUid("deleted");
-                }
-                parentDto.setReplies(childComment.stream()
-                        .map(replyEntity -> new ReplyResponseDto(replyEntity))
-                        .collect(Collectors.toList()));
-            }
-
-            resultDtoList.add(parentDto);
-        }
-
-        List<BoardCommentNumberingEntity> numberingEntityList = boardCommentNumberingRepository.findAllByBoardId(boardId);
-        Map<String, Integer> numberingResult = new HashMap<>();
-        for (BoardCommentNumberingEntity b : numberingEntityList) {
-            numberingResult.put(b.getUserEmail(),b.getUserNumbering());
-        }
-
-        return new NumberingWithCommentResponseDto(numberingResult,resultDtoList);
-    }
-
-    private List<ReplyEntity> getChildComment(CommentEntity commentEntity){
         QReplyEntity qReplyEntity = QReplyEntity.replyEntity;
-        QCommentEntity qCommentEntity = QCommentEntity.commentEntity;
+        QBoardCommentNumberingEntity qNumberingEntity = QBoardCommentNumberingEntity.boardCommentNumberingEntity;
 
-        List<ReplyEntity> childList = jpaQueryFactory.select(qReplyEntity)
-                .from(qReplyEntity)
-                .leftJoin(qReplyEntity.parent,qCommentEntity)
-                .where(qReplyEntity.parent.id.eq(commentEntity.getId()))
-                .orderBy(qReplyEntity.id.asc())
-                .fetch();
-        return childList;
+        BoardEntity boardEntity = jpaQueryFactory
+                .selectFrom(qBoardEntity)
+                .where(qBoardEntity.id.eq(boardId))
+                .leftJoin(qBoardEntity.numberingEntityList, qNumberingEntity)
+                .leftJoin(qBoardEntity.commentEntityList, qCommentEntity)
+                .leftJoin(qCommentEntity.replies, qReplyEntity)
+                .join(qCommentEntity.numberingEntity, qNumberingEntity)
+                .join(qReplyEntity.numberingEntity, qNumberingEntity)
+                .fetchOne();
+
+        if (boardEntity == null)
+            throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);
+
+        //AT검사. 있으면 검증, 아니면 패스
+        UserEntity userEntity = null;
+        String AT = jwtTokenProvider.resolveAccessToken(request);
+        if (AT != null && jwtTokenProvider.validateToken(AT) ) {
+            userEntity = userRepository.findByUserEmail(jwtTokenProvider.getUserEmailFromAccessToken(AT)).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(),ErrorCode.NOT_FOUND_EXCEPTION);});
+        }
+
+        NumberingWithCommentResponseDto numberingWithCommentResponseDto = new NumberingWithCommentResponseDto();
+        List<BoardCommentNumberingEntity> numberingEntityList = boardEntity.getNumberingEntityList();
+        //넘버링 부터 만들기
+        if (AT == null) {
+            numberingWithCommentResponseDto.setWriterList(
+                    numberingEntityList.stream().map(NumberingResponseDto::new).collect(Collectors.toList())
+                    );
+        } else {
+            String userEmail = userEntity.getUserEmail();
+            numberingWithCommentResponseDto.setWriterList(
+                    numberingEntityList.stream()
+                            .map(e -> new NumberingResponseDto(e, userEmail))
+                            .collect(Collectors.toList())
+            );
+        }
+
+        List<CommentResponseDto> commentResponseDtoList = new ArrayList<>();
+
+        //이제 댓글 리스트 만들기
+        List<CommentEntity> commentEntityList = boardEntity.getCommentEntityList();
+        //진짜 미친 for 문이다;;; 이건 지옥이야!!!!
+        for (CommentEntity c : commentEntityList) {
+            CommentResponseDto commentResponseDto = new CommentResponseDto(c);
+            for (int i =0; numberingEntityList.size() > i; i++) {
+                if (c.getNumberingEntity().getId() == numberingEntityList.get(i).getId()) {
+                    commentResponseDto.setWriterId(i);
+                    break;
+                }
+            }
+            for (ReplyEntity r : c.getReplies()) {
+                for (int i =0; numberingEntityList.size() > i; i++) {
+                    if (r.getNumberingEntity().getId() == numberingEntityList.get(i).getId()) {
+                        commentResponseDto.getReplies().add(new ReplyResponseDto(r,i));
+                        break;
+                    }
+                }
+            }
+            commentResponseDtoList.add(commentResponseDto);
+        }
+
+        numberingWithCommentResponseDto.setCommentList(commentResponseDtoList);
+        return numberingWithCommentResponseDto;
     }
-///////////////////////////////
+
 
     @Transactional
     public String addCommentOfParent(Long id, CommentRequestDto commentRequestDto, HttpServletRequest request){
-        String userEmail = jwtTokenProvider.fetchUserEmailByHttpRequest(request);
-        UserEntity userEntity = userRepository.findByUserEmail(userEmail).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);});
+        UserEntity userEntity = userRepository.findByUserEmail(jwtTokenProvider.fetchUserEmailByHttpRequest(request)).orElseThrow(()-> {throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);});
 
-        BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);});
-        UserRole roleInBoard = setRoleInBoard(userEntity,boardEntity.getUserEntity());
+        //board 가져오고, 넘버링된 리스트들도 다 가져오기
+        QBoardEntity qBoardEntity = QBoardEntity.boardEntity;
+        QBoardCommentNumberingEntity qNumberingEntity = QBoardCommentNumberingEntity.boardCommentNumberingEntity;
+        BoardEntity boardEntity = jpaQueryFactory
+                .selectFrom(qBoardEntity)
+                .where(qBoardEntity.id.eq(id))
+                .leftJoin(qBoardEntity.numberingEntityList, qNumberingEntity).fetchJoin()
+                .fetchOne();
+
+        if (boardEntity == null)
+            throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);
+
+        List<BoardCommentNumberingEntity> numberingEntityList = boardEntity.getNumberingEntityList();
+
+        //이 유저가 기존에 댓글을 작성해서 numbering 이 되어있나?
+        BoardCommentNumberingEntity numberingEntity = null;
+        for (BoardCommentNumberingEntity b : numberingEntityList) {
+            if (b.getUserEmail().equals(userEntity.getUserEmail())) {
+                numberingEntity = b;
+                break;
+            }
+        }
+        //이미 댓글을 작성한 유저면 새 댓글을 작성하고 넘버링entity 커넥션 갯수 관리
+        if ( numberingEntity != null ) {
+            CommentEntity commentEntity = CommentEntity.builder()
+                    .comment(commentRequestDto.getComment())
+                    .userEmail(userEntity.getUserEmail())
+                    .boardEntity(boardEntity)
+                    .numberingEntity(numberingEntity)
+                    .deleted(false)
+                    .updated(false)
+                    .build();
+            commentRepository.save(commentEntity);
+            numberingEntity.updateConnectionCount(1);
+            return "200ok";
+        }
+
+        // 처음 댓글다는 유저면 넘버링 엔티티 만들고 코멘트 엔티티 생성
+        numberingEntity = BoardCommentNumberingEntity.builder()
+                .boardEntity(boardEntity)
+                .connectionCount(1)
+                .userEmail(userEntity.getUserEmail())
+                .nickName(userEntity.getUserName())
+                .userUid(userEntity.getUid())
+                .role(userEntity.getUserRole())
+                .build();
+
+        boardCommentNumberingRepository.save(numberingEntity);
 
         CommentEntity commentEntity = CommentEntity.builder()
                 .comment(commentRequestDto.getComment())
-                .userName(userEntity.getUserName())
                 .userEmail(userEntity.getUserEmail())
-                .roleInBoard(roleInBoard)
-                .uid(userEntity.getUid())
                 .boardEntity(boardEntity)
-                .updated(false)
+                .numberingEntity(numberingEntity)
                 .deleted(false)
+                .updated(false)
                 .build();
 
         commentRepository.save(commentEntity);
+// 트랜잭션의 지연 커밋: @Transactional 어노테이션은 메소드가 종료될 때까지 데이터베이스 트랜잭션을 커밋하지 않습니다.
+//  그러나 이것은 id 생성이 지연된다는 의미는 아닙니다. id는 엔티티가 영속성 컨텍스트에 저장될 때 생성되고, 이는 해당 메소드 내에서 즉시 접근할 수 있습니다.
 
-        this.checkBoardCommentNumbering(boardEntity.getId(),userEmail);
         //보드 게시판의 댓글수 업데이트
-        boardEntity.Update(boardEntity.getCommentNum()+1);
-
-        boardRepository.save(boardEntity);
-        return "댓글 작성 완료";
+        boardEntity.UpdateCommentNum(1);
+        return "200ok";
     }
 
 
     @Transactional
     public String addCommentOfChild(Long id,Long coId, ReplyRequestDto replyRequestDto, HttpServletRequest request){
         String userEmail = jwtTokenProvider.fetchUserEmailByHttpRequest(request);
+
         UserEntity userEntity = userRepository.findByUserEmail(userEmail).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);});
 
-        BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);});
-        CommentEntity parentComment = commentRepository.findById(coId).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);});
-        UserRole roleInBoard = setRoleInBoard(userEntity,boardEntity.getUserEntity());
+        QBoardEntity qBoardEntity = QBoardEntity.boardEntity;
+        QCommentEntity qCommentEntity = QCommentEntity.commentEntity;
+        QBoardCommentNumberingEntity qNumberingEntity = QBoardCommentNumberingEntity.boardCommentNumberingEntity;
+        //fetchJoin으로 연관된거 다 긁어 오기
+        BoardEntity boardEntity = jpaQueryFactory
+                .selectFrom(qBoardEntity)
+                .where(qBoardEntity.id.eq(id))
+                .leftJoin(qBoardEntity.commentEntityList, qCommentEntity)
+                .leftJoin(qBoardEntity.numberingEntityList, qNumberingEntity)
+                .fetchOne();
+
+        if (boardEntity == null)
+            throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);
+
+        //coId에 해당하는 댓글 찾기
+        List<CommentEntity> commentEntityList = boardEntity.getCommentEntityList();
+        CommentEntity targetComment = null;
+        for ( CommentEntity c : commentEntityList) {
+            if (c.getId() == coId) {
+                targetComment = c;
+                break;
+            }
+        }
+        if (targetComment == null)
+            throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);
+
+        //이 유저가 기존에 댓글을 작성해서 numbering 이 되어있나?
+        List<BoardCommentNumberingEntity> numberingEntityList = boardEntity.getNumberingEntityList();
+        BoardCommentNumberingEntity numberingEntity = null;
+        for (BoardCommentNumberingEntity b : numberingEntityList) {
+            if (b.getUserEmail().equals(userEntity.getUserEmail())) {
+                numberingEntity = b;
+                break;
+            }
+        }
+        //이미 댓글을 작성한 유저면 새 댓글을 작성하고 넘버링entity 커넥션 갯수 관리
+        if ( numberingEntity != null ) {
+            ReplyEntity replyEntity = ReplyEntity.builder()
+                    .tag(replyRequestDto.getTag())
+                    .comment(replyRequestDto.getComment())
+                    .userEmail(userEntity.getUserEmail())
+                    .parent(targetComment)
+                    .numberingEntity(numberingEntity)
+                    .updated(false)
+                    .build();
+
+            replyRepository.save(replyEntity);
+            numberingEntity.updateConnectionCount(1);
+            return "200ok";
+        }
+
+        // 처음 댓글다는 유저면 넘버링 엔티티 만들고 리플 엔티티 생성
+        numberingEntity = BoardCommentNumberingEntity.builder()
+                .boardEntity(boardEntity)
+                .connectionCount(1)
+                .userEmail(userEntity.getUserEmail())
+                .nickName(userEntity.getUserName())
+                .userUid(userEntity.getUid())
+                .role(userEntity.getUserRole())
+                .build();
+
+        boardCommentNumberingRepository.save(numberingEntity);
 
         ReplyEntity replyEntity = ReplyEntity.builder()
                 .tag(replyRequestDto.getTag())
                 .comment(replyRequestDto.getComment())
-                .uid(userEntity.getUid())
-                .userName(userEntity.getUserName())
-                .roleInBoard(roleInBoard)
                 .userEmail(userEntity.getUserEmail())
-                .parent(parentComment)
+                .parent(targetComment)
+                .numberingEntity(numberingEntity)
                 .updated(false)
                 .build();
 
         replyRepository.save(replyEntity);
-        this.checkBoardCommentNumbering(boardEntity.getId(),userEmail);
 
         //보드 게시판의 댓글수 업데이트
+        boardEntity.UpdateCommentNum(1);
 
-        boardEntity.Update(boardEntity.getCommentNum()+1);
-
-        boardRepository.save(boardEntity);
-        return "대댓글 작성 완료";
-    }
-    private void checkBoardCommentNumbering(long boardId, String userEmail) {
-        List<BoardCommentNumberingEntity> numberingEntityList = boardCommentNumberingRepository.findAllByBoardId(boardId);
-        if (!numberingEntityList.isEmpty()) {
-            for ( BoardCommentNumberingEntity numberingEntity : numberingEntityList) {
-                if ( numberingEntity.getUserEmail().equals(userEmail) ) {
-                    return;
-                }
-            }
-
-            BoardCommentNumberingEntity numberingEntity = new BoardCommentNumberingEntity(boardId,userEmail,numberingEntityList.get(numberingEntityList.size()-1).getUserNumbering()+1);
-            boardCommentNumberingRepository.save(numberingEntity);
-            return;
-        }
-        BoardCommentNumberingEntity numberingEntity = new BoardCommentNumberingEntity(boardId,userEmail,1);
-        boardCommentNumberingRepository.save(numberingEntity);
-    }
-    private UserRole setRoleInBoard(UserEntity userEntity, UserEntity writerEntity) {
-        if (userEntity.getUserRole().equals(UserRole.ADMIN)) {
-            return UserRole.ADMIN;
-        }
-        else if (userEntity.equals(writerEntity)) {
-            return UserRole.WRITER;
-        }
-        else {
-            return UserRole.USER;
-        }
+        return "200ok";
     }
 
     @Transactional
@@ -231,57 +290,80 @@ public class CommentService {
     @Transactional
     public String deleteCommentOfParent(Long id,Long coId, HttpServletRequest request ){
         String userEmail = jwtTokenProvider.fetchUserEmailByHttpRequest(request);
-        CommentEntity commentEntity = commentRepository.findById(coId).orElseThrow(()->{throw new NotFoundException("해당 댓글이 없습니다.",ErrorCode.NOT_FOUND_EXCEPTION);});
 
-        if (!(commentEntity.getUserEmail().equals(userEmail))){
+        QCommentEntity qCommentEntity = QCommentEntity.commentEntity;
+        QBoardEntity qBoardEntity = QBoardEntity.boardEntity;
+        QBoardCommentNumberingEntity qNumberingEntity = QBoardCommentNumberingEntity.boardCommentNumberingEntity;
+
+        CommentEntity commentEntity = jpaQueryFactory
+                .selectFrom(qCommentEntity)
+                .where(qCommentEntity.id.eq(coId))
+                .join(qCommentEntity.boardEntity, qBoardEntity).fetchJoin()
+                .join(qCommentEntity.numberingEntity,qNumberingEntity).fetchJoin()
+                .fetchOne();
+
+        if (commentEntity == null) {
+            throw new NotFoundException("해당 댓글이 없습니다.",ErrorCode.NOT_FOUND_EXCEPTION);
+        }
+        else if (!(commentEntity.getUserEmail().equals(userEmail))){
             throw new ForbiddenException(ErrorCode.FORBIDDEN_EXCEPTION.getMessage(), ErrorCode.FORBIDDEN_EXCEPTION);
         }
-        this.deleteBoardCommentNumbering(commentEntity.getBoardEntity().getId(),userEmail);
+
         //자식이 있으면 deleted == true
         if (!commentEntity.getReplies().isEmpty()){
-            commentEntity.delete();
-            decreaseBoardCommentNum(id);
+            if (commentEntity.getNumberingEntity().getConnectionCount() == 1)
+                boardCommentNumberingRepository.delete(commentEntity.getNumberingEntity());
+
+            commentEntity.getNumberingEntity().updateConnectionCount(-1);
+            commentEntity.getBoardEntity().UpdateCommentNum(-1);
+            commentEntity.tempDelete();
+
             return "임시 삭제완료";
         }else{
-            decreaseBoardCommentNum(id);
+            commentEntity.getBoardEntity().UpdateCommentNum(-1);
+            if (commentEntity.getNumberingEntity().getConnectionCount() == 0)
+                boardCommentNumberingRepository.delete(commentEntity.getNumberingEntity());
+
             commentRepository.delete(commentEntity);
             return "삭제완료";
         }
 
     }
-    private void deleteBoardCommentNumbering(long boardId, String userEmail) {
-        boardCommentNumberingRepository.deleteByBoardIdAndUserEmail(boardId,userEmail);
 
-    }
     @Transactional
     public String deleteCommentOfChild(Long id,Long reId,HttpServletRequest request){
         String userEmail = jwtTokenProvider.fetchUserEmailByHttpRequest(request);
-        ReplyEntity replyEntity = replyRepository.findById(reId).orElseThrow(()->{throw new NotFoundException("해당 댓글이 없습니다.",ErrorCode.NOT_FOUND_EXCEPTION);});
-        if (!(replyEntity.getUserEmail().equals(userEmail))){
+
+        BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new NotFoundException("해당 게시글이 없습니다.",ErrorCode.NOT_FOUND_EXCEPTION);});
+
+        QCommentEntity qCommentEntity = QCommentEntity.commentEntity;
+        QBoardCommentNumberingEntity qNumberingEntity = QBoardCommentNumberingEntity.boardCommentNumberingEntity;
+        QReplyEntity qReplyEntity = QReplyEntity.replyEntity;
+
+        ReplyEntity replyEntity = jpaQueryFactory
+                .selectFrom(qReplyEntity)
+                .where(qReplyEntity.id.eq(reId))
+                .join(qReplyEntity.parent, qCommentEntity).fetchJoin()
+                .join(qReplyEntity.numberingEntity,qNumberingEntity).fetchJoin()
+                .fetchOne();
+
+        if (replyEntity == null) {
+            throw new NotFoundException("해당 리플이 없습니다.", ErrorCode.NOT_FOUND_EXCEPTION);
+        } else if (!(replyEntity.getUserEmail().equals(userEmail))) {
             throw new ForbiddenException(ErrorCode.FORBIDDEN_EXCEPTION.getMessage(), ErrorCode.FORBIDDEN_EXCEPTION);
         }
 
-       this.deleteBoardCommentNumbering(replyEntity.getParent().getBoardEntity().getId(),userEmail);
-
-        decreaseBoardCommentNum(id);
-        if (replyEntity.getParent().getDeleted()){
-            CommentEntity commentEntity = replyEntity.getParent();
-            replyRepository.delete(replyEntity);
-            if (commentEntity.getReplies().size() == 1 && commentEntity.getReplies().get(0).getId()==replyEntity.getId()){
-                commentRepository.delete(commentEntity);
-            }
-            return "삭제완료";
+        replyEntity.getNumberingEntity().updateConnectionCount(-1);
+        if (replyEntity.getNumberingEntity().getConnectionCount() == 0) {
+            boardCommentNumberingRepository.delete(replyEntity.getNumberingEntity());
         }
+
+        if (replyEntity.getParent().getDeleted() && replyEntity.getParent().getReplies().size() == 1)
+            commentRepository.delete(replyEntity.getParent());
+
         replyRepository.delete(replyEntity);
 
-
+        boardEntity.UpdateCommentNum(-1);
         return "삭제완료";
-    }
-    public void decreaseBoardCommentNum(Long id){
-        BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new NotFoundException("해당 게시글이 없습니다.",ErrorCode.NOT_FOUND_EXCEPTION);});
-        //보드 게시판의 댓글수 업데이트
-        if(boardEntity.getCommentNum() > 0) {
-            boardEntity.Update(boardEntity.getCommentNum() - 1);
-        }
     }
 }

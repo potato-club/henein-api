@@ -17,7 +17,7 @@ import java.io.IOException;
 
 
 
-@RestController("")
+@RestController()
 @RequestMapping(value = "/board")
 @RequiredArgsConstructor
 @Slf4j
@@ -37,8 +37,8 @@ public class BoardController {
     })
     @GetMapping()
     @Timed(value = "board.getPage",longTask = true)
-    public Page<BoardListResponseDto> getTypeOfBoard(@RequestParam("board")char boardtype, @RequestParam("page")int page, @RequestParam("size")int size){
-        return boardTypeOfService.getTypeOfBoard(page, boardtype, size);
+    public Page<BoardListResponseDto> getTypeOfBoard(@RequestParam("board")char boardtype, @RequestParam("page")int page){
+        return boardTypeOfService.getTypeOfBoard(page, boardtype);
     }
     //Read
     @GetMapping("/{id}")

@@ -1,7 +1,6 @@
 package com.example.demo.entity;
 
 import com.example.demo.dto.comment.ReplyRequestDto;
-import com.example.demo.enumCustom.UserRole;
 import lombok.*;
 
 import javax.persistence.*;
@@ -21,15 +20,14 @@ public class ReplyEntity extends BaseTimeEntity{
     private String comment;
     @Column(nullable = false)
     private String userEmail;
-    @Column(nullable = false)
-    private UserRole roleInBoard;
-    @Column(nullable = false)
-    private String userName;
-    @Column(nullable = false)
-    private String uid;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "parent_id",nullable = false)
     private CommentEntity parent;
+
+    @ManyToOne
+    @JoinColumn(name = "numbering_id",nullable = false)
+    private BoardCommentNumberingEntity numberingEntity;
+
     @Column(nullable = false)
     private Boolean updated;
     public void update(ReplyRequestDto replyRequestDto) {

@@ -36,9 +36,9 @@ public class BoardTypeOfService {
     private final JwtTokenProvider jwtTokenProvider;
 
     @Transactional //
-    public Page<BoardListResponseDto> getTypeOfBoard(int page, int boardType, int size){
+    public Page<BoardListResponseDto> getTypeOfBoard(int page, int boardType){
         BoardType board;
-        PageRequest pageRequest = PageRequest.of(page-1, size);
+        PageRequest pageRequest = PageRequest.of(page-1, 20);
 
         switch (boardType){
             case 65: board = BoardType.Advertise; break;
@@ -87,7 +87,7 @@ public class BoardTypeOfService {
             imagesUrl.add(matcher.group(1));
         }
         //이미지가 있으면 해당 이미지를 사용중인거로 업데이트
-        if (imagesUrl != null){
+        if (!imagesUrl.isEmpty()){
             savedBoard.setHasImage(true);
             s3Service.changeImageInfo(imagesUrl, S3EntityType.BOARD, savedBoard.getId());
         }

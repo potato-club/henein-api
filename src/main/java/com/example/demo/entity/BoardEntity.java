@@ -41,8 +41,11 @@ public class BoardEntity extends BaseTimeEntity{
     @Lob
     @Column(nullable = false)
     private String text;
+    @OneToMany(mappedBy = "boardEntity",orphanRemoval = true)
+    private List<BoardCommentNumberingEntity> numberingEntityList;
     @OneToMany(mappedBy = "boardEntity", orphanRemoval = true)
     private List<CommentEntity> commentEntityList;
+
     @Column
     private boolean hasImage;
 
@@ -66,8 +69,8 @@ public class BoardEntity extends BaseTimeEntity{
     public void Update(BoardRecommendDTO boardRecommendDTO){
         this.recommend = boardRecommendDTO.getRecommend();
     }
-    public void Update(int incrementNum){
-        this.commentNum = incrementNum;
+    public void UpdateCommentNum(int num){
+        this.commentNum += num;
     }
     public void Update(ViewIncreaseDto viewIncreaseDto){ this.views =viewIncreaseDto.getViews();}
 }
