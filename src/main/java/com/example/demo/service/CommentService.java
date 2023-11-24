@@ -42,8 +42,8 @@ public class CommentService {
                 .leftJoin(qBoardEntity.numberingEntityList, qNumberingEntity)
                 .leftJoin(qBoardEntity.commentEntityList, qCommentEntity)
                 .leftJoin(qCommentEntity.replies, qReplyEntity)
-                .join(qCommentEntity.numberingEntity, qNumberingEntity)
-                .join(qReplyEntity.numberingEntity, qNumberingEntity)
+                .leftJoin(qCommentEntity.numberingEntity, qNumberingEntity)
+                .leftJoin(qReplyEntity.numberingEntity, qNumberingEntity)
                 .fetchOne();
 
         if (boardEntity == null)
