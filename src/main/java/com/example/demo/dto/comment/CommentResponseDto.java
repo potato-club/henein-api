@@ -11,7 +11,7 @@ import java.util.List;
 @Getter
 public class CommentResponseDto {
     private Long id;
-    private int writerId;
+    private Integer writerId;
     private String comment;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime modifiedDate;
