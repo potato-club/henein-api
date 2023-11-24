@@ -321,6 +321,7 @@ public class CommentService {
             return "임시 삭제완료";
         }else{
             commentEntity.getBoardEntity().UpdateCommentNum(-1);
+            commentEntity.getNumberingEntity().updateConnectionCount(-1);
             if (commentEntity.getNumberingEntity().getConnectionCount() == 0)
                 boardCommentNumberingRepository.delete(commentEntity.getNumberingEntity());
 
