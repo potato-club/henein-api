@@ -80,7 +80,7 @@ public class CommentService {
         for (CommentEntity c : commentEntityList) {
             CommentResponseDto commentResponseDto = new CommentResponseDto(c);
             for (int i =0; numberingEntityList.size() > i; i++) {
-                if (c.getNumberingEntity().getId() == numberingEntityList.get(i).getId()) {
+                if (!c.getDeleted()  && c.getNumberingEntity().getId() == numberingEntityList.get(i).getId()) {
                     commentResponseDto.setWriterId(i);
                     break;
                 }
