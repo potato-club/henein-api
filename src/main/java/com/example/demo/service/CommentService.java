@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.dto.comment.*;
 import com.example.demo.entity.*;
+import com.example.demo.enumCustom.UserRole;
 import com.example.demo.error.ErrorCode;
 import com.example.demo.error.exception.ForbiddenException;
 import com.example.demo.error.exception.NotFoundException;
@@ -149,7 +150,7 @@ public class CommentService {
                 .userEmail(userEntity.getUserEmail())
                 .nickName(userEntity.getUserName())
                 .userUid(userEntity.getUid())
-                .role(userEntity.getUserRole())
+                .role(checkUserRole(boardEntity.getUserEntity().getUserEmail(), userEntity))
                 .build();
 
         boardCommentNumberingRepository.save(numberingEntity);
@@ -171,7 +172,15 @@ public class CommentService {
         boardEntity.UpdateCommentNum(1);
         return "200ok";
     }
-
+    private UserRole checkUserRole(String writerEmail, UserEntity userEntity) {
+        if (userEntity.getUserRole().equals(UserRole.ADMIN)) {
+           return UserRole.ADMIN;
+        } else if (writerEmail.equals(userEntity.getUserEmail())) {
+            return UserRole.WRITER;
+        }else {
+            return UserRole.USER;
+        }
+    }
 
     @Transactional
     public String addCommentOfChild(Long id,Long coId, ReplyRequestDto replyRequestDto, HttpServletRequest request){
@@ -237,7 +246,7 @@ public class CommentService {
                 .userEmail(userEntity.getUserEmail())
                 .nickName(userEntity.getUserName())
                 .userUid(userEntity.getUid())
-                .role(userEntity.getUserRole())
+                .role(checkUserRole(boardEntity.getUserEntity().getUserEmail(),userEntity))
                 .build();
 
         boardCommentNumberingRepository.save(numberingEntity);
