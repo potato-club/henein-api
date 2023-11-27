@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 public class AuthenticationController {
 
     private final UserService userService;
-    private AmazonSMTPService amazonSMTPService;
+    private final AmazonSMTPService amazonSMTPService;
 
 
     //=======Local 로그인 관련
