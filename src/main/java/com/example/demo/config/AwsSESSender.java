@@ -1,9 +1,6 @@
 package com.example.demo.config;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
-import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClientBuilder;
 import com.amazonaws.services.simpleemail.model.*;
 import com.example.demo.entity.UserEntity;
 import com.example.demo.enumCustom.UserRole;
@@ -12,7 +9,6 @@ import com.example.demo.repository.UserRepository;
 import com.example.demo.service.RedisService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -35,16 +31,11 @@ public class AwsSESSender {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
 
-    @Value("${aws.ses.access-key}")
-    private  String accessKey;
-    @Value("${aws.ses.secret-key}")
-    private  String secretKey;
-
     @Async
     public void sendToVerifyEmail(String requestEmail) {
         try {
             // 이메일 HTML 파일 위치를 통해 HTML 파일 가져오기
-            ClassPathResource mailTemplate = new ClassPathResource("mailTemplate.html");
+            ClassPathResource mailTemplate = new ClassPathResource("templates/mailTemplate.html");
 
             // 라이브러리를 이용하여 HTML 파일 내용을 String으로 변환
             String mailContent = new BufferedReader(

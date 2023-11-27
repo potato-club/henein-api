@@ -49,8 +49,8 @@ dependencies {
 	implementation('org.springframework.boot:spring-boot-starter-webflux')
 	//  aws s3
 //	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
-	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.13'
-	implementation 'com.amazonaws:aws-java-sdk-core:1.11.1002'
+	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.429'
+	implementation 'com.amazonaws:aws-java-sdk-core:1.12.429'
 
 	// querydsl dependencies
 	implementation "com.querydsl:querydsl-jpa:${queryDslVersion}"
@@ -69,9 +69,10 @@ dependencies {
 	// Spring Boot Actuator (메트릭 및 모니터링을 위한)
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	// mail 인증 시스템
-	implementation 'org.springframework.boot:spring-boot-starter-mail'
+//	implementation 'org.springframework.boot:spring-boot-starter-mail'
 	implementation 'com.amazonaws:aws-java-sdk-ses:1.12.429'
-	implementation 'commons-io:commons-io:2.11.0' //html to String 변환용
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+//	implementation 'commons-io:commons-io:2.11.0' //html to String 변환용
 
 }
 

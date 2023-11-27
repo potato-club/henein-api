@@ -1,7 +1,7 @@
 package com.example.demo.controller;
 
-import com.example.demo.config.AwsSESSender;
 import com.example.demo.dto.login.BasicLoginRequestDto;
+import com.example.demo.service.AmazonSMTPService;
 import com.example.demo.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,10 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.mail.MessagingException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.UnsupportedEncodingException;
+
 
 
 @RestController
@@ -25,7 +25,8 @@ import java.io.UnsupportedEncodingException;
 public class AuthenticationController {
 
     private final UserService userService;
-    private final AwsSESSender awsSESSender;
+    private AmazonSMTPService amazonSMTPService;
+
 
     //=======Local 로그인 관련
     @Operation(summary = "로컬 로그인 userEmail,password")
@@ -41,13 +42,13 @@ public class AuthenticationController {
     @Operation(summary = "인증 메일 발송 요청")
     @PostMapping("/mail/naver")
     public ResponseEntity<String> sendNaver(String requestEmail) {
-        awsSESSender.sendToVerifyEmail(requestEmail);
+        amazonSMTPService.sendToVerifyEmail(requestEmail);
         return ResponseEntity.ok("인증 메일이 발송되었습니다.");
     }
     @Operation(summary = "인증 코드 확인 API")
     @PostMapping("/verify")
     public ResponseEntity<String> verifyEmail(String key, HttpServletResponse response) {
-        awsSESSender.verifyEmailAuth(key, response);
+        amazonSMTPService.verifyEmailAuth(key, response);
         return ResponseEntity.ok("이메일 인증이 정상적으로 처리되었습니다.");
     }
 
