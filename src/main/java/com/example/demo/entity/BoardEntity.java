@@ -3,7 +3,6 @@ package com.example.demo.entity;
 import com.example.demo.dto.board.BoardRecommendDTO;
 import com.example.demo.dto.board.BoardRequestDto;
 import com.example.demo.dto.board.TestDto;
-import com.example.demo.dto.board.ViewIncreaseDto;
 import com.example.demo.enumCustom.BoardType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -72,5 +71,7 @@ public class BoardEntity extends BaseTimeEntity{
     public void UpdateCommentNum(int num){
         this.commentNum += num;
     }
-    public void Update(ViewIncreaseDto viewIncreaseDto){ this.views =viewIncreaseDto.getViews();}
+    public void UpdateView(){
+        this.views += 1;
+    }
 }

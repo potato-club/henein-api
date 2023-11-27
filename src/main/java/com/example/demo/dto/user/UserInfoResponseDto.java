@@ -1,5 +1,6 @@
 package com.example.demo.dto.user;
 
+import com.example.demo.entity.UserEntity;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -7,17 +8,14 @@ import lombok.Setter;
 @Setter
 public class UserInfoResponseDto {
     private String userName;
-    private String uid;
+    private String userRole;
     private String pickCharacter;
     private String imageUrl;
 
-    public UserInfoResponseDto(String userName, String uid, String pickCharacter, String imageUrl) {
-        this.userName = userName;
-        this.uid = uid;
+    public UserInfoResponseDto(UserEntity userEntity, String pickCharacter, String imageUrl) {
+        this.userName = userEntity.getUserName();
+        this.userRole = userEntity.getUserRole().toString();
         this.pickCharacter = pickCharacter;
         this.imageUrl = imageUrl;
-    }
-    public void UpdateImage () {
-
     }
 }

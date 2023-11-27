@@ -38,7 +38,7 @@ public class BoardTypeOfService {
     @Transactional //
     public Page<BoardListResponseDto> getTypeOfBoard(int page, int boardType){
         BoardType board;
-        PageRequest pageRequest = PageRequest.of(page-1, 20);
+        PageRequest pageRequest = PageRequest.of(page-1, 1);
 
         switch (boardType){
             case 65: board = BoardType.Advertise; break;

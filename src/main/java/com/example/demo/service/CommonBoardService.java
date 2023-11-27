@@ -48,6 +48,8 @@ public class CommonBoardService {
             String userEmail = jwtTokenProvider.getUserEmailFromAccessToken(authentication); // 정보 가져옴
             UserEntity userEntity = userRepository.findByUserEmail(userEmail).orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + userEmail));
 
+            boardEntity.UpdateView();
+
             RecommendEntity recommend = recommandRepository.findByBoardEntityAndUserEntity(boardEntity, userEntity);
             if ( recommend == null){
                 BoardResponseDto boardResponseDto = new BoardResponseDto(boardEntity,false, userEntity.getUid());
@@ -124,17 +126,6 @@ public class CommonBoardService {
         boardRepository.delete(boardEntity);
 
         return "삭제완료";
-    }
-    @Transactional
-    public String updateView(Long id){
-        BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 게시글 정보가 없습니다");});
-
-        //조회수 증가부분
-        ViewIncreaseDto viewIncreaseDto = new ViewIncreaseDto();
-        viewIncreaseDto.setViews(boardEntity.getViews()+1);
-        boardEntity.Update(viewIncreaseDto);
-
-        return "조회수 증가완료";
     }
     @Transactional
     public String recommendThisBoard(Long id, HttpServletRequest request ){

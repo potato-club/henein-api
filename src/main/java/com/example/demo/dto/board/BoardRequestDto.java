@@ -12,8 +12,8 @@ import javax.persistence.Lob;
 @Getter
 @Setter
 public class BoardRequestDto {
-    @Lob
     private String title;
+    @Lob
     private String text;
     private String boardType;
     //private List<MultipartFile> images;

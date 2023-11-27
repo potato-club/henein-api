@@ -140,6 +140,7 @@ public class CommentService {
                     .build();
             commentRepository.save(commentEntity);
             numberingEntity.updateConnectionCount(1);
+            boardEntity.UpdateCommentNum(1);
             return "200ok";
         }
 
@@ -236,6 +237,7 @@ public class CommentService {
 
             replyRepository.save(replyEntity);
             numberingEntity.updateConnectionCount(1);
+            boardEntity.UpdateCommentNum(1);
             return "200ok";
         }
 

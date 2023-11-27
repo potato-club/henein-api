@@ -46,17 +46,12 @@ public class BoardController {
     public BoardResponseDto getOneBoard(@PathVariable Long id, @RequestHeader(value = "Authorization",required = false)String authentication){
         return commonBoardService.getOneService(id, authentication);
     }
+
     //==================================================================================
     @Operation(summary = "Json 으로 보내주세요 [보안]")
     @PostMapping() //Create
     public long addTypeOfBoard(@RequestBody BoardRequestDto boardRequestDto, HttpServletRequest request ) {
         return boardTypeOfService.addTypeOfBoard(boardRequestDto, request);
-    }
-    @Operation(summary = "게시글 호출시에 같이 호출하여 게시판 조회수 업")
-    @PostMapping("/updateview")
-    public String updateView(@RequestBody BoardIdRequestDTO boardIdRequestDTO){
-
-        return commonBoardService.updateView(boardIdRequestDTO.getId());
     }
     @Operation(summary = "[보안]")
     @PostMapping("/recommend")

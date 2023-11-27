@@ -103,16 +103,16 @@ public class UserService {
         List<S3File> s3File = s3FileRepository.findAllByS3EntityTypeAndTypeId(S3EntityType.USER,userEntity.getId());
 
         if ( s3File.size() == 0 && userCharEntity == null ) {
-            return new UserInfoResponseDto(userEntity.getUserName(),userEntity.getUid(),null,null);
+            return new UserInfoResponseDto(userEntity,null,null);
         }
         else if (userCharEntity == null) {
-            return new UserInfoResponseDto(userEntity.getUserName(),userEntity.getUid(),null,s3File.get(0).getFileUrl());
+            return new UserInfoResponseDto(userEntity,null,s3File.get(0).getFileUrl());
         }
         else if (s3File.size() == 0) {
-            return new UserInfoResponseDto(userEntity.getUserName(),userEntity.getUid(),userCharEntity.getNickName(),null);
+            return new UserInfoResponseDto(userEntity,userCharEntity.getNickName(),null);
         }
 
-        return new UserInfoResponseDto(userEntity.getUserName(),userEntity.getUid(),userCharEntity.getNickName(),s3File.get(0).getFileUrl());
+        return new UserInfoResponseDto(userEntity,userCharEntity.getNickName(),s3File.get(0).getFileUrl());
     }
 
     public UserDetailInfoResponseDto userDetailInfo(HttpServletRequest request) {
