@@ -1,6 +1,8 @@
 package com.example.demo.jwt;
 
+import com.example.demo.error.ErrorCode;
 import com.example.demo.error.ErrorJwtCode;
+import com.example.demo.error.exception.JwtException;
 import com.example.demo.service.jwtservice.UserDetailsServiceImpl;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -97,16 +99,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             errorCode = ErrorJwtCode.INVALID_TOKEN;
             setResponse(response, errorCode);
             return;
-        } catch (RuntimeException e) {
+        } catch (JwtException e) {
             log.info("4006 error");
-            errorCode = ErrorJwtCode.JWT_COMPLEX_ERROR;
-            setResponse(response, errorCode);
+
+            setResponse(response,  e.getErrorCode());
             return;
         }
 
         filterChain.doFilter(request, response);
     }
     private void setResponse(HttpServletResponse response, ErrorJwtCode errorCode) throws IOException {
+        JSONObject json = new JSONObject();
+        response.setContentType("application/json;charset=UTF-8");
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
+        json.put("code", errorCode.getCode());
+        json.put("message", errorCode.getMessage());
+
+        response.getWriter().print(json);
+        response.getWriter().flush();
+    }
+    private void setResponse(HttpServletResponse response, ErrorCode errorCode) throws IOException {
         JSONObject json = new JSONObject();
         response.setContentType("application/json;charset=UTF-8");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

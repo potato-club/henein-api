@@ -83,7 +83,7 @@ public class JwtTokenProvider {
         } catch (MalformedJwtException e) {
             throw new JwtException(ErrorCode.INVALID_TOKEN.getMessage(), ErrorCode.INVALID_TOKEN);
         } catch (ExpiredJwtException e) {
-            throw new JwtException(ErrorCode.EXPIRED_RT.getMessage(), ErrorCode.EXPIRED_RT);
+            throw new JwtException(ErrorCode.EXPIRED_AT.getMessage(), ErrorCode.EXPIRED_AT);
         } catch (UnsupportedJwtException e) {
             throw new JwtException(ErrorCode.INVALID_TOKEN.getMessage(), ErrorCode.INVALID_TOKEN);
         } catch (IllegalArgumentException e) {
