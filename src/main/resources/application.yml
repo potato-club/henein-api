@@ -56,13 +56,13 @@ jwt:
 cloud:
   aws:
     credentials:
-      access-key: ENC(GxdX1Ohy8xayK46aGUQuMpo6WEnokbnk1bAgRPYowxk=)
-      secret-key: ENC(BZLsQluNbA2bnGhQYOYkFrmhCXLn53HKuJ17BJ16iI4Au5DYGYziqywTc7vG4KdxmQkli25eRHE=)
+      access-key: ENC(jx5x93Osgs9w0O87sLLRkcdCfCvrd9v1ANyxRiVA4p0)
+      secret-key: ENC(6zKi9iczdpXoowAgVq5+neqAZP9jTCbf+UWrcKpqvnVpbzCNopqvqUmglnAaXEX3hm4lXnFY4Oo=)
     region:
       auto: false
       static: ap-northeast-2 #버킷의 리전
     s3:
-      bucket: ENC(krIrpzTvEeA+rBBK+m5m+NiDTTpouBnT) #버킷 이름
+      bucket: ENC(TjYB3B8CaCdfM9V363RTtaMqu2owcnjo) #버킷 이름
     stack:
       auto: true
 #      cloud:stack:auto:false는 AWS Elastic Beanstalk에서 환경 스택을 생성할 때 사용하는 옵션 중 하나입니다.
@@ -72,3 +72,7 @@ cloud:
 jasypt:
   encryptor:
     bean: jasyptStringEncryptor
+
+aws:
+  ses:
+    from: Helper@henein.kr

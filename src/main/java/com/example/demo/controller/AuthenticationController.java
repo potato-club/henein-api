@@ -40,13 +40,13 @@ public class AuthenticationController {
         return userService.basicSignUp(basicLoginRequestDto,request);
     }
     @Operation(summary = "인증 메일 발송 요청")
-    @PostMapping("/mail/naver")
+    @PostMapping("/mail/sender")
     public ResponseEntity<String> sendNaver(String requestEmail) {
         amazonSMTPService.sendToVerifyEmail(requestEmail);
         return ResponseEntity.ok("인증 메일이 발송되었습니다.");
     }
     @Operation(summary = "인증 코드 확인 API")
-    @PostMapping("/verify")
+    @PostMapping("/mail/verify")
     public ResponseEntity<String> verifyEmail(String key, HttpServletResponse response) {
         amazonSMTPService.verifyEmailAuth(key, response);
         return ResponseEntity.ok("이메일 인증이 정상적으로 처리되었습니다.");

@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class S3Config {
-    @Value("${cloud.aws.credentials.access-key}") // application.yml 에 명시한 내용
+    @Value("${cloud.aws.credentials.access-key}") // application-local.yml 에 명시한 내용
     private String accessKey;
 
     @Value("${cloud.aws.credentials.secret-key}")

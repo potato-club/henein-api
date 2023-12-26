@@ -36,11 +36,11 @@
 </head>
 <body>
 <div class="email-container">
-    <img src="henein-logo.svg">
+    <img th:src="${imageUrl}">
     <h1 class="email-header">이메일 주소 확인</h1>
     <p class="email-body">아래 확인 코드를 회원가입 화면에서 입력해주세요.</p>
     <div class="code-container">
-        [OTP]
+        [[${OTP}]]
     </div>
 </div>
 </body>

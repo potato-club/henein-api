@@ -32,9 +32,10 @@ public class AmazonSMTPService {
     private String from;
 
     public void sendToVerifyEmail(String requestEmail) {
-        String OTP = createOTP(); // Keep OTP generation logic
+        String OTP = createOTP();
         Map<String, Object> variables = new HashMap<>();
-        variables.put("OTP", OTP); // Add OTP to the variables map
+        variables.put("OTP", OTP);
+        variables.put("imageUrl","https://henesysbucket.s3.ap-northeast-2.amazonaws.com/abcdcba-henein-logo.svg");
 
         String content = htmlTemplateEngine.process("mailTemplate", createContext(variables));
 
