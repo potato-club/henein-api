@@ -2,16 +2,14 @@ package com.example.demo.service;
 
 import com.example.demo.enumCustom.RedisWork;
 import com.example.demo.error.ErrorCode;
-import com.example.demo.error.exception.NotFoundException;
 import com.example.demo.error.exception.UnAuthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -67,6 +65,22 @@ public class RedisService {
             stringRedisTemplate.delete(requestEmail);
             stringRedisTemplate.delete(OTP+":requestEmail");
         }
+    }
+    public void setReadyEmailForSignUp(String email, String token) {
+        stringRedisTemplate.opsForValue().set(email,token, 5, TimeUnit.MINUTES);
+    }
+    public boolean emailIsAlreadyReadied(String email) {
+        if (stringRedisTemplate.opsForValue().get(email) != null){
+            return true;
+        }
+        return false;
+    }
+    public boolean verifySignUpRequest(String email, String requestAT) {
+        String providedAT= stringRedisTemplate.opsForValue().get(email);
+        if ( !providedAT.equals(requestAT) ) {
+            return false;
+        }
+        return true;
     }
 
 }

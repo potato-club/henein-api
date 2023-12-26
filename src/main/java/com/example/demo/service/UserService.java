@@ -322,10 +322,20 @@ public class UserService {
     @Transactional
     public ResponseEntity<String> basicSignUp(BasicLoginRequestDto basicLoginRequestDto, HttpServletRequest request){
         //이메일 검증 성공했을테니 디비에서 찾아야함.
-        String userEmail = jwtTokenProvider.fetchUserEmailByHttpRequest(request);
-        UserEntity userEntity = userRepository.findByUserEmail(userEmail).orElseThrow(()->{throw new NotFoundException("인증된 이메일과 입력된 이메일이 다릅니다.", ErrorCode.NOT_FOUND_EXCEPTION);});
+        String requestAT = jwtTokenProvider.resolveAccessToken(request);
+        if ( !redisService.verifySignUpRequest(basicLoginRequestDto.getUserEmail(), requestAT) ) {
+            throw new UnAuthorizedException("Do not match email with AT", ErrorCode.JWT_COMPLEX_ERROR);
+        }
 
-        userEntity.UpdatePW(passwordEncoder.encode(basicLoginRequestDto.getPassword()));
+        UserEntity userEntity = UserEntity.builder()
+                .userRole(UserRole.USER)
+                .userName("ㅇㅇ")
+                .refreshToken(jwtTokenProvider.generateRefreshToken(basicLoginRequestDto.getUserEmail()))
+                .userEmail(basicLoginRequestDto.getUserEmail())
+                .uid(UUID.randomUUID().toString())
+                .password(passwordEncoder.encode(basicLoginRequestDto.getPassword()))
+                .build();
+        userRepository.save(userEntity);
 
         return ResponseEntity.ok("회원가입 성공");
     }
