@@ -36,8 +36,8 @@ public class AuthenticationController {
     }
     @Operation(summary = "로컬 회원가입 userEmail,password")
     @PostMapping("/login/register")
-    public ResponseEntity<String> basicSignUp(@RequestBody BasicLoginRequestDto basicLoginRequestDto, HttpServletRequest request) {
-        return userService.basicSignUp(basicLoginRequestDto,request);
+    public ResponseEntity<String> basicSignUp(@RequestBody BasicLoginRequestDto basicLoginRequestDto, HttpServletRequest request, HttpServletResponse response) {
+        return userService.basicSignUp(basicLoginRequestDto,request, response);
     }
     @Operation(summary = "인증 메일 발송 요청")
     @PostMapping("/mail/sender")

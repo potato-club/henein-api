@@ -320,22 +320,28 @@ public class UserService {
     }
 
     @Transactional
-    public ResponseEntity<String> basicSignUp(BasicLoginRequestDto basicLoginRequestDto, HttpServletRequest request){
+    public ResponseEntity<String> basicSignUp(BasicLoginRequestDto basicLoginRequestDto, HttpServletRequest request, HttpServletResponse response){
         //이메일 검증 성공했을테니 디비에서 찾아야함.
         String requestAT = jwtTokenProvider.resolveAccessToken(request);
         if ( !redisService.verifySignUpRequest(basicLoginRequestDto.getUserEmail(), requestAT) ) {
             throw new UnAuthorizedException("Do not match email with AT", ErrorCode.JWT_COMPLEX_ERROR);
         }
+        String AT = jwtTokenProvider.generateAccessToken(basicLoginRequestDto.getUserEmail());
+        String RT = jwtTokenProvider.generateRefreshToken(basicLoginRequestDto.getUserEmail());
 
         UserEntity userEntity = UserEntity.builder()
                 .userRole(UserRole.USER)
                 .userName("ㅇㅇ")
-                .refreshToken(jwtTokenProvider.generateRefreshToken(basicLoginRequestDto.getUserEmail()))
+                .refreshToken(RT)
                 .userEmail(basicLoginRequestDto.getUserEmail())
                 .uid(UUID.randomUUID().toString())
                 .password(passwordEncoder.encode(basicLoginRequestDto.getPassword()))
                 .build();
         userRepository.save(userEntity);
+
+        response.setHeader("Authorization","Bearer " + AT);
+        response.setHeader("RefreshToken","Bearer "+ RT);
+
 
         return ResponseEntity.ok("회원가입 성공");
     }
