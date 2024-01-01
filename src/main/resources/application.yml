@@ -34,7 +34,7 @@ spring:
         registration:
           kakao:
             client-id: ENC(CALcFsN0WlLg29qzPjQHBvAbVs0sNy3epQ/iWKZssz8upPfcBDwVR9eMBH38Wzc4)
-            redirect-uri: http://localhost:8080/auth/login/kakao
+            redirect-uri: https://henein.kr/auth/login/kakao
             authorization-grant-type: authorization_code
             client-authentication-method: POST
             client_name: Kakao
@@ -75,4 +75,4 @@ jasypt:
 
 aws:
   ses:
-    from: Helper@henein.kr
+    from: noreply@henein.kr
