@@ -15,9 +15,9 @@ spring:
       request-timeout: 50000 #50초
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: ENC(y5VWweetnD3HUYNhspc/fmIAubWb5/vnuFvo8mJUNBer4/fgF+k3/59WKqtLbkOSEh3C+7MWeF4x0uG3reGKVwGs3TumGUDnKMqsDpPLDrHOKJAIbR3rR5hqsPnC4hJA2xXrL3GKRYU=)
-    username: ENC(hDAIPDGZvre5weuKbukh/A==)
-    password: ENC(Q7vyLWNw9RPKcvNOsVtveR5jNDgiRoJU)
+    url: ENC(WeHNFNKufGitWpnyrsL4ByynpUFh/c+aNou2frtCROYOFQJNTNLFiTviLip5lD8HKy+D5x9W2ftEuJbEX9Uf12IijzFLjwBK3exYwSDY/SZWaYZd0hl/Uz46cY6Wl96mtZloyrFxHKo=)
+    username: ENC(RkAz9Pxk+SFvyxWXXpkdQg==)
+    password: ENC(/cndnWTpsw7+7fWX7ceqG0GPIwX3zHIB)
   #  s3--
   servlet:
     multipart:
