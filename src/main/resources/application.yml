@@ -1,10 +1,10 @@
 server:
-  port: 8080
+  port: 80
 
 
 spring:
   redis:
-    host: localhost
+    host: ${REDIS_HOST}
     port: 6379
     timeout: 6000
   mvc:
@@ -15,9 +15,9 @@ spring:
       request-timeout: 50000 #50초
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: ENC(WeHNFNKufGitWpnyrsL4ByynpUFh/c+aNou2frtCROYOFQJNTNLFiTviLip5lD8HKy+D5x9W2ftEuJbEX9Uf12IijzFLjwBK3exYwSDY/SZWaYZd0hl/Uz46cY6Wl96mtZloyrFxHKo=)
-    username: ENC(RkAz9Pxk+SFvyxWXXpkdQg==)
-    password: ENC(/cndnWTpsw7+7fWX7ceqG0GPIwX3zHIB)
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
   #  s3--
   servlet:
     multipart:
@@ -33,7 +33,7 @@ spring:
       client:
         registration:
           kakao:
-            client-id: ENC(CALcFsN0WlLg29qzPjQHBvAbVs0sNy3epQ/iWKZssz8upPfcBDwVR9eMBH38Wzc4)
+            client-id: ${KAKAO_CLIENT_ID}
             redirect-uri: https://henein.kr/auth/login/kakao
             authorization-grant-type: authorization_code
             client-authentication-method: POST
@@ -48,8 +48,7 @@ spring:
             user-name-attribute: id
 
 jwt:
-  secret:
-    ENC(gSd1QCnq05LyByOTvaIGKcp+XyHp6M4F3XhfK4xwlPz3BOyp85rUpRKK7GyD0jc0kvMS+1CCgwKsFZrBPN/kkJ6WCJlJRijzA18xOwN8rmFrMFxrLLhn0zKrr8MW5GF+N8UcvTUBF3PfxBnvay8B1WJFh1N4oeGc)
+  secret: ${JWT_SECRET}
   access-expriation : 1800000 #30분 1800000
   refresh-expriation : 604800000 #1주 604800000
 #s3--
