@@ -310,6 +310,7 @@ public class UserService {
         if ( !passwordEncoder.matches(basicLoginRequestDto.getPassword(),userEntity.getPassword()) ) {
             throw new UnAuthorizedException(ErrorCode.INVALID_ACCESS.getMessage(),ErrorCode.INVALID_ACCESS);
         }
+        System.out.print("hi");
 
         String accessToken = jwtTokenProvider.generateAccessToken(basicLoginRequestDto.getUserEmail());
         String refreshToken = jwtTokenProvider.generateRefreshToken(basicLoginRequestDto.getUserEmail());
