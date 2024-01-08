@@ -1,7 +1,6 @@
 server:
   port: 80
 
-
 spring:
   redis:
     host: ${REDIS_HOST}
@@ -55,8 +54,8 @@ jwt:
 cloud:
   aws:
     credentials:
-      access-key: ENC(jx5x93Osgs9w0O87sLLRkcdCfCvrd9v1ANyxRiVA4p0)
-      secret-key: ENC(6zKi9iczdpXoowAgVq5+neqAZP9jTCbf+UWrcKpqvnVpbzCNopqvqUmglnAaXEX3hm4lXnFY4Oo=)
+      access-key: ENC(iLxRM7InkH7YNuLWnDePgDev84wNkrNkECl3ByTAJNk=)
+      secret-key: ENC(ynyjEzQo24nAHoWrN49TTrh1Jrs+lUNWznWibrvJkaQa8aSM7sRM1zH3L2+Dfj5EE52VrFmS820=)
     region:
       auto: false
       static: ap-northeast-2 #버킷의 리전
@@ -72,6 +71,11 @@ jasypt:
   encryptor:
     bean: jasyptStringEncryptor
 
+cacheName:
+  getCache: cacheHenein
+
 aws:
   ses:
     from: noreply@henein.kr
+
+apiKey: ENC(A3w4vRd9efUTqFnmP1uK8onHyVTe2w0W40HpsctvL7k=)
