@@ -42,8 +42,6 @@ public class KakaoOAuth2Client {
         params.add("redirect_uri", kakaoRedirectUri);
         params.add("code", code);
 
-        log.info(kakaoRedirectUri);
-
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
 
         ResponseEntity<String> response = restTemplate.exchange(accessTokenUrl, HttpMethod.POST, request, String.class);
