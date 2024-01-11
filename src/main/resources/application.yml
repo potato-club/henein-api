@@ -33,7 +33,7 @@ spring:
         registration:
           kakao:
             client-id: ${KAKAO_CLIENT_ID}
-            redirect-uri: https://henein.kr/auth/login/kakao
+            redirect-uri: https://henein.kr/kakao
             authorization-grant-type: authorization_code
             client-authentication-method: POST
             client_name: Kakao
