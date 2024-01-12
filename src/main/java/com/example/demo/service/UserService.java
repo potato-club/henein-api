@@ -12,7 +12,6 @@ import com.example.demo.enumCustom.S3EntityType;
 import com.example.demo.enumCustom.UserRole;
 import com.example.demo.error.ErrorCode;
 import com.example.demo.error.exception.BadRequestException;
-import com.example.demo.error.exception.DuplicateException;
 import com.example.demo.error.exception.UnAuthorizedException;
 import com.example.demo.error.exception.NotFoundException;
 import com.example.demo.jwt.JwtTokenProvider;
@@ -21,7 +20,6 @@ import com.example.demo.jwt.KakaoOAuth2Client;
 import com.example.demo.repository.S3FileRespository;
 import com.example.demo.repository.UserCharRepository;
 import com.example.demo.repository.UserRepository;
-import com.example.demo.service.jwtservice.KakaoOAuth2UserDetailsServcie;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,11 +31,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
@@ -58,7 +53,7 @@ public class UserService {
     private final S3Service s3Service;
     private final UserCharRepository userCharRepository;
     private final JwtTokenProvider jwtTokenProvider;
-    private final KakaoOAuth2UserDetailsServcie kakaoOAuth2UserDetailsServcie;
+//    private final KakaoOAuth2UserDetailsServcie kakaoOAuth2UserDetailsServcie;
     private final KakaoOAuth2Client kakaoOAuth2Client;
     private final PasswordEncoder passwordEncoder;
     private final WebClient infoWebClient;
@@ -69,7 +64,6 @@ public class UserService {
     @Value("${apiKey}")
     private String apiKey;
 
-//=================필터사용
 
     @Transactional
     public ResponseEntity<?> refreshAT(HttpServletRequest request,HttpServletResponse response) {
@@ -83,7 +77,7 @@ public class UserService {
         if (!userEntity.getRefreshToken().equals(RTHeader)){
             throw new UnAuthorizedException(ErrorCode.EXPIRED_RT.getMessage(),ErrorCode.EXPIRED_RT);
         }
-        String newAccessToken = jwtTokenProvider.generateAccessToken(userEmail);
+        String newAccessToken = jwtTokenProvider.generateAccessToken(userEmail, userEntity.getUserRole());
 
         // Set the new access token in the HTTP response headers
         response.setHeader("Authorization", "Bearer " + newAccessToken);
@@ -102,13 +96,13 @@ public class UserService {
 
         List<S3File> s3File = s3FileRepository.findAllByS3EntityTypeAndTypeId(S3EntityType.USER,userEntity.getId());
 
-        if ( s3File.size() == 0 && userCharEntity == null ) {
+        if (s3File.isEmpty() && userCharEntity == null ) {
             return new UserInfoResponseDto(userEntity,null,null);
         }
         else if (userCharEntity == null) {
             return new UserInfoResponseDto(userEntity,null,s3File.get(0).getFileUrl());
         }
-        else if (s3File.size() == 0) {
+        else if (s3File.isEmpty()) {
             return new UserInfoResponseDto(userEntity,userCharEntity.getNickName(),null);
         }
 
@@ -134,7 +128,7 @@ public class UserService {
 
         List<S3File> s3File = s3FileRepository.findAllByS3EntityTypeAndTypeId(S3EntityType.USER,userEntity.getId());
 
-        if (s3File.size() == 0) {
+        if (s3File.isEmpty()) {
             return new UserDetailInfoResponseDto(userEntity,null,boardCount,commentCount);
         }
         return new UserDetailInfoResponseDto(userEntity,s3File.get(0).getFileUrl(),boardCount,commentCount);
@@ -166,7 +160,7 @@ public class UserService {
             newCharEntity.pickThisCharacter();
             return;
         }
-        else if (oldCharEntity.getId() == id){
+        else if (oldCharEntity.getId().equals(id) ){
             oldCharEntity.unPickThisCharacter();
             return;
         }
@@ -201,6 +195,7 @@ public class UserService {
         String userEmail = jwtTokenProvider.fetchUserEmailByHttpRequest(request);
         UserEntity userEntity = userRepository.findByUserEmail(userEmail).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);});
 
+        userEntity.UpdateApiKey(userMapleApi.getUserApi());
         String api = "cube?key="+apiKey;
 
          this.cubeWebClient.post()
@@ -310,24 +305,24 @@ public class UserService {
         if ( !passwordEncoder.matches(basicLoginRequestDto.getPassword(),userEntity.getPassword()) ) {
             throw new UnAuthorizedException(ErrorCode.INVALID_ACCESS.getMessage(),ErrorCode.INVALID_ACCESS);
         }
-        System.out.print("hi");
 
-        String accessToken = jwtTokenProvider.generateAccessToken(basicLoginRequestDto.getUserEmail());
-        String refreshToken = jwtTokenProvider.generateRefreshToken(basicLoginRequestDto.getUserEmail());
-        userEntity.setRefreshToken(refreshToken);
-        response.setHeader("Authorization","Bearer " + accessToken);
-        response.setHeader("RefreshToken","Bearer "+ refreshToken);
+        String AT = jwtTokenProvider.generateAccessToken(userEntity.getUserEmail(), userEntity.getUserRole());
+        String RT = jwtTokenProvider.generateRefreshToken(userEntity.getUserEmail());
+        userEntity.setRefreshToken(RT);
+
+        response.setHeader("Authorization","Bearer " + AT);
+        response.setHeader("RefreshToken","Bearer "+ RT);
         return ResponseEntity.ok("로그인 성공");
     }
 
     @Transactional
     public ResponseEntity<String> basicSignUp(BasicLoginRequestDto basicLoginRequestDto, HttpServletRequest request, HttpServletResponse response){
-        //이메일 검증 성공했을테니 디비에서 찾아야함.
+
         String requestAT = jwtTokenProvider.resolveAccessToken(request);
         if ( !redisService.verifySignUpRequest(basicLoginRequestDto.getUserEmail(), requestAT) ) {
             throw new UnAuthorizedException("Do not match email with AT", ErrorCode.JWT_COMPLEX_ERROR);
         }
-        String AT = jwtTokenProvider.generateAccessToken(basicLoginRequestDto.getUserEmail());
+        String AT = jwtTokenProvider.generateAccessToken(basicLoginRequestDto.getUserEmail(), UserRole.USER);
         String RT = jwtTokenProvider.generateRefreshToken(basicLoginRequestDto.getUserEmail());
 
         UserEntity userEntity = UserEntity.builder()
@@ -357,21 +352,31 @@ public class UserService {
         Authentication authentication = new UsernamePasswordAuthenticationToken(kakaoOAuth2User, null);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        // JWT 토큰을 발급합니다.
         String email = kakaoOAuth2User.getKakao_account().getEmail();
-        log.info("JWT 토큰을 발급합니다 Controller: "+email);
-        String accessToken = jwtTokenProvider.generateAccessToken(email);
-        String refreshToken = jwtTokenProvider.generateRefreshToken(email);
-        Map<String, String> tokens =new HashMap<>();
-        if (!userRepository.existsByUserEmail(email)){
+        String RT = jwtTokenProvider.generateRefreshToken(email);
+
+        UserEntity userEntity = userRepository.findByUserEmail(email)
+                .orElseGet(() ->new UserEntity(email));
+
+        //신규회원이면
+        Map<String, String> tokens = new HashMap<>();
+        if (userEntity.getRefreshToken()==null) {
             tokens.put("status","신규 유저입니다.");
+            userEntity.setRefreshToken(RT);
+            userRepository.save(userEntity);
+        } else {
+            userEntity.setRefreshToken(RT);
         }
+
+        String AT = jwtTokenProvider.generateAccessToken(email, userEntity.getUserRole());
+
+
         // 로그인한 사용자의 정보를 저장합니다.
-        kakaoOAuth2UserDetailsServcie.loadUserByKakaoOAuth2User(email, refreshToken);
+        //kakaoOAuth2UserDetailsServcie.loadUserByKakaoOAuth2User(email, RT);
 
         //클라이언트에게 리턴해주기
-        response.setHeader("Authorization","Bearer " + accessToken);
-        response.setHeader("RefreshToken","Bearer " + refreshToken);
+        response.setHeader("Authorization","Bearer " + AT);
+        response.setHeader("RefreshToken","Bearer " + RT);
 
         return ResponseEntity.ok(tokens);
     }

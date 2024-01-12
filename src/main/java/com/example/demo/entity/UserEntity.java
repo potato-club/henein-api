@@ -1,6 +1,5 @@
 package com.example.demo.entity;
 
-import com.example.demo.dto.user.UserInfoUpdate;
 import com.example.demo.enumCustom.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,6 +30,8 @@ public class UserEntity extends BaseTimeEntity{
     private String password;
     @Column(length = 512,nullable = false)
     private String refreshToken;
+    @Column
+    private String nexonApiKey;
 
 
     public UserEntity(String email) {
@@ -47,5 +48,7 @@ public class UserEntity extends BaseTimeEntity{
     public void setRefreshToken(String refreshToken){
         this.refreshToken = refreshToken;
     }
-
+    public void UpdateApiKey(String nexonApiKey) {
+        this.nexonApiKey = nexonApiKey;
+    }
 }

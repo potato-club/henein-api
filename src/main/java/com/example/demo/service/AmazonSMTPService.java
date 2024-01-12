@@ -2,7 +2,6 @@ package com.example.demo.service;
 
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import com.amazonaws.services.simpleemail.model.*;
-import com.example.demo.entity.UserEntity;
 import com.example.demo.enumCustom.UserRole;
 import com.example.demo.error.ErrorCode;
 import com.example.demo.error.exception.ForbiddenException;
@@ -19,7 +18,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +26,6 @@ public class AmazonSMTPService {
     private final TemplateEngine htmlTemplateEngine;
     private final RedisService redisService;
     private final JwtTokenProvider jwtTokenProvider;
-    private final UserRepository userRepository;
 
     @Value("${aws.ses.from}")
     private String from;
@@ -55,7 +52,7 @@ public class AmazonSMTPService {
     public void verifyEmailAuth(String OTP, HttpServletResponse response) {
         String email = redisService.getEmailOtpData(OTP);
 
-        String AT = jwtTokenProvider.generateAccessToken(email);
+        String AT = jwtTokenProvider.generateAccessToken(email, UserRole.USER);
 
         response.setHeader("Authorization","Bearer " + AT);
 

@@ -4,10 +4,7 @@ import com.example.demo.error.ErrorCode;
 import com.example.demo.error.ErrorJwtCode;
 import com.example.demo.error.exception.JwtException;
 import com.example.demo.service.jwtservice.UserDetailsServiceImpl;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.SignatureException;
-import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
@@ -62,7 +59,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         try {
-            if (accessToken != null && jwtTokenProvider.validateToken(accessToken)) {
+            if (jwtTokenProvider.validateToken(accessToken)) {
                 // Get the username from the access token
                 log.info("jwt필터진입");
                 String email = jwtTokenProvider.getUserEmailFromAccessToken(accessToken);
