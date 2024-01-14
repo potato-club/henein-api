@@ -221,9 +221,8 @@ public class UserService {
                     if (!userCharEntityList.isEmpty()) {
                         userCharRepository.saveAll(userCharEntityList);
                     }
-                    return null;
-                })
-                 .subscribe();
+                    return Mono.empty();
+                });
          return Mono.empty();
     }
 

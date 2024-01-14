@@ -83,7 +83,7 @@ public class UserInfoController {
     @PostMapping("/character/auth")
     public Mono<Void> requestNexon(@RequestBody UserMapleApi userMapleApi,HttpServletRequest request){
         userService.requestToAPIServer(request,userMapleApi);
-        return null;
+        return Mono.empty();
     }
 
 
