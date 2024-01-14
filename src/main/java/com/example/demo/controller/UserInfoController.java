@@ -20,6 +20,7 @@ import reactor.core.publisher.Mono;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 
 @RestController
@@ -81,9 +82,9 @@ public class UserInfoController {
 
     @Operation(summary = "유저가 가지고있는 캐릭터 큐브 내역으로 불러오기" )
     @PostMapping("/character/auth")
-    public Mono<Void> requestNexon(@RequestBody UserMapleApi userMapleApi,HttpServletRequest request){
-        userService.requestToAPIServer(request,userMapleApi);
-        return Mono.empty();
+    public Mono<String> requestNexon(@RequestBody UserMapleApi userMapleApi, HttpServletRequest request){
+        return userService.requestToAPIServer(request,userMapleApi);
+
     }
 
 

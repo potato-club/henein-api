@@ -10,7 +10,7 @@ public class WebClientConfig {
     @Bean
     public WebClient APIClient(WebClient.Builder builder) {
         return builder
-                .baseUrl("https://heneinbackapi.shop/") // 기본 URL 설정
+                .baseUrl("https://heneinbackapi.shop") // 기본 URL 설정
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8") // 기본 헤더 설정
                 .build();
     }

@@ -185,7 +185,7 @@ public class UserService {
 
     @Transactional
     //인증 받아오기
-    public Mono<Void> requestToAPIServer(HttpServletRequest request,UserMapleApi userMapleApi){
+    public Mono<String> requestToAPIServer(HttpServletRequest request,UserMapleApi userMapleApi){
         //날짜가 오늘일시 에러.
         if (userMapleApi.getRecentDay().equals(LocalDate.now())) {
             throw new BadRequestException("Today's date cannot be requested", ErrorCode.BAD_REQUEST);
@@ -198,32 +198,32 @@ public class UserService {
         UserEntity userEntity = userRepository.findByUserEmail(userEmail).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);});
 
         userEntity.UpdateApiKey(userMapleApi.getUserApi());
-        String api = "cube?key="+apiKey;
+        String api = "/cube?key="+apiKey;
 
-         this.APIClient.post()
-                 .uri(api)
+        return this.APIClient.post()
+                .uri(api)
                 .body(BodyInserters.fromValue(userMapleApi))
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<List<String>>() {})
+                .bodyToMono(new ParameterizedTypeReference<Set<String>>() {})
                 .flatMap(result -> {
-
                     List<UserCharEntity> userCharEntityList = userCharRepository.findAllByUserEntity(userEntity);
-
-                    for ( UserCharEntity u : userCharEntityList) {
-                        for (String r : result) {
+                    for ( String r : result) {
+                        for (UserCharEntity u : userCharEntityList) {
                             if (r.equals(u.getCharName())) {
-                                continue;
+                                result.remove(r);
+                                break;
                             }
-                            userCharEntityList.add(new UserCharEntity(userEntity, r));
                         }
                     }
-
-                    if (!userCharEntityList.isEmpty()) {
+                    List<UserCharEntity> newCharEntityList = new ArrayList<>();
+                    for (String r : result) {
+                        newCharEntityList.add(new UserCharEntity(userEntity, r));
+                    }
+                    if (!newCharEntityList.isEmpty()) {
                         userCharRepository.saveAll(userCharEntityList);
                     }
-                    return Mono.empty();
+                    return Mono.just("200ok");
                 });
-         return Mono.empty();
     }
 
     //단일 조희
