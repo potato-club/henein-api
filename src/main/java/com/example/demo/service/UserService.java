@@ -179,7 +179,6 @@ public class UserService {
         UserEntity userEntity = userRepository.findByUserEmail(userEmail).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);});
 
         List<UserCharEntity> resultList = userCharRepository.findAllByUserEntity(userEntity);
-        log.info(resultList.get(0).getAvatar());
         return resultList.stream().map(UserCharacterResponse::new).collect(Collectors.toList());
     }
 
@@ -207,6 +206,7 @@ public class UserService {
                 .bodyToMono(new ParameterizedTypeReference<Set<String>>() {})
                 .flatMap(result -> {
                     List<UserCharEntity> userCharEntityList = userCharRepository.findAllByUserEntity(userEntity);
+                    log.info(String.valueOf(result.size()));
                     for ( String r : result) {
                         for (UserCharEntity u : userCharEntityList) {
                             if (r.equals(u.getCharName())) {
@@ -217,10 +217,12 @@ public class UserService {
                     }
                     List<UserCharEntity> newCharEntityList = new ArrayList<>();
                     for (String r : result) {
+                        log.info("들어옴");
                         newCharEntityList.add(new UserCharEntity(userEntity, r));
                     }
                     if (!newCharEntityList.isEmpty()) {
-                        userCharRepository.saveAll(userCharEntityList);
+                        log.info("들어옴2");
+                        userCharRepository.saveAll(newCharEntityList);
                     }
                     return Mono.just("200ok");
                 });
