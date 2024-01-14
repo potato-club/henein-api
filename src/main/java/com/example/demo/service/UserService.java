@@ -12,6 +12,7 @@ import com.example.demo.enumCustom.S3EntityType;
 import com.example.demo.enumCustom.UserRole;
 import com.example.demo.error.ErrorCode;
 import com.example.demo.error.exception.BadRequestException;
+import com.example.demo.error.exception.ForbiddenException;
 import com.example.demo.error.exception.UnAuthorizedException;
 import com.example.demo.error.exception.NotFoundException;
 import com.example.demo.jwt.JwtTokenProvider;
@@ -33,6 +34,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
@@ -53,11 +56,9 @@ public class UserService {
     private final S3Service s3Service;
     private final UserCharRepository userCharRepository;
     private final JwtTokenProvider jwtTokenProvider;
-//    private final KakaoOAuth2UserDetailsServcie kakaoOAuth2UserDetailsServcie;
     private final KakaoOAuth2Client kakaoOAuth2Client;
     private final PasswordEncoder passwordEncoder;
-    private final WebClient infoWebClient;
-    private final WebClient cubeWebClient;
+    private final WebClient APIClient;
     private final RedisService redisService;
     private final JPAQueryFactory jpaQueryFactory;
 
@@ -103,10 +104,10 @@ public class UserService {
             return new UserInfoResponseDto(userEntity,null,s3File.get(0).getFileUrl());
         }
         else if (s3File.isEmpty()) {
-            return new UserInfoResponseDto(userEntity,userCharEntity.getNickName(),null);
+            return new UserInfoResponseDto(userEntity,userCharEntity.getCharName(),null);
         }
 
-        return new UserInfoResponseDto(userEntity,userCharEntity.getNickName(),s3File.get(0).getFileUrl());
+        return new UserInfoResponseDto(userEntity,userCharEntity.getCharName(),s3File.get(0).getFileUrl());
     }
 
     public UserDetailInfoResponseDto userDetailInfo(HttpServletRequest request) {
@@ -147,7 +148,7 @@ public class UserService {
 
         return "200ok";
     }
-
+    //=============================캐릭터 관련===================================================================================
     @Transactional
     public void pickCharacter(Long id, HttpServletRequest request) {
         String userEmail = jwtTokenProvider.fetchUserEmailByHttpRequest(request);
@@ -171,19 +172,20 @@ public class UserService {
         newCharEntity.pickThisCharacter();
 
     }
-    //캐릭터 관련
+
     @Transactional
-    public List<UserCharacter> getAllUserCharacterInfo(HttpServletRequest request) {
+    public List<UserCharacterResponse> getAllUserCharacterInfo(HttpServletRequest request) {
         String userEmail= jwtTokenProvider.fetchUserEmailByHttpRequest(request);
         UserEntity userEntity = userRepository.findByUserEmail(userEmail).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);});
 
         List<UserCharEntity> resultList = userCharRepository.findAllByUserEntity(userEntity);
         log.info(resultList.get(0).getAvatar());
-        return resultList.stream().map(UserCharacter::new).collect(Collectors.toList());
+        return resultList.stream().map(UserCharacterResponse::new).collect(Collectors.toList());
     }
 
+    @Transactional
     //인증 받아오기
-    public String requestToNexon(HttpServletRequest request,UserMapleApi userMapleApi){
+    public Mono<Void> requestToAPIServer(HttpServletRequest request,UserMapleApi userMapleApi){
         //날짜가 오늘일시 에러.
         if (userMapleApi.getRecentDay().equals(LocalDate.now())) {
             throw new BadRequestException("Today's date cannot be requested", ErrorCode.BAD_REQUEST);
@@ -198,68 +200,135 @@ public class UserService {
         userEntity.UpdateApiKey(userMapleApi.getUserApi());
         String api = "cube?key="+apiKey;
 
-         this.cubeWebClient.post()
+         this.APIClient.post()
                  .uri(api)
                 .body(BodyInserters.fromValue(userMapleApi))
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<List<String>>() {})
                 .flatMap(result -> {
 
-                    List<UserCharEntity> userCharEntityList = new ArrayList<>();
+                    List<UserCharEntity> userCharEntityList = userCharRepository.findAllByUserEntity(userEntity);
 
-                    for (int i = 0; i < result.size(); i++) {
-                        if (!userCharRepository.existsByNickName(result.get(i))) {
-                            userCharEntityList.add(new UserCharEntity(userEntity, result.get(i)));
+                    for ( UserCharEntity u : userCharEntityList) {
+                        for (String r : result) {
+                            if (r.equals(u.getCharName())) {
+                                continue;
+                            }
+                            userCharEntityList.add(new UserCharEntity(userEntity, r));
                         }
                     }
+
                     if (!userCharEntityList.isEmpty()) {
                         userCharRepository.saveAll(userCharEntityList);
                     }
                     return null;
                 })
                  .subscribe();
-         return "Please wait about 30 seconds and try /userinfo/all";
+         return Mono.empty();
     }
 
-    @Transactional
-    public String requestUpdateToNode(String userCharName){
-        //저장된 캐릭인지
-        if (!userCharRepository.existsByNickName(userCharName)) {
-            throw new NotFoundException(ErrorCode.NULL_VALUE.getMessage(),ErrorCode.NULL_VALUE);
-        }
-        //요청 보내기전에 1시간 시간 제한 걸어야함 레디스 유효시간 1시간임
-        else if (redisService.checkRedis(userCharName)) {
-            throw new BadRequestException("1시간 요청 제한",ErrorCode.NULL_VALUE); // 몇분 남았는지도 알려줘야함
-        }
-        Map<String, String> callback = new HashMap<>();
-        callback.put("callback", "https://henesysback.shop/userinfo/character/info");
-        //노드로 요청
-         FirstResponseNodeDto result = this.infoWebClient.put()
-                .uri(userCharName)
-                .body(BodyInserters.fromValue(callback))
+    //단일 조희
+    public Mono<UserCharacterResponse> updateSingleCharacter(Long id, HttpServletRequest request) {
+        //먼저 디비로 가서 ocid가 있는지 확인
+        QUserCharEntity qUserCharEntity = QUserCharEntity.userCharEntity;
+        QUserEntity qUserEntity = QUserEntity.userEntity;
+
+        UserCharEntity userCharEntity = jpaQueryFactory
+            .selectFrom(qUserCharEntity)
+            .innerJoin(qUserCharEntity.userEntity, qUserEntity)
+            .where(qUserCharEntity.id.eq(id))
+                .fetchOne();
+
+        String userEmail= jwtTokenProvider.fetchUserEmailByHttpRequest(request);
+        if ( !userCharEntity.getUserEntity().getUserEmail().equals(userEmail) )
+            throw new ForbiddenException(ErrorCode.FORBIDDEN_EXCEPTION.getMessage(), ErrorCode.FORBIDDEN_EXCEPTION);
+
+        //ocid 있는지 판별
+        String API;
+        if (userCharEntity.getOcid() == null )
+            API = "/character/single?name="+userCharEntity.getCharName()+"&key="+apiKey;
+        else
+            API = "/character/single?ocid="+userCharEntity.getOcid()+"&key="+apiKey;
+
+        return this.APIClient.get()
+                .uri(API)
                 .retrieve()
-                .bodyToMono(FirstResponseNodeDto.class)
-                .block();
-        //거절시 null로 오나? 확인해야함
-        if (result == null){
-            throw new RuntimeException();
+                .bodyToMono(CharacterBasic.class)
+                .flatMap(result -> this.saveInExtraThread(userCharEntity, result));
+
+    }
+
+    //다중 조회
+    @Transactional
+    public Mono<List<UserCharacterResponse>> updateMultiCharacter(CharRefreshRequestDto charRefreshRequestDto, HttpServletRequest request) {
+        //먼저 디비로 가서 ocid가 있는지 확인
+        QUserCharEntity qUserCharEntity = QUserCharEntity.userCharEntity;
+        QUserEntity qUserEntity = QUserEntity.userEntity;
+
+        List<UserCharEntity> userCharEntityList = jpaQueryFactory
+                .selectFrom(qUserCharEntity)
+                .innerJoin(qUserCharEntity.userEntity, qUserEntity)
+                .where(qUserCharEntity.id.in(charRefreshRequestDto.getIdList()))
+                .fetchJoin()
+                .fetch();
+
+        String userEmail= jwtTokenProvider.fetchUserEmailByHttpRequest(request);
+        ApiServerRequestDto apiServerRequestDto = new ApiServerRequestDto();
+        for (UserCharEntity u : userCharEntityList){
+            if ( !u.getUserEntity().getUserEmail().equals(userEmail) )
+                throw new ForbiddenException(ErrorCode.FORBIDDEN_EXCEPTION.getMessage(), ErrorCode.FORBIDDEN_EXCEPTION);
+
+            else if (u.getOcid() == null)
+                apiServerRequestDto.getNameList().add(u.getCharName());
+
+            else
+                apiServerRequestDto.getOcidList().add(u.getOcid());
         }
-        return redisService.setWorkStatus(userCharName);
+        return this.APIClient.post()
+                .uri("/character/multiple?key="+apiKey)
+                .body(BodyInserters.fromValue(apiServerRequestDto))
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<List<CharacterBasic>>() {})
+                .flatMap(result -> this.saveListInExtraThread(userCharEntityList, result));
+
     }
     @Transactional
-    public String responseToRedisAndUpdate(NodeConnection nodeConnection){
-        log.info(nodeConnection.getNickname());
-        log.info(nodeConnection.getCharacter().getAvatar());
-        if (!userCharRepository.existsByNickName(nodeConnection.getCharacter().getNickname())){
-            throw new NotFoundException(ErrorCode.NULL_VALUE.getMessage(),ErrorCode.NULL_VALUE);
-        }
-        UserCharEntity userCharEntity = userCharRepository.findByNickName(nodeConnection.getCharacter().getNickname())
-                .orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND.getMessage(),ErrorCode.NOT_FOUND);});
-
-        userCharEntity.update(nodeConnection.getCharacter());
-
-        return redisService.updateWork(nodeConnection.getCharacter().getNickname());
+    public Mono<UserCharacterResponse> saveInExtraThread(UserCharEntity userCharEntity, CharacterBasic characterBasic) {
+        userCharEntity.update(characterBasic);
+        userCharRepository.save(userCharEntity);
+        return Mono.just(new UserCharacterResponse(userCharEntity));
     }
+    @Transactional
+    public Mono<List<UserCharacterResponse>> saveListInExtraThread(List<UserCharEntity> userCharEntityList, List<CharacterBasic> characterBasicList) {
+        List<UserCharacterResponse> resultList = new ArrayList<>();
+
+        for (UserCharEntity u : userCharEntityList) {
+            for (CharacterBasic c : characterBasicList) {
+                if (u.getCharName().equals(c.getCharacter_name())){
+                    resultList.add(new UserCharacterResponse(u));
+                    u.update(c);
+                    break;
+                }
+            }
+        }
+        userCharRepository.saveAll(userCharEntityList);
+        return Mono.just(resultList);
+    }
+
+
+//    public String responseToRedisAndUpdate(NodeConnection nodeConnection){
+//        log.info(nodeConnection.getNickname());
+//        log.info(nodeConnection.getCharacter().getAvatar());
+//        if (!userCharRepository.existsByNickName(nodeConnection.getCharacter().getNickname())){
+//            throw new NotFoundException(ErrorCode.NULL_VALUE.getMessage(),ErrorCode.NULL_VALUE);
+//        }
+//        UserCharEntity userCharEntity = userCharRepository.findByNickName(nodeConnection.getCharacter().getNickname())
+//                .orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND.getMessage(),ErrorCode.NOT_FOUND);});
+//
+//        userCharEntity.update(nodeConnection.getCharacter());
+//
+//        return redisService.updateWork(nodeConnection.getCharacter().getNickname());
+//    }
 
     //============내 활동관련 =======================//
 
