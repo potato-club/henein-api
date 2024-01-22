@@ -32,28 +32,40 @@ public class RedisService {
         stringRedisTemplate.delete(requestEmail);
         stringRedisTemplate.delete(OTP+":requestEmail");
     }
-    public void deleteExistingOtp(String requestEmail) {
-        String OTP = stringRedisTemplate.opsForValue().get(requestEmail);
-        if (OTP != null) {
-            stringRedisTemplate.delete(requestEmail);
-            stringRedisTemplate.delete(OTP+":requestEmail");
-        }
-    }
     public void setReadyEmailForSignUp(String email, String token) {
         stringRedisTemplate.opsForValue().set(email,token, 2, TimeUnit.MINUTES);
     }
     public boolean emailIsAlreadyReadied(String email) {
-        if (stringRedisTemplate.opsForValue().get(email) != null){
-            return true;
-        }
-        return false;
+        if (stringRedisTemplate.opsForValue().get(email) != null) return true;
+        else return false;
     }
     public boolean verifySignUpRequest(String email, String requestAT) {
         String providedAT= stringRedisTemplate.opsForValue().get(email);
-        if ( !providedAT.equals(requestAT) || requestAT == null ) {
-            return false;
-        }
+        if ( !providedAT.equals(requestAT) || requestAT == null ) return false;
         return true;
+    }
+    //==================캐릭터 갱신 관련=========================//
+    //key = email:characterLong = 1 or email:all = 1
+
+    public boolean onCoolTimeToSingleRefreshOfCharacter(long charId, String email) {
+        String key = "char:" +charId;
+        String value = stringRedisTemplate.opsForValue().get(key);
+        if (value == null){
+            stringRedisTemplate.opsForValue().set(key,email,1,TimeUnit.HOURS);
+            return false;
+        }else {
+            return true;
+        }
+    }
+    public boolean onCoolTimeToEntireRefreshOfCharacters(String email) {
+        String key = "char:"+email;
+        String value = stringRedisTemplate.opsForValue().get(key);
+        if ( value == null ){
+            stringRedisTemplate.opsForValue().set(key,"1",1,TimeUnit.HOURS);
+            return false;
+        } else {
+            return true;
+        }
     }
 
 }

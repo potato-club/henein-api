@@ -73,7 +73,7 @@ public class UserService {
 
         // rt 넣어서 검증하고 유저이름 가져오기
         String userEmail = jwtTokenProvider.refreshAccessToken(RTHeader);
-        UserEntity userEntity = userRepository.findByUserEmail(userEmail).orElseThrow(()->{throw new RuntimeException();});
+        UserEntity userEntity = userRepository.findByUserEmail(userEmail).orElseThrow(()->{throw new UnAuthorizedException(ErrorCode.NOT_FOUND.getMessage(), ErrorCode.NOT_FOUND);});
         //db에 있는 토큰값과 넘어온 토큰이 같은지
         if (!userEntity.getRefreshToken().equals(RTHeader)){
             throw new UnAuthorizedException(ErrorCode.EXPIRED_RT.getMessage(),ErrorCode.EXPIRED_RT);
@@ -230,6 +230,10 @@ public class UserService {
 
     //단일 조희
     public Mono<UserCharacterResponse> updateSingleCharacter(Long id, HttpServletRequest request) {
+        String userEmail= jwtTokenProvider.fetchUserEmailByHttpRequest(request);
+        if ( redisService.onCoolTimeToSingleRefreshOfCharacter(id,userEmail) )
+            throw new ForbiddenException(ErrorCode.ALREADY_EXISTS.getMessage(),ErrorCode.ALREADY_EXISTS);
+
         //먼저 디비로 가서 ocid가 있는지 확인
         QUserCharEntity qUserCharEntity = QUserCharEntity.userCharEntity;
         QUserEntity qUserEntity = QUserEntity.userEntity;
@@ -240,7 +244,7 @@ public class UserService {
             .where(qUserCharEntity.id.eq(id))
                 .fetchOne();
 
-        String userEmail= jwtTokenProvider.fetchUserEmailByHttpRequest(request);
+
         if ( !userCharEntity.getUserEntity().getUserEmail().equals(userEmail) )
             throw new ForbiddenException(ErrorCode.FORBIDDEN_EXCEPTION.getMessage(), ErrorCode.FORBIDDEN_EXCEPTION);
 
@@ -262,6 +266,10 @@ public class UserService {
     //다중 조회
     @Transactional
     public Mono<List<UserCharacterResponse>> updateMultiCharacter(CharRefreshRequestDto charRefreshRequestDto, HttpServletRequest request) {
+        String userEmail= jwtTokenProvider.fetchUserEmailByHttpRequest(request);
+        if ( redisService.onCoolTimeToEntireRefreshOfCharacters(userEmail) )
+            throw new ForbiddenException(ErrorCode.ALREADY_EXISTS.getMessage(),ErrorCode.ALREADY_EXISTS);
+
         //먼저 디비로 가서 ocid가 있는지 확인
         QUserCharEntity qUserCharEntity = QUserCharEntity.userCharEntity;
         QUserEntity qUserEntity = QUserEntity.userEntity;
@@ -273,7 +281,7 @@ public class UserService {
                 .fetchJoin()
                 .fetch();
 
-        String userEmail= jwtTokenProvider.fetchUserEmailByHttpRequest(request);
+
         ApiServerRequestDto apiServerRequestDto = new ApiServerRequestDto();
         for (UserCharEntity u : userCharEntityList){
             if ( !u.getUserEntity().getUserEmail().equals(userEmail) )

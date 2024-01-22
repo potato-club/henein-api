@@ -1,6 +1,5 @@
 package com.example.demo.service.jwtservice;
 
-import com.example.demo.entity.UserEntity;
 import com.example.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,16 +14,10 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 public class UserDetailsServiceImpl implements UserDetailsService {
-
-    private final UserRepository userRepository;
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
-        UserEntity userEntity = userRepository.findByUserEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + email));
-        log.info("userName : "+ userEntity.getUserName());
-
-        return User.withUsername(userEntity.getUserEmail())
+        return User.withUsername(email)
                 .password("password_not_used")
                 .authorities(new SimpleGrantedAuthority("ROLE_USER"))
                 .accountExpired(false)
