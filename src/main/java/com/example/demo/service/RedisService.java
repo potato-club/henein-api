@@ -40,7 +40,7 @@ public class RedisService {
         }
     }
     public void setReadyEmailForSignUp(String email, String token) {
-        stringRedisTemplate.opsForValue().set(email,token, 5, TimeUnit.MINUTES);
+        stringRedisTemplate.opsForValue().set(email,token, 2, TimeUnit.MINUTES);
     }
     public boolean emailIsAlreadyReadied(String email) {
         if (stringRedisTemplate.opsForValue().get(email) != null){
@@ -50,7 +50,7 @@ public class RedisService {
     }
     public boolean verifySignUpRequest(String email, String requestAT) {
         String providedAT= stringRedisTemplate.opsForValue().get(email);
-        if ( !providedAT.equals(requestAT) ) {
+        if ( !providedAT.equals(requestAT) || requestAT == null ) {
             return false;
         }
         return true;
