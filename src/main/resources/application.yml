@@ -34,7 +34,7 @@ spring:
             client-id: ENC(TS59x/VA4JVsszIBgTVEq6v20cxygtP/zFhFfhcgeYw7OnEYZCi4iax0rytnVoqu)
             redirect-uri: http://localhost:3000/kakao
             authorization-grant-type: authorization_code
-            client-authentication-method: POST
+            client-authentication-method: client_secret_post
             client_name: Kakao
             scope:
               - account_email
