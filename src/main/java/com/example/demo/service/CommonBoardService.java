@@ -7,6 +7,7 @@ import com.example.demo.entity.S3File;
 import com.example.demo.entity.UserEntity;
 import com.example.demo.enumCustom.S3EntityType;
 import com.example.demo.error.ErrorCode;
+import com.example.demo.error.exception.ForbiddenException;
 import com.example.demo.error.exception.NotFoundException;
 import com.example.demo.jwt.JwtTokenProvider;
 import com.example.demo.repository.BoardRepository;
@@ -30,8 +31,6 @@ import java.util.regex.Pattern;
 public class CommonBoardService {
     private final BoardRepository boardRepository;
     private final RecommandRepository recommandRepository;
-    private final UserService userService;
-    private final S3Service s3Service;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
     private final S3FileRespository s3FileRespository;
@@ -39,7 +38,7 @@ public class CommonBoardService {
     @Transactional
     public BoardResponseDto getOneService(Long id, String authentication){
 
-        BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 게시글 정보가 없습니다");});
+        BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new NotFoundException("해당 게시글 정보가 없습니다",ErrorCode.NOT_FOUND_EXCEPTION);});
 
         if (authentication != null){ //사용자가 이 게시판에 대해서 추천했는지에 대한 t f 적용
             authentication = authentication.substring(7);
@@ -64,9 +63,9 @@ public class CommonBoardService {
     @Transactional
     public long updateService(Long id, TestDto testDto, HttpServletRequest request){
         String userEmail = jwtTokenProvider.fetchUserEmailByHttpRequest(request);
-        BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 게시글 정보가 없습니다");});
-        if (boardEntity.getUserEntity().getUserEmail() != userEmail){
-            throw new RuntimeException("게시글 수정 권한이 없습니다.");
+        BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new NotFoundException("해당 게시글 정보가 없습니다",ErrorCode.NOT_FOUND_EXCEPTION);});
+        if (!boardEntity.getUserEntity().getUserEmail().equals(userEmail)){
+            throw new ForbiddenException("게시글 수정 권한이 없습니다.",ErrorCode.FORBIDDEN_EXCEPTION);
         }
 
         //이미지 파일 첨부되어있는지 문자열 슬라이싱
@@ -116,9 +115,9 @@ public class CommonBoardService {
     @Transactional
     public String deleteService(Long id, HttpServletRequest request ){
         String userEmail = jwtTokenProvider.fetchUserEmailByHttpRequest(request);
-        BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 게시글 정보가 없습니다");});
-        if (boardEntity.getUserEntity().getUserEmail() != userEmail){
-            throw new RuntimeException("게시글 삭제 권한이 없습니다.");
+        BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new NotFoundException("해당 게시글 정보가 없습니다",ErrorCode.NOT_FOUND_EXCEPTION);});
+        if (!boardEntity.getUserEntity().getUserEmail().equals(userEmail)){
+            throw new ForbiddenException("게시글 수정 권한이 없습니다.",ErrorCode.FORBIDDEN_EXCEPTION);
         }
         //게시글에 저장되어있던 사진들 전부 미사용으로 전환
         List<S3File> fileList = s3FileRespository.findAllByS3EntityTypeAndTypeId(S3EntityType.BOARD,id);
@@ -129,7 +128,7 @@ public class CommonBoardService {
     }
     @Transactional
     public String recommendThisBoard(Long id, HttpServletRequest request ){
-        BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new RuntimeException("해당 게시글 정보가 없습니다");});
+        BoardEntity boardEntity = boardRepository.findById(id).orElseThrow(()->{throw new NotFoundException("해당 게시글 정보가 없습니다",ErrorCode.NOT_FOUND_EXCEPTION);});
         String userEmail = jwtTokenProvider.fetchUserEmailByHttpRequest(request);
         UserEntity userEntity = userRepository.findByUserEmail(userEmail).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);});
 

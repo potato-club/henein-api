@@ -1,5 +1,6 @@
 package com.example.demo.jwt;
 
+import com.example.demo.enumCustom.UserRole;
 import com.example.demo.error.ErrorCode;
 import com.example.demo.error.exception.JwtException;
 import io.jsonwebtoken.*;
@@ -28,19 +29,38 @@ public class JwtTokenProvider {
     public String fetchUserEmailByHttpRequest(HttpServletRequest request){
         try {
             String AT = resolveAccessToken(request);
-
             return getUserEmailFromAccessToken(AT);
         }catch (NullPointerException e){
             throw new NullPointerException(e.getMessage());
         }
     }
-    public String generateAccessToken(String email) {
+    public Claims getClaimsByRequest(HttpServletRequest request) {
+        return getClaimFromAccessToken(resolveAccessToken(request));
+    }
+
+    public String getUserEmailFromAccessToken(String token) {
+        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
+    }
+    public Claims getClaimFromAccessToken(String token) {
+        return Jwts.parser()
+                .setSigningKey(secretKey)
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    public String generateAccessToken(String email, UserRole userRole) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + accessTokenExpiration);
-        return Jwts.builder()
+
+        Claims claims = Jwts.claims()
                 .setSubject(email)
+                .setExpiration(expiryDate);
+
+        //추가 정보
+        claims.put("ROLE", userRole);
+        return Jwts.builder()
+                .setClaims(claims)
                 .setIssuedAt(now)
-                .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS512, secretKey)
                 .compact();
     }
@@ -49,11 +69,14 @@ public class JwtTokenProvider {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + refreshTokenExpiration);
 
-        return Jwts.builder()
+        Claims claims = Jwts.claims()
                 .setSubject(email)
-                .claim("type", "refresh")
+                .setExpiration(expiryDate);
+        claims.put("type", "refresh");
+
+        return Jwts.builder()
+                .setClaims(claims)
                 .setIssuedAt(now)
-                .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS512, secretKey)
                 .compact();
     }
@@ -71,10 +94,6 @@ public class JwtTokenProvider {
             return request.getHeader("RefreshToken").substring(7);
         return null;
     }
-
-   public String getUserEmailFromAccessToken(String token) {
-       return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
-   }
 
     public boolean validateToken(String token){
         try {

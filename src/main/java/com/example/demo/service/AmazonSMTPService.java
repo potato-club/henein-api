@@ -2,9 +2,9 @@ package com.example.demo.service;
 
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import com.amazonaws.services.simpleemail.model.*;
-import com.example.demo.entity.UserEntity;
 import com.example.demo.enumCustom.UserRole;
 import com.example.demo.error.ErrorCode;
+import com.example.demo.error.exception.DuplicateException;
 import com.example.demo.error.exception.ForbiddenException;
 import com.example.demo.jwt.JwtTokenProvider;
 import com.example.demo.repository.UserRepository;
@@ -19,7 +19,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +36,8 @@ public class AmazonSMTPService {
         //이미 인증메일을 보냈고 검증까지 마친 이메일이니?
         if (redisService.emailIsAlreadyReadied(requestEmail)) {
             throw new ForbiddenException(ErrorCode.ALREADY_EXISTS.getMessage(), ErrorCode.ALREADY_EXISTS);
+        }else if (userRepository.existsByUserEmail(requestEmail)){
+            throw new DuplicateException(ErrorCode.DUPLICATE_EMAIL.getMessage(), ErrorCode.DUPLICATE_EMAIL);
         }
 
         String OTP = createOTP();
@@ -55,7 +56,7 @@ public class AmazonSMTPService {
     public void verifyEmailAuth(String OTP, HttpServletResponse response) {
         String email = redisService.getEmailOtpData(OTP);
 
-        String AT = jwtTokenProvider.generateAccessToken(email);
+        String AT = jwtTokenProvider.generateAccessToken(email, UserRole.USER);
 
         response.setHeader("Authorization","Bearer " + AT);
 

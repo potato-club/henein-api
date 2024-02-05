@@ -6,11 +6,14 @@ import com.example.demo.entity.BoardEntity;
 import com.example.demo.entity.UserEntity;
 import com.example.demo.enumCustom.BoardType;
 import com.example.demo.enumCustom.S3EntityType;
+import com.example.demo.enumCustom.UserRole;
 import com.example.demo.error.ErrorCode;
+import com.example.demo.error.exception.ForbiddenException;
 import com.example.demo.error.exception.NotFoundException;
 import com.example.demo.jwt.JwtTokenProvider;
 import com.example.demo.repository.BoardRepository;
 import com.example.demo.repository.UserRepository;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -48,7 +51,8 @@ public class BoardTypeOfService {
             case 70: board = BoardType.Free; break;
             case 72: board = BoardType.Humor; break;
             case 73: board = BoardType.Info; break;
-            case 78: board = BoardType.Notice; break;
+            case 78:
+                board = BoardType.Notice;break;
             default: throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);
         }
 
@@ -60,7 +64,6 @@ public class BoardTypeOfService {
     //===================================================================================================
     @Transactional
     public long addTypeOfBoard(BoardRequestDto boardRequestDto, HttpServletRequest request){
-        String userEmail = jwtTokenProvider.fetchUserEmailByHttpRequest(request); // jwt 로직 추가
 
         BoardType board;
         switch (boardRequestDto.getBoardType()){
@@ -70,8 +73,19 @@ public class BoardTypeOfService {
             case "I": board = BoardType.Info; break;
             case "H": board = BoardType.Humor; break;
             case "N": board = BoardType.Notice; break;
+
+
             default: throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);
         }
+
+        Claims claims = jwtTokenProvider.getClaimsByRequest(request);
+        String userEmail = claims.getSubject();
+        UserRole userRole = UserRole.valueOf((String) claims.get("ROLE"));
+
+        if (board.equals(BoardType.Notice) && !userRole.equals(UserRole.ADMIN)) {
+            throw new ForbiddenException(ErrorCode.FORBIDDEN_EXCEPTION.getMessage(), ErrorCode.FORBIDDEN_EXCEPTION);
+        }
+
         UserEntity userEntity = userRepository.findByUserEmail(userEmail).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);});
 
         BoardEntity boardEntity = new BoardEntity(boardRequestDto,board, userEntity);

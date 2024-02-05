@@ -1,46 +1,19 @@
 package com.example.demo.service;
 
-import com.example.demo.enumCustom.RedisWork;
 import com.example.demo.error.ErrorCode;
 import com.example.demo.error.exception.UnAuthorizedException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
 public class RedisService {
 
-    private final RedisCacheManager cacheManager;
     private final StringRedisTemplate stringRedisTemplate;
 
-    @Value("${cacheName.getCache}")
-    private String redisName;
-
-    public String setWorkStatus(String userCharacter) {
-        cacheManager.getCache(redisName).put(userCharacter,RedisWork.WORK.getTitle());
-        return "good, wait few second for update ";
-    }
-
-    public String updateWork(String userCharacter) {
-        if (cacheManager.getCache(redisName).get(userCharacter,String.class) != null) {
-            cacheManager.getCache(redisName).put(userCharacter,RedisWork.DONE.getTitle());
-        } else {
-            throw new RuntimeException();
-        }
-        return "200ok";
-    }
-    public boolean checkRedis(String userCharacter){
-        if(null==cacheManager.getCache(redisName).get(userCharacter,String.class)){
-            return false;
-        }
-        return true;
-    }
     //========Mail 서비스 관련========================
     //썩을 deleteExistingOtp 때문에 역매핑을 저장하고 처리했음!!
     public String getEmailOtpData(String OTP) {
@@ -59,28 +32,40 @@ public class RedisService {
         stringRedisTemplate.delete(requestEmail);
         stringRedisTemplate.delete(OTP+":requestEmail");
     }
-    public void deleteExistingOtp(String requestEmail) {
-        String OTP = stringRedisTemplate.opsForValue().get(requestEmail);
-        if (OTP != null) {
-            stringRedisTemplate.delete(requestEmail);
-            stringRedisTemplate.delete(OTP+":requestEmail");
-        }
-    }
     public void setReadyEmailForSignUp(String email, String token) {
-        stringRedisTemplate.opsForValue().set(email,token, 5, TimeUnit.MINUTES);
+        stringRedisTemplate.opsForValue().set(email,token, 2, TimeUnit.MINUTES);
     }
     public boolean emailIsAlreadyReadied(String email) {
-        if (stringRedisTemplate.opsForValue().get(email) != null){
-            return true;
-        }
-        return false;
+        if (stringRedisTemplate.opsForValue().get(email) != null) return true;
+        else return false;
     }
     public boolean verifySignUpRequest(String email, String requestAT) {
         String providedAT= stringRedisTemplate.opsForValue().get(email);
-        if ( !providedAT.equals(requestAT) ) {
-            return false;
-        }
+        if ( !providedAT.equals(requestAT) || requestAT == null ) return false;
         return true;
+    }
+    //==================캐릭터 갱신 관련=========================//
+    //key = email:characterLong = 1 or email:all = 1
+
+    public boolean onCoolTimeToSingleRefreshOfCharacter(long charId, String email) {
+        String key = "char:" +charId;
+        String value = stringRedisTemplate.opsForValue().get(key);
+        if (value == null){
+            stringRedisTemplate.opsForValue().set(key,email,1,TimeUnit.HOURS);
+            return false;
+        }else {
+            return true;
+        }
+    }
+    public boolean onCoolTimeToEntireRefreshOfCharacters(String email) {
+        String key = "char:"+email;
+        String value = stringRedisTemplate.opsForValue().get(key);
+        if ( value == null ){
+            stringRedisTemplate.opsForValue().set(key,"1",1,TimeUnit.HOURS);
+            return false;
+        } else {
+            return true;
+        }
     }
 
 }
