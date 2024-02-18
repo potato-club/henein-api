@@ -10,7 +10,7 @@ plugins {
 	id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
 }
 
-group = 'com.example'
+group = 'kr.henein'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
