@@ -54,6 +54,7 @@ public class SecurityConfig {
                 .antMatchers(HttpMethod.POST, "/userinfo/character/info").permitAll()
                 .antMatchers(HttpMethod.GET,"/board/**").permitAll() // /board/**에 대한 GET 요청을 허용합니다.
                 .antMatchers(HttpMethod.POST,"/userinfo/character/info").permitAll()
+                .antMatchers("/userinfo/search").permitAll()
                 .antMatchers(HttpMethod.POST, "/board/**").authenticated()
                 .antMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/swagger-ui.html").permitAll()
                 .anyRequest().authenticated()

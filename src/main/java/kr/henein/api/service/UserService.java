@@ -334,7 +334,6 @@ public class UserService {
 
     //============내 활동관련 =======================//
 
-    @Transactional
     public List<BoardListResponseDto> getMyBoardList(HttpServletRequest request) {
         String userEmail = jwtTokenProvider.fetchUserEmailByHttpRequest(request);
 
@@ -349,7 +348,6 @@ public class UserService {
         return boardEntityList.stream().map(BoardListResponseDto::new).collect(Collectors.toList());
     }
 
-    @Transactional
     public List<BoardListResponseDto> getMyBoardsWithCommentList(HttpServletRequest request) {
         String userEmail = jwtTokenProvider.fetchUserEmailByHttpRequest(request);
 
@@ -366,7 +364,17 @@ public class UserService {
         return boardEntityList.stream().map(BoardListResponseDto::new).collect(Collectors.toList());
     }
 
+    public List<BoardListResponseDto> searchBoardByName(String name) {
+        QBoardEntity qBoardEntity= QBoardEntity.boardEntity;
 
+        List<BoardEntity> boardEntityList = jpaQueryFactory
+                .selectFrom(qBoardEntity)
+                .where(qBoardEntity.userName.eq(name))
+                .orderBy(qBoardEntity.id.desc())
+                .fetch();
+
+        return boardEntityList.stream().map(BoardListResponseDto::new).collect(Collectors.toList());
+    }
     //==================로그인 관련
     @Transactional
     public ResponseEntity<String> basicLogin(BasicLoginRequestDto basicLoginRequestDto, HttpServletResponse response){

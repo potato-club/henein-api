@@ -8,6 +8,7 @@ import kr.henein.api.dto.userchar.CharRefreshRequestDto;
 import kr.henein.api.dto.userchar.UserCharacterResponse;
 import kr.henein.api.dto.userchar.UserMapleApi;
 import kr.henein.api.error.ErrorCode;
+import kr.henein.api.error.exception.BadRequestException;
 import kr.henein.api.error.exception.ForbiddenException;
 import kr.henein.api.repository.UserRepository;
 import kr.henein.api.service.UserService;
@@ -107,7 +108,12 @@ public class UserInfoController {
         return userService.getMyBoardsWithCommentList(request);
     }
     //==============타인 조회 ====================//
-//    @Operation(summary = "유저 id 값으로 조회 작성 게시글 조회")
-//    @GetMapping ("")
+    @Operation(summary = "유저 Name 값으로 조회 작성 게시글 조회 토큰 필요없음")
+    @GetMapping ("/search")
+    public List<BoardListResponseDto> searchBoardByName(@RequestParam String name) {
+        if (name.equals("ㅇㅇ"))
+            throw new BadRequestException("익명을 검색할 수 없습니다.", ErrorCode.BAD_REQUEST);
+        return userService.searchBoardByName(name);
+    }
 
 }
