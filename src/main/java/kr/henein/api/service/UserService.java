@@ -138,13 +138,21 @@ public class UserService {
         UserEntity userEntity = userRepository.findByUserEmail(userEmail).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);});
 
         if (!userInfoChange.getUserName().trim().isEmpty()) {
-            userEntity.Update(userInfoChange.getUserName());
+            userEntity.updateUserName(userInfoChange.getUserName());
+            userEntity.updateAnonymous(false);
         }
         if (!(userInfoChange.getImage() == null || userInfoChange.getImage().isEmpty())) {
             s3Service.uploadImageUserPicture(userInfoChange.getImage(), userEntity.getId());
         }
 
         return "200ok";
+    }
+    @Transactional
+    public void changeToAnonymous(HttpServletRequest request) {
+        String userEmail = jwtTokenProvider.fetchUserEmailByHttpRequest(request);
+        UserEntity userEntity = userRepository.findByUserEmail(userEmail).orElseThrow(()->{throw new NotFoundException(ErrorCode.NOT_FOUND_EXCEPTION.getMessage(), ErrorCode.NOT_FOUND_EXCEPTION);});
+        userEntity.updateUserName(userEntity.getUid());
+        userEntity.updateAnonymous(true);
     }
     //=============================캐릭터 관련===================================================================================
     @Transactional
@@ -363,10 +371,10 @@ public class UserService {
     @Transactional
     public ResponseEntity<String> basicLogin(BasicLoginRequestDto basicLoginRequestDto, HttpServletResponse response){
         UserEntity userEntity = userRepository.findByUserEmail(basicLoginRequestDto.getUserEmail()).orElseThrow(()->{
-            throw new UnAuthorizedException(ErrorCode.INVALID_ACCESS.getMessage(),ErrorCode.INVALID_ACCESS);});
+            throw new UnAuthorizedException("이메일을 확인하세요",ErrorCode.INVALID_ACCESS);});
 
         if ( !passwordEncoder.matches(basicLoginRequestDto.getPassword(),userEntity.getPassword()) ) {
-            throw new UnAuthorizedException(ErrorCode.INVALID_ACCESS.getMessage(),ErrorCode.INVALID_ACCESS);
+            throw new UnAuthorizedException("비밀번호가 틀렸습니다.",ErrorCode.INVALID_ACCESS);
         }
 
         String AT = jwtTokenProvider.generateAccessToken(userEntity.getUserEmail(), userEntity.getUserRole());
@@ -388,12 +396,15 @@ public class UserService {
         String AT = jwtTokenProvider.generateAccessToken(basicLoginRequestDto.getUserEmail(), UserRole.USER);
         String RT = jwtTokenProvider.generateRefreshToken(basicLoginRequestDto.getUserEmail());
 
+        String uid = UUID.randomUUID().toString();
+
         UserEntity userEntity = UserEntity.builder()
                 .userRole(UserRole.USER)
-                .userName("ㅇㅇ")
+                .userName(uid)
                 .refreshToken(RT)
                 .userEmail(basicLoginRequestDto.getUserEmail())
-                .uid(UUID.randomUUID().toString())
+                .isAnonymous(true)
+                .uid(uid)
                 .password(passwordEncoder.encode(basicLoginRequestDto.getPassword()))
                 .build();
         userRepository.save(userEntity);
@@ -434,10 +445,6 @@ public class UserService {
         String AT = jwtTokenProvider.generateAccessToken(email, userEntity.getUserRole());
 
 
-        // 로그인한 사용자의 정보를 저장합니다.
-        //kakaoOAuth2UserDetailsServcie.loadUserByKakaoOAuth2User(email, RT);
-
-        //클라이언트에게 리턴해주기
         response.setHeader("Authorization","Bearer " + AT);
         response.setHeader("RefreshToken","Bearer " + RT);
 

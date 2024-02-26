@@ -17,7 +17,10 @@ public class UserDetailInfoResponseDto {
     private long commentCount;
 
     public UserDetailInfoResponseDto(UserEntity userEntity, String imageUrl, long boardCount, long commentCount) {
-        this.userName = userEntity.getUserName();
+        if (userEntity.isAnonymous())
+            this.userName = "ㅇㅇ";
+        else
+            this.userName = userEntity.getUserName();
         this.userEmail = userEntity.getUserEmail();
         this.imageUrl = imageUrl;
         this.signUpDate = LocalDate.from(userEntity.getCreatedDate());

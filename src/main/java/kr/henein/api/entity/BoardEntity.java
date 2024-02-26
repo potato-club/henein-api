@@ -51,7 +51,10 @@ public class BoardEntity extends BaseTimeEntity{
     @Builder
     public BoardEntity (BoardRequestDto boardRequestDto, BoardType board, UserEntity userEntity){
         this.title = boardRequestDto.getTitle();
-        this.userName = userEntity.getUserName();
+        if (userEntity.isAnonymous())
+            this.userName = "ㅇㅇ";
+        else
+            this.userName = userEntity.getUserName();
         this.userEntity = userEntity;
         this.text = boardRequestDto.getText();
         this.boardType = board;

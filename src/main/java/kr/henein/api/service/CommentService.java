@@ -143,13 +143,14 @@ public class CommentService {
             boardEntity.UpdateCommentNum(1);
             return "200ok";
         }
+        String userName = userEntity.isAnonymous() ? "ㅇㅇ" : userEntity.getUserName();
 
         // 처음 댓글다는 유저면 넘버링 엔티티 만들고 코멘트 엔티티 생성
         numberingEntity = BoardCommentNumberingEntity.builder()
                 .boardEntity(boardEntity)
                 .connectionCount(1)
                 .userEmail(userEntity.getUserEmail())
-                .nickName(userEntity.getUserName())
+                .nickName(userName)
                 .userUid(userEntity.getUid())
                 .role(checkUserRole(boardEntity.getUserEntity().getUserEmail(), userEntity))
                 .build();
@@ -240,13 +241,13 @@ public class CommentService {
             boardEntity.UpdateCommentNum(1);
             return "200ok";
         }
-
+        String userName = userEntity.isAnonymous() ? "ㅇㅇ" : userEntity.getUserName();
         // 처음 댓글다는 유저면 넘버링 엔티티 만들고 리플 엔티티 생성
         numberingEntity = BoardCommentNumberingEntity.builder()
                 .boardEntity(boardEntity)
                 .connectionCount(1)
                 .userEmail(userEntity.getUserEmail())
-                .nickName(userEntity.getUserName())
+                .nickName(userName)
                 .userUid(userEntity.getUid())
                 .role(checkUserRole(boardEntity.getUserEntity().getUserEmail(),userEntity))
                 .build();

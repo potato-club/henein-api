@@ -13,7 +13,10 @@ public class UserInfoResponseDto {
     private String imageUrl;
 
     public UserInfoResponseDto(UserEntity userEntity, String pickCharacter, String imageUrl) {
-        this.userName = userEntity.getUserName();
+        if ( userEntity.isAnonymous() )
+            this.userName = "ㅇㅇ";
+        else
+            this.userName = userEntity.getUserName();
         this.userRole = userEntity.getUserRole().toString();
         this.pickCharacter = pickCharacter;
         this.imageUrl = imageUrl;

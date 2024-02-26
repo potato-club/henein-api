@@ -9,6 +9,7 @@ import kr.henein.api.dto.userchar.UserCharacterResponse;
 import kr.henein.api.dto.userchar.UserMapleApi;
 import kr.henein.api.error.ErrorCode;
 import kr.henein.api.error.exception.ForbiddenException;
+import kr.henein.api.repository.UserRepository;
 import kr.henein.api.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,6 +29,7 @@ import java.util.List;
 @Api(tags = {"유저정보 제공 Controller"})
 @Slf4j
 public class UserInfoController {
+    private final UserRepository userRepository;
     private final UserService userService;
 
     @Operation(summary = "유저 정보에 대한 요청 API")
@@ -46,12 +48,18 @@ public class UserInfoController {
     @Operation(summary = "유저 이름,사진 변경 API - [form-data]")
     @PostMapping(consumes = "multipart/form-data;charset=UTF-8")
     public String userUpdate(@ModelAttribute UserInfoChange userInfoChange, HttpServletRequest request) throws IOException {
-        if (!userInfoChange.getUserName().trim().isEmpty() && (userInfoChange.getUserName().length() < 2 || userInfoChange.getUserName().length() > 15) ) {
+        if (!userInfoChange.getUserName().trim().isEmpty() && (userInfoChange.getUserName().length() < 2 || userInfoChange.getUserName().length() > 15) )
             throw new ForbiddenException("이름이 너무 짧거나 깁니다.", ErrorCode.BAD_REQUEST);
-        }else if (userInfoChange.getUserName().trim().isEmpty() && userInfoChange.getImage().isEmpty()) {
+        else if (userInfoChange.getUserName().trim().isEmpty() && userInfoChange.getImage().isEmpty())
             throw new ForbiddenException("수정할 사항이 없습니다.",ErrorCode.BAD_REQUEST);
-        }
+        else if (userRepository.existsByUserName(userInfoChange.getUserName()))
+            throw new ForbiddenException("사용자가 이미 존재합니다.", ErrorCode.BAD_REQUEST);
         return userService.userUpdate(userInfoChange, request);
+    }
+    @Operation(summary = "익명으로 재설정하기")
+    @PostMapping("/anonymous")
+    public void changeToAnonymous(HttpServletRequest request) {
+        userService.changeToAnonymous(request);
     }
 
     //=====================메이플 캐릭터 관련=========================//
@@ -98,5 +106,8 @@ public class UserInfoController {
     public List<BoardListResponseDto> getMyBoardsWithCommentList (HttpServletRequest request) {
         return userService.getMyBoardsWithCommentList(request);
     }
+    //==============타인 조회 ====================//
+//    @Operation(summary = "유저 id 값으로 조회 작성 게시글 조회")
+//    @GetMapping ("")
 
 }
