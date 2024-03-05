@@ -71,6 +71,9 @@ dependencies {
 	// mail 인증 시스템
 	implementation 'com.amazonaws:aws-java-sdk-ses:1.12.429'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	//reCAPTCHA 관련
+	implementation 'net.tanesha.recaptcha4j:recaptcha4j:0.0.7'
+
 
 
 }

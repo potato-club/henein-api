@@ -54,8 +54,6 @@ public class UserService {
     private final S3Service s3Service;
     private final UserCharRepository userCharRepository;
     private final JwtTokenProvider jwtTokenProvider;
-    private final KakaoOAuth2Client kakaoOAuth2Client;
-    private final PasswordEncoder passwordEncoder;
     private final WebClient APIClient;
     private final RedisService redisService;
     private final JPAQueryFactory jpaQueryFactory;
@@ -63,27 +61,6 @@ public class UserService {
     @Value("${apiKey}")
     private String apiKey;
 
-
-    @Transactional
-    public ResponseEntity<?> refreshAT(HttpServletRequest request,HttpServletResponse response) {
-        //bearer 지우기
-        String RTHeader = jwtTokenProvider.resolveRefreshToken(request);
-
-        // rt 넣어서 검증하고 유저이름 가져오기
-        String userEmail = jwtTokenProvider.refreshAccessToken(RTHeader);
-        UserEntity userEntity = userRepository.findByUserEmail(userEmail).orElseThrow(()->{throw new UnAuthorizedException(ErrorCode.NOT_FOUND.getMessage(), ErrorCode.NOT_FOUND);});
-        //db에 있는 토큰값과 넘어온 토큰이 같은지
-        if (!userEntity.getRefreshToken().equals(RTHeader)){
-            throw new UnAuthorizedException(ErrorCode.EXPIRED_RT.getMessage(),ErrorCode.EXPIRED_RT);
-        }
-        String newAccessToken = jwtTokenProvider.generateAccessToken(userEmail, userEntity.getUserRole());
-
-        // Set the new access token in the HTTP response headers
-        response.setHeader("Authorization", "Bearer " + newAccessToken);
-
-        // Optionally, return the new access token in the response body as well
-        return ResponseEntity.ok("good");
-    }
     //===============마이페이지 관련===================
 
     public UserInfoResponseDto userInfo(HttpServletRequest request){
@@ -375,89 +352,5 @@ public class UserService {
 
         return boardEntityList.stream().map(BoardListResponseDto::new).collect(Collectors.toList());
     }
-    //==================로그인 관련
-    @Transactional
-    public ResponseEntity<String> basicLogin(BasicLoginRequestDto basicLoginRequestDto, HttpServletResponse response){
-        UserEntity userEntity = userRepository.findByUserEmail(basicLoginRequestDto.getUserEmail()).orElseThrow(()->{
-            throw new UnAuthorizedException("이메일을 확인하세요",ErrorCode.INVALID_ACCESS);});
-
-        if ( !passwordEncoder.matches(basicLoginRequestDto.getPassword(),userEntity.getPassword()) ) {
-            throw new UnAuthorizedException("비밀번호가 틀렸습니다.",ErrorCode.INVALID_ACCESS);
-        }
-
-        String AT = jwtTokenProvider.generateAccessToken(userEntity.getUserEmail(), userEntity.getUserRole());
-        String RT = jwtTokenProvider.generateRefreshToken(userEntity.getUserEmail());
-        userEntity.setRefreshToken(RT);
-
-        response.setHeader("Authorization","Bearer " + AT);
-        response.setHeader("RefreshToken","Bearer "+ RT);
-        return ResponseEntity.ok("로그인 성공");
-    }
-
-    @Transactional
-    public ResponseEntity<String> basicSignUp(BasicLoginRequestDto basicLoginRequestDto, HttpServletRequest request, HttpServletResponse response){
-
-        String requestAT = jwtTokenProvider.resolveAccessToken(request);
-        if ( !redisService.verifySignUpRequest(basicLoginRequestDto.getUserEmail(), requestAT) ) {
-            throw new UnAuthorizedException("Do not match email with AT", ErrorCode.JWT_COMPLEX_ERROR);
-        }
-        String AT = jwtTokenProvider.generateAccessToken(basicLoginRequestDto.getUserEmail(), UserRole.USER);
-        String RT = jwtTokenProvider.generateRefreshToken(basicLoginRequestDto.getUserEmail());
-
-        String uid = UUID.randomUUID().toString();
-
-        UserEntity userEntity = UserEntity.builder()
-                .userRole(UserRole.USER)
-                .userName(uid)
-                .refreshToken(RT)
-                .userEmail(basicLoginRequestDto.getUserEmail())
-                .isAnonymous(true)
-                .uid(uid)
-                .password(passwordEncoder.encode(basicLoginRequestDto.getPassword()))
-                .build();
-        userRepository.save(userEntity);
-
-        response.setHeader("Authorization","Bearer " + AT);
-        response.setHeader("RefreshToken","Bearer "+ RT);
-
-
-        return ResponseEntity.ok("회원가입 성공");
-    }
-    @Transactional
-    public ResponseEntity<?> kakaoLogin(String code, HttpServletResponse response) {
-
-        KakaoOAuth2AccessTokenResponse tokenResponse = kakaoOAuth2Client.getAccessToken(code);
-        // 카카오 사용자 정보를 가져옵니다.
-        KakaoOAuth2User kakaoOAuth2User = kakaoOAuth2Client.getUserProfile(tokenResponse.getAccessToken());
-
-        // 사용자 정보를 기반으로 우리 시스템에 인증을 수행합니다.
-        Authentication authentication = new UsernamePasswordAuthenticationToken(kakaoOAuth2User, null);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        String email = kakaoOAuth2User.getKakao_account().getEmail();
-        String RT = jwtTokenProvider.generateRefreshToken(email);
-
-        UserEntity userEntity = userRepository.findByUserEmail(email)
-                .orElseGet(() ->new UserEntity(email));
-
-        //신규회원이면
-        Map<String, String> tokens = new HashMap<>();
-        if (userEntity.getRefreshToken()==null) {
-            tokens.put("status","신규 유저입니다.");
-            userEntity.setRefreshToken(RT);
-            userRepository.save(userEntity);
-        } else {
-            userEntity.setRefreshToken(RT);
-        }
-
-        String AT = jwtTokenProvider.generateAccessToken(email, userEntity.getUserRole());
-
-
-        response.setHeader("Authorization","Bearer " + AT);
-        response.setHeader("RefreshToken","Bearer " + RT);
-
-        return ResponseEntity.ok(tokens);
-    }
-
 
 }

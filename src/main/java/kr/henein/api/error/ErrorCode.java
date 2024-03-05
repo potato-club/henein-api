@@ -27,7 +27,9 @@ public enum ErrorCode {
   INVALID_TOKEN(HttpStatus.UNAUTHORIZED,103, "Invalid JWT token."),
   EMPTY_TOKEN(HttpStatus.UNAUTHORIZED,104, "Token cannot has been null"),
   JWT_COMPLEX_ERROR(HttpStatus.UNAUTHORIZED,4006, "JWT Complex error, Please call BackEnd"),
-  ALREADY_EXISTS(HttpStatus.FORBIDDEN, 110,"대기시간")
+  ALREADY_EXISTS(HttpStatus.FORBIDDEN, 110,"대기시간, 잠시후 재시도"),
+
+  CAPTCHA_FAILED(HttpStatus.BAD_REQUEST,1000,"Captcha validate failed.. because->  ")
   ;
 
   private int code;
