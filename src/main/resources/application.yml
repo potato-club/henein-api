@@ -48,8 +48,8 @@ spring:
 jwt:
   secret:
     ENC(gSd1QCnq05LyByOTvaIGKcp+XyHp6M4F3XhfK4xwlPz3BOyp85rUpRKK7GyD0jc0kvMS+1CCgwKsFZrBPN/kkJ6WCJlJRijzA18xOwN8rmFrMFxrLLhn0zKrr8MW5GF+N8UcvTUBF3PfxBnvay8B1WJFh1N4oeGc)
-  access-expriation : 1800000 #30분 1800000
-  refresh-expriation : 604800000 #1주 604800000
+  access-expiration : 1800000 #30분 1800000
+  refresh-expiration : 604800000 #1주 604800000
 #s3--
 cloud:
   aws:
