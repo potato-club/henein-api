@@ -75,7 +75,6 @@ dependencies {
 	implementation 'net.tanesha.recaptcha4j:recaptcha4j:0.0.7'
 
 
-
 }
 
 tasks.named('test') {
