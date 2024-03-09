@@ -20,10 +20,10 @@ public class JwtTokenProvider {
     @Value("${jwt.secret}")
     private String secretKey;
 
-    @Value("${jwt.access-expriation}")
+    @Value("${jwt.access-expiration}")
     private long accessTokenExpiration;
 
-    @Value("${jwt.refresh-expriation}")
+    @Value("${jwt.refresh-expiration}")
     private long refreshTokenExpiration;
 
     public String fetchUserEmailByHttpRequest(HttpServletRequest request){
