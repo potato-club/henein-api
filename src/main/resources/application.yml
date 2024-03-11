@@ -50,7 +50,7 @@ jwt:
   secret: ${JWT_SECRET}
   access-expriation : 1800000 #30분 1800000
   refresh-expriation : 604800000 #1주 604800000
-#s3--
+#s3--s
 cloud:
   aws:
     credentials:
@@ -79,3 +79,10 @@ aws:
     from: noreply@henein.kr
 
 apiKey: ENC(A3w4vRd9efUTqFnmP1uK8onHyVTe2w0W40HpsctvL7k=)
+
+google:
+  recaptcha:
+    key:
+      site-key: ENC(5hb559Csyk76+YmgfRoh4ttrnwmWg14rj8kJ2cDj5BxfOQ1eGzwV76q4ntkaifnX7L4kuG8QKOc=)
+      secret-key: ENC(9hKur4KynVyU0HzFT85unI6iDrrlkkIoWKSTAXrMfBNP2t5I3rlWNpyLh31hvw00nrOPtLyXU+g=)
+      url: https://www.google.com/recaptcha/api/siteverify
